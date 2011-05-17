@@ -7,3 +7,9 @@ Fl(Font-end Language Helper)是一个支持smarty语法的前端语言(html、cs
 使用方式：
 
 
+requirce_once "Fl/Fl.class.php";
+$flInstance = Fl::getInstance();
+
+//压缩html代码
+
+$compressOutput = $flInstance->compress_html($html_content);
