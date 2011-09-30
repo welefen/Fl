@@ -26,7 +26,7 @@ class Fl_Compress_Html{
 	 * @var array
 	 */
 	private $_removeEndTag = array(
-		"html", "body", "colgroup", "thead", "tr", "tbody", "td", "p", 
+		"html", "body", "colgroup", "thead", "tr", "tbody", "td", 
 		"dt", "dd", "li", "option", "tfoot"
 	);
 	/**
@@ -96,6 +96,13 @@ class Fl_Compress_Html{
 					break;
 				case FL::HTML_JS_CONTENT :
 					$this->_compressJs();
+					break;
+				case FL::FL_TPL_DELIMITER:
+					$text = $this->_tokenText;
+					if (strpos($text, 'extends') !== false){ //smarty3里extends后至少要加个空白字符
+						$text .= ' ';
+					}
+					$this->_output[] = $text;
 					break;
 				default:
 					$this->_output[] = $this->_tokenText;

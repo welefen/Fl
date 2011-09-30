@@ -54,27 +54,26 @@ class Fl_H5c3_Css3{
 		$selectorText = '';
 		for ($i=0,$count=count($analyticContent); $i<$count; $i++){
 			list($tokenText, $tokenType) = $analyticContent[$i];
+			$tokenText = trim($tokenText);
 			if ($tokenType === FL::FL_NEW_LINE || ($tokenType === FL::CSS_COMMENT && substr($tokenText, 0, 3) !== '/*!')){
 				continue;
-			}elseif ($tokenType === FL::CSS_SELECTOER){
+			}else if ($tokenType === FL::CSS_SELECTOER){
 				$selectorText = $tokenText;
-			}elseif ($tokenType === FL::CSS_SELECTOER_START){
+			}else if ($tokenType === FL::CSS_SELECTOER_START){
 				$selector = array();
 			}else if ($tokenType === FL::CSS_SELECTOER_END){
 				$selector = $this->_selector($selector, $selectorText);
 				foreach ($selector as $item){
 					list($text, $type) = $item;
-					if ($type === FL::CSS_PROPERTY){
-						$this->_output[] = $text . ":";
-					}else if($type === FL::CSS_VALUE){
-						$this->_output[] .= $text . ";";
-					}
+					$text = trim($text);
+					$this->_output[] = $text ;
 				}
 			}
 			if ($tokenType !== FL::CSS_SELECTOER_START){
 				$selector[] = $analyticContent[$i];
 			}
-			if ($tokenType !== FL::CSS_PROPERTY && $tokenType != FL::CSS_VALUE){
+			if ($tokenType !== FL::CSS_PROPERTY && $tokenType !== FL::CSS_VALUE
+				&& $tokenType !== FL::CSS_COLON && $tokenType !== FL::CSS_SEMICOLON){
 				$this->_output[] = $tokenText;
 			}
 		}
@@ -148,7 +147,7 @@ class Fl_H5c3_Css3{
 		$result = array();
 		foreach ($selector as $item){
 			if ($item[1] === FL::CSS_PROPERTY){
-				$result[] = strtolower($item[0]);
+				$result[] = strtolower(trim($item[0]));
 			}
 		}
 		return $result;
@@ -158,7 +157,7 @@ class Fl_H5c3_Css3{
 		$result = array();
 		foreach ($selector as $item){
 			if ($item[1] === FL::CSS_VALUE){
-				$result[] = strtolower($item[0]);
+				$result[] = strtolower(trim($item[0]));
 			}
 		}
 		return $result;

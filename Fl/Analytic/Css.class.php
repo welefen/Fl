@@ -21,6 +21,7 @@
     selector-compile: no-combinator;
     rule-compile: all;
     } 只有设备的
+    15、[;color:red;] //chrome hack
  * @author lichengyin
  *
  */
@@ -41,7 +42,16 @@ class Fl_Analytic_Css{
 	private $_pre_type = ''; //上一个特殊类型
 
 	public function run($content = ''){
-		$this->content = str_replace("\r\n", "\n", trim($content));
+		$this->content = $content;
+		/**
+		 * chrome hack
+		 * .red{
+		 * 	[;color:red;];
+		 * }
+		 * @var 
+		 */
+		$this->content = preg_replace(array("/\[\s*\;/is", "/\;\s*\]/"), array("[;", ";]"), $this->content);
+		
 		$this->contentLength = strlen($this->content);
 		$this->tokenAnalytic();
 		return $this->_output;
@@ -64,13 +74,21 @@ class Fl_Analytic_Css{
 		
 		if ($char === "\x0d") return ''; //\r
 		if ($char === "\x0a") return array($char, FL::FL_NEW_LINE);
-		//避免出现多个空格在一起的情况
-		if (trim($char) === '' || $char === ';') return '';
-		
+				
 		$result = $this->fl_instance->getTplDelimiterToken($char, $this);
 		if ($result) return $result;
+		
+		//判断是否为空白
+		if(preg_match('/\s+/',$char)){
+			$resultString = $char;
+			while (preg_match('/\s+/',$this->content[$this->parsePos]) && $this->parsePos < $this->contentLength){
+				$resultString .= $this->content[$this->parsePos];
+				$this->parsePos++;
+			}
+			return array($resultString,FL::CSS_WHITESPACE);
+		}
 		//处理@开头的；如：@charset "utf-8";@import url("a.css"), @media xxx{}
-		if ($char === '@'){
+		else if ($char === '@'){
 			$result = $this->_getAtToken($char);
 			if ($result) return $result;
 		}else if ($char === '{'){
@@ -107,9 +125,17 @@ class Fl_Analytic_Css{
 		}else if (substr($this->content, $this->parsePos - 1, 2) === '/*'){
 			$result = $this->_getCommentToken($char);
 			if ($result) return $result;
-		}else if ($char === "\x0d" || $char === "\x0a"){
-			return array($char, FL::FL_NEW_LINE);
+		}else if ($char === '['){// for chrome hack
+			$this->parsePos++;
+			return array('[;', FL::CSS_NORMAL);
+		}else if ($char === ']'){ // for chrome hack
+			return array(';];', FL::CSS_NORMAL);
+		}else if ($char === ':') {
+			return array($char,FL::CSS_COLON);
+		}else if ($char === ';') {
+			return array($char,FL::CSS_SEMICOLON);
 		}
+		
 		switch ($this->_pre_type){
 			case FL::CSS_SELECTOER_START : 
 			case FL::CSS_VALUE : 
@@ -160,10 +186,10 @@ class Fl_Analytic_Css{
 		if ($this->content[$this->parsePos] === ';'){
 			$resultString .= ';';
 			$this->parsePos++;
-			return array(trim($resultString), FL::CSS_AT);
+			return array($resultString, FL::CSS_AT);
 		}
 		$this->_pre_type = FL::CSS_DEVICE_DESC;
-		return array(trim($resultString), FL::CSS_DEVICE_DESC);
+		return array($resultString, FL::CSS_DEVICE_DESC);
 	}
 	//comment
 	private function _getCommentToken($char, $fromSelector = false){
@@ -203,20 +229,20 @@ class Fl_Analytic_Css{
 				$this->parsePos++;
 			}
 		}
-		return array(trim($resultString), FL::CSS_SELECTOER);
+		return array($resultString, FL::CSS_SELECTOER);
 	}
 	//css property
 	private function _getPropertyToken($char){
 		$resultString = $char;
-		while ($this->content[$this->parsePos] !== ':' && $this->content[$this->parsePos] !== ';' && $this->content[$this->parsePos] !== '}' && $this->parsePos < $this->contentLength){
+		while ($this->content[$this->parsePos] !== ':' 
+		&& $this->content[$this->parsePos] !== ';' 
+		&& $this->content[$this->parsePos] !== '}' 
+		&& $this->parsePos < $this->contentLength){
 			$resultString .= $this->content[$this->parsePos];
 			$this->parsePos++;
 		}
-		//增加对div{color}的容错机制
-		if ($this->content[$this->parsePos] !== '}'){
-			$this->parsePos++;
-		}
-		return array(strtolower(trim($resultString)), FL::CSS_PROPERTY);
+		
+		return array(strtolower($resultString), FL::CSS_PROPERTY);
 	}
 	//css value
 	private function _getValueToken($char){
@@ -229,18 +255,33 @@ class Fl_Analytic_Css{
 			$char = $this->content[$this->parsePos];
 			$this->parsePos++;
 			$resultString .= $char;
-			if (!$isExpression && strtolower($resultString) === 'expression('){
+			if (!$isExpression && strtolower(trim($resultString)) === 'expression('){
 				$isExpression = true;
 				$resultString .= $this->_getJSToken();
+			}else if(strtolower($resultString) === 'url('){	//解决dataURI中含有分号和冒号的问题
+				$resultString .= $this->_getURLToken();
 			}
 		}
-		if ($this->content[$this->parsePos] === ';'){
-			$this->parsePos++;
-		}
-		//将多个空格变成一个空格
-		$resultString = preg_replace("/\s+/is", " ", trim($resultString));
+		
 		return array($resultString, FL::CSS_VALUE);
 	}
+	
+	/**
+	 * CSS背景图片中，可能含有dataURI格式，其中含有分号和冒号，需要单独识别
+	 */	
+	private function _getURLToken(){
+		$string = '';
+		while ($this->parsePos < $this->contentLength){
+			$char = $this->content[$this->parsePos];
+			$this->parsePos++;
+			$string .= $char;
+			if ($char === ')'){
+				break;
+			}
+		}
+		return $string;
+	}
+	
 	//处理expression里的javascript
 	private function _getJSToken(){
 		$string = '';

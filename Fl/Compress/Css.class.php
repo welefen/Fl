@@ -16,12 +16,9 @@ class Fl_Compress_Css{
 		$lineStringLength = 0;
 		for ($i=0,$count=count($analyticContent);$i<$count;$i++){
 			list($tokenText, $tokenType) = $analyticContent[$i];
+			$tokenText = trim($tokenText);
 			if ($tokenType === FL::FL_NEW_LINE || ($tokenType === FL::CSS_COMMENT && substr($tokenText, 0, 3) !== '/*!')){
 				continue;
-			}else if ($tokenType === FL::CSS_PROPERTY){
-				$tokenText .= ':';
-			}else if ($tokenType === FL::CSS_VALUE){
-				$tokenText .= ';';
 			}else if ($tokenType === FL::CSS_SELECTOER){
 				$tokenText = $this->fl_instance->splitCssSelector($tokenText);
 				$tokenText = join(',', $tokenText);
@@ -63,6 +60,7 @@ class Fl_Compress_Css{
 		//$result = preg_replace("/[^{}\/]+\{(?:;*)\}/is", "", $result);
 		//remove last ;
 		$result = str_replace(';}', '}', $result);
+		$result = preg_replace("/\;+/is", ";", $result);
 		return $result;
 	}
 }

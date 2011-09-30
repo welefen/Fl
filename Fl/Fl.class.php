@@ -63,9 +63,12 @@ class Fl {
 	const CSS_SELECTOER					= 316; //选择器
 	const CSS_SELECTOER_START			= 317; //选择器开始符，为{
 	const CSS_SELECTOER_END				= 318; //选择器结束符，为}
-	const CSS_COMMENT					= 319; //评论
+	const CSS_COMMENT					= 319; //注释
 	const CSS_PROPERTY					= 320; //属性
 	const CSS_VALUE						= 321; //值
+	const CSS_COLON						= 322; //冒号
+	const CSS_SEMICOLON					= 323; //分号
+	const CSS_WHITESPACE				= 324; //空白（\s+）
 	
 	
 	public $left_delimiter = "<&";
@@ -164,6 +167,17 @@ class Fl {
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * 根据分析结果重新拼接内容
+	 */
+	public function joinAnalyticResultToContent($analyticResult = array()){
+		$content_output = array();
+		foreach($analyticResult as $key => $item){
+			$content_output[] = $item[0];
+		}
+		return join('',$content_output);
 	}
 
 	public function __call($method, $args){

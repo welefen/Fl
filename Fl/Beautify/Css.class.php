@@ -61,10 +61,10 @@ class Fl_Beautify_css{
 						$output .=  $newLineText . $this->getIndent() . $tokenText ;
 						break;
 					case FL::CSS_PROPERTY:
-						$output .= $newLineText . $this->getIndent() . $tokenText . ':';
+						$output .= $newLineText . $this->getIndent() . $tokenText ;
 						break;
 					case FL::CSS_VALUE;
-						$output .= ' ' . $tokenText . ";";
+						$output .= ' ' . $tokenText ;
 						break;
 					case FL::CSS_DEVICE_DESC:
 						$output .= $newLineText . $this->getIndent() . $tokenText . ' ';
@@ -96,6 +96,7 @@ class Fl_Beautify_css{
 		$md5Content = md5(str_replace($this->options['header-var'], '', $output));
 		$this->options['header'] = str_replace("{md5}", $md5Content, $this->options['header']);
 		$output = str_replace($this->options['header-var'], $this->options['header'], $output);
+		
 		return $output;
 	}
 	/**
@@ -103,6 +104,7 @@ class Fl_Beautify_css{
 	 * get indent string
 	 */
 	public function getIndent(){
+		if ($this->_indentDepth < 0) return  '';
 		return str_repeat($this->options['indent'], $this->_indentDepth);
 	}
 }

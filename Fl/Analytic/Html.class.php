@@ -2,6 +2,8 @@
 /**
  * 
  * html词法分析类
+ * 对原内容进行分析，不做任何trim处理
+ * 
  * @author lichengyin
  *
  */
@@ -54,7 +56,7 @@ class Fl_Analytic_Html{
 	 * @param int $type
 	 */
 	public function run($content = '', $type = 1){
-		$this->content = str_replace("\r\n", "\n", trim($content));
+		$this->content = $content;
 		if (stripos($this->content, '<?xml') !== false){
 			return array(array($content, FL::HTML_XML));
 		}
@@ -142,8 +144,18 @@ class Fl_Analytic_Html{
 			}else {
 				if ($char === '"' || $char === "'"){
 					if ($resultString[1] !== '!'){
+						//处理value="<&if $test=""&>1<&else&>0<&/if&>"的情况
+						$this->parsePos++;
+						$result = $this->fl_instance->getTplDelimiterToken($char, $this);
 						$resultString .= $char;
+						if ($result){
+							$resultString .= $result[0];
+						}else {
+							$this->parsePos--;
+						}
 						$resultString .= $this->_getUnformated($char);
+					}else{
+						$resultString .= $char;
 					}
 				}else {
 					$resultString .= $char;
@@ -283,7 +295,6 @@ class Fl_Analytic_Html{
 				$this->parsePos++;
 			}
 		}
-		$resultString = trim($resultString);
 		$startEscape = array('<!--', '/*<![CDATA[*/', '//<![CDATA[');
 		$endEscape = array('//-->', '/*]]>*/', '//]]>');
 		foreach ($startEscape as $escape){
@@ -298,7 +309,7 @@ class Fl_Analytic_Html{
 				break;
 			}
 		}
-		return array(trim($resultString), $type === 1 ? FL::HTML_JS_CONTENT : FL::HTML_CSS_CONTENT);
+		return array($resultString, $type === 1 ? FL::HTML_JS_CONTENT : FL::HTML_CSS_CONTENT);
 	}
 	/**
 	 * 
@@ -367,7 +378,16 @@ class Fl_Analytic_Html{
 				}
 				$result[2][] = array(FL::HTML_TPL_ATTR_NAME, $re[0]);
 			}else if ($char === '"' || $char === "'"){
-				$re = $char . $this->_getUnformated($char);
+				//处理value="<&if $test=""&>1<&else&>0<&/if&>"的情况
+				$this->parsePos++;
+				$o = $this->fl_instance->getTplDelimiterToken($char, $this);
+				$re = $char;
+				if ($o){
+					$re .= $o[0];
+				}else{
+					$this->parsePos--;
+				}
+				$re .=  $this->_getUnformated($char);
 				$result[2][] = array($name, $re);
 				$name = $re = '';
 			}else if ($char === '='){
@@ -405,4 +425,5 @@ class Fl_Analytic_Html{
 		}
 		return $result;
 	}
+	
 }

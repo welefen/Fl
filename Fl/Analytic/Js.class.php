@@ -1,4 +1,12 @@
 <?php
+/**
+ * 
+ * javascript词法分析类
+ * 对原内容进行分析，不做任何trim处理
+ * 
+ * @author lichengyin
+ *
+ */
 class Fl_Analytic_Js{
 	
 	public $parsePos = 0;
@@ -26,7 +34,7 @@ class Fl_Analytic_Js{
 	}
 	
 	public function run($content = ''){
-		$this->content = str_replace("\r\n", "\n", trim($content));
+		$this->content = $content;
 		$this->contentLength = strlen($this->content);
 		$this->tokenAnalytic();
 		return $this->_output;
@@ -50,16 +58,14 @@ class Fl_Analytic_Js{
 		
 		//while (in_array($char, $this->_whitespace)){
 		//在数量比较小的情况下（小于5），直接判断比in_array要快一倍
-		while ($char === " " || $char === "\n" || $char === "\t" || $char === "\r"){
+		if ($char === " " || $char === "\n" || $char === "\t" || $char === "\r"){
 			if ($this->parsePos >= $this->contentLength){
-				return array('', FL::FL_EOF);
-			}
-			if ($char === "\x0d") return '';
-			if ($char === "\x0a"){
+				return array($char, FL::FL_EOF);
+			}else if ($char === "\x0d") {
+				return '';	
+			}else if ($char === "\x0a"){
 				return array($char, FL::FL_NEW_LINE);
 			}
-			$char = $this->content[$this->parsePos];
-			$this->parsePos++;
 		}
 		
 		//处理模板左右定界符
@@ -192,7 +198,6 @@ class Fl_Analytic_Js{
 				$comment .= $this->content[$this->parsePos];
 				$this->parsePos++;
 			}
-			$this->parsePos++;
 			return array($comment, FL::JS_COMMENT);
 		}
 	}
