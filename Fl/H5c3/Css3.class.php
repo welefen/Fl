@@ -64,16 +64,24 @@ class Fl_H5c3_Css3{
 			}else if ($tokenType === FL::CSS_SELECTOER_END){
 				$selector = $this->_selector($selector, $selectorText);
 				foreach ($selector as $item){
-					list($text, $type) = $item;
+					list($text, $type) = $item;                    
 					$text = trim($text);
-					$this->_output[] = $text ;
+                    if($type === FL::CSS_PROPERTY){
+                        $this->_output[] = $text . ":";
+                    }elseif($type === FL::CSS_VALUE){
+                        $this->_output[] = $text . ";";
+                    }else{
+                        $this->_output[] = $text;
+                    }
 				}
 			}
-			if ($tokenType !== FL::CSS_SELECTOER_START){
+			if ($tokenType !== FL::CSS_SELECTOER_START && $tokenType !== FL::CSS_COLON && $tokenType !== FL::CSS_SEMICOLON
+                     && $tokenType !== FL::CSS_WHITESPACE){
 				$selector[] = $analyticContent[$i];
 			}
 			if ($tokenType !== FL::CSS_PROPERTY && $tokenType !== FL::CSS_VALUE
-				&& $tokenType !== FL::CSS_COLON && $tokenType !== FL::CSS_SEMICOLON){
+				&& $tokenType !== FL::CSS_COLON && $tokenType !== FL::CSS_SEMICOLON
+                     && $tokenType !== FL::CSS_WHITESPACE){
 				$this->_output[] = $tokenText;
 			}
 		}

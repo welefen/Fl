@@ -51,7 +51,7 @@ class Fl_Analytic_Css{
 		 * @var 
 		 */
 		$this->content = preg_replace(array("/\[\s*\;/is", "/\;\s*\]/"), array("[;", ";]"), $this->content);
-		
+	
 		$this->contentLength = strlen($this->content);
 		$this->tokenAnalytic();
 		return $this->_output;
@@ -255,14 +255,14 @@ class Fl_Analytic_Css{
 			$char = $this->content[$this->parsePos];
 			$this->parsePos++;
 			$resultString .= $char;
+            
 			if (!$isExpression && strtolower(trim($resultString)) === 'expression('){
 				$isExpression = true;
 				$resultString .= $this->_getJSToken();
-			}else if(strtolower($resultString) === 'url('){	//解决dataURI中含有分号和冒号的问题
+			}else if(preg_match("/url\($/i", $resultString)){	//解决dataURI中含有分号和冒号的问题
 				$resultString .= $this->_getURLToken();
 			}
 		}
-		
 		return array($resultString, FL::CSS_VALUE);
 	}
 	

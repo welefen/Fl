@@ -32,6 +32,7 @@ class Fl {
 	const HTML_TAG_END					= 127; //tag end
 	const HTML_TPL_ATTR_NAME			= 128; //tpl attributes name
 	const HTML_XML						= 129; //is xml
+	const HTML_ATTR_VALUE_MIXED			= 130; //class="li-bind-<&$name&>"; mixed
 	
 	const JS_START_EXPR 				= 211; //start expression
 	const JS_END_EXPR 					= 212; //end expression
@@ -47,6 +48,13 @@ class Fl {
 	const JS_STRING						= 222; //字符串	
 	const JS_IE_CC						= 223; //条件编译	
 	const JS_REGEXP						= 224; //正则
+	const JS_WHITESPACE                 = 225; //空白（\s+）
+	const JS_NUMBER                     = 226; //数字
+	const JS_IDENTIFIER                 = 227; //标识符
+	const JS_PUNCTUATION                = 228; //标点或符号
+	const JS_KEYWORDS                   = 229; //关键字
+	const JS_KEYWORDS_ATOM              = 230; //原子词：true、false、null、undefined
+	const JS_RESERVED_WORDS             = 231; //保留字
 	
 	const JS_MODE_EXPRESSION			= 250; //
 	const JS_MODE_INDENT_EXPRESSION		= 251; //
@@ -69,7 +77,18 @@ class Fl {
 	const CSS_COLON						= 322; //冒号
 	const CSS_SEMICOLON					= 323; //分号
 	const CSS_WHITESPACE				= 324; //空白（\s+）
-	
+    
+	const MSG_DEBUG                     = 401; //debug信息
+	const MSG_INFO                      = 402; //普通信息
+	const MSG_WARN                      = 403; //警告信息
+	const MSG_ERROR                     = 404; //错误信息
+	const MSG_FATAL                     = 405; //灾难性错误信息
+    
+	const SMARTY_TAG_START              = 501; //Smarty开始标签
+    const SMARTY_TAG_END                = 502; //Smarty结束标签
+    const SMARTY_TPL_VAR                = 503; //Smarty模板变量
+    const SMARTY_FUNCTION_DEFINE        = 504; //Smarty function定义
+    const SMARTY_FUNCTION_CALL          = 505; //Smarty function调用
 	
 	public $left_delimiter = "<&";
 	
@@ -96,17 +115,18 @@ class Fl {
 	 * @param object $instance
 	 */
 	public function getTplDelimiterToken($char, &$instance){
-		if (!$this->left_delimiter || !$this->right_delimiter) return '';
-		if ($this->_leftDelimiterLen === 0){
-			$this->_leftDelimiterLen = strlen($this->left_delimiter);
-			$this->_rightDelimiterLen = strlen($this->right_delimiter);
+		$inst = self::getInstance();
+		if (!$inst->left_delimiter || !$inst->right_delimiter) return '';
+		if ($inst->_leftDelimiterLen === 0){
+			$inst->_leftDelimiterLen = strlen($inst->left_delimiter);
+			$inst->_rightDelimiterLen = strlen($inst->right_delimiter);
 		}
-		$leftDelimiterLen = $this->_leftDelimiterLen;
-		$rightDelimiterLen = $this->_rightDelimiterLen;
+		$leftDelimiterLen = $inst->_leftDelimiterLen;
+		$rightDelimiterLen = $inst->_rightDelimiterLen;
 		$escape = false;
 		$resultString = '';
-		if (substr($instance->content, ($instance->parsePos - 1), $leftDelimiterLen) === $this->left_delimiter){
-			$resultString .= $this->left_delimiter;
+		if (substr($instance->content, ($instance->parsePos - 1), $leftDelimiterLen) === $inst->left_delimiter){
+			$resultString .= $inst->left_delimiter;
 			$instance->parsePos += $leftDelimiterLen - 1;
 			$delimiterNum = 1;
 			while (true){
@@ -115,8 +135,8 @@ class Fl {
 				}else {
 					$escape = false;
 				}
-				if (!$escape && substr($instance->content, $instance->parsePos, $rightDelimiterLen) === $this->right_delimiter){
-					$resultString .= $this->right_delimiter;
+				if (!$escape && substr($instance->content, $instance->parsePos, $rightDelimiterLen) === $inst->right_delimiter){
+					$resultString .= $inst->right_delimiter;
 					$instance->parsePos += $rightDelimiterLen;
 					if ($delimiterNum === 1){
 						break;
@@ -124,8 +144,8 @@ class Fl {
 						$delimiterNum -= 1;
 					}
 				}else{
-					if (substr($instance->content, $instance->parsePos, $leftDelimiterLen) === $this->left_delimiter){
-						$resultString .= $this->left_delimiter;
+					if (substr($instance->content, $instance->parsePos, $leftDelimiterLen) === $inst->left_delimiter){
+						$resultString .= $inst->left_delimiter;
 						$instance->parsePos += $leftDelimiterLen;
 						$delimiterNum += 1;
 					}else {
@@ -158,7 +178,7 @@ class Fl {
 	 * @param string $selector
 	 */
 	public function splitCssSelector($selector){
-		$selector = split(',', $selector);
+		$selector = split(',', $selector);		print_r($result);
 		$result = array();
 		for ($i = 0, $count=count($selector); $i < $count; $i++) {
 			$item = trim($selector[$i]);
@@ -193,7 +213,7 @@ class Fl {
 			require_once dirname(__FILE__) . '/' . str_replace(' ', '/', $m) . '.class.php';
 		}
 		$classInstance = new $className;
-		$classInstance->fl_instance = $this; //设置fl_instance属性的值
+		$classInstance->fl_instance = self::getInstance(); //设置fl_instance属性的值
 		//如果仅有一个参数并且值为false,则返回值实例化对象，不执行run方法
 		if (count($args) === 1 && $args[0] === false){
 			return $classInstance;

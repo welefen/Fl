@@ -71,7 +71,8 @@ class Fl_Compress_Html{
 		
 	}
 	public function run($content = ''){
-		$analyticContent = $this->fl_instance->analytic_html($content);
+		$instance = Fl::getInstance();
+		$analyticContent = Fl::getInstance()->analytic_html($content);
 		$newLine = "\n";
 		for ($i=0,$count=count($analyticContent);$i<$count;$i++){
 			$this->_tokenText = $analyticContent[$i][0];

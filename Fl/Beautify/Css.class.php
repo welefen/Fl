@@ -85,6 +85,10 @@ class Fl_Beautify_css{
 							$output .= ' ' . $tokenText;
 						}
 						break;
+                    case FL::CSS_COLON:
+                    case FL::CSS_SEMICOLON:
+                        $output .=  $tokenText;
+                        break;
 					default: 
 						if ($tokenText){
 							$output .= $this->getIndent() . $tokenText;

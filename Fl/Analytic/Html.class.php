@@ -64,8 +64,10 @@ class Fl_Analytic_Html{
 		if ($type === 1){
 			$this->tokenAnalytic();
 			return $this->_output;
+		}elseif ($type === 3){//分割属性值为数组
+			return $this->splitAttributeValue($content);
 		}
-		return $this->getTagAttributes($content);
+        return $this->getTagAttributes($content);
 	}
 	/**
 	 * 
@@ -253,6 +255,9 @@ class Fl_Analytic_Html{
 				&& $this->content[$this->parsePos+1] !== '<' && $this->content[$this->parsePos+1] !== '>'){
 				break;
 			}
+			if(substr($this->content, ($this->parsePos), strlen($this->fl_instance->left_delimiter)) === $this->fl_instance->left_delimiter){
+				break;
+			}
 			$resultString .= $this->content[$this->parsePos];
 			$this->parsePos++;
 		}
@@ -262,14 +267,26 @@ class Fl_Analytic_Html{
 	private function _getUnformated($char, $orign = ''){
 		if (strpos($orign, $char) !== false) return '';
 		$resultString = '';
+		$len = strlen($char);
 		do {
 			if ($this->parsePos >= $this->contentLength){
 				break;
 			}
 			$c = $this->content[$this->parsePos];
-			$resultString .= $c;
 			$this->parsePos++;
-		}while (strpos($resultString, $char) === false);
+			$re = $this->fl_instance->getTplDelimiterToken($c, $this);
+			if($re){
+				$resultString .= $re[0];
+			}else{
+				$resultString .= $c;
+			}
+			if($len > 1 && strpos($resultString, $char) !== false){
+				break;
+			}
+			if($len ===1 && $c === $char){
+				break;
+			}
+		}while (true);
 		//增加一个字符的容错机制,如：value="""，这里一不小心多写了个引号
 		if (strlen($char) === 1){
 			while ($char === $this->content[$this->parsePos]){
@@ -425,5 +442,55 @@ class Fl_Analytic_Html{
 		}
 		return $result;
 	}
-	
+	/**
+	 * 
+	 * 分割属性值
+	 * @param string $value
+	 */
+	public function splitAttributeValue($value){
+		$value = $this->fl_instance->trimQuote($value);
+		//$value = preg_repl
+		$this->parsePos = 0;
+		$this->content = $value;
+		$this->contentLength = strlen($value);
+		$result = array();
+		$item = '';
+		$pattern = '/'.preg_quote(C('TPL_LEFT_DELIMITER'), '/') .'\s*\$(.*?)\s*' . preg_quote(C('TPL_RIGHT_DELIMITER'), '/').'/ies';
+		while (true){
+			if ($this->parsePos >= $this->contentLength){
+				break;
+			}
+			$char = $this->content[$this->parsePos];
+			$this->parsePos++;
+			$re = $this->fl_instance->getTplDelimiterToken($char, $this);
+			if ($re){
+				$tpl = $re[0];
+				if (preg_match($pattern, $tpl)){//输出的字符
+					if ($item){
+						$tpl = $item . $tpl;
+						$item = '';
+					}
+					$result[] = array($tpl, FL::HTML_ATTR_VALUE_MIXED);
+				}else{
+					if ($item){
+						$result[] = array($item, FL::HTML_CONTENT);
+						$item = '';
+					}
+					$result[] = $re;
+				}
+				
+			}elseif ($char == ' '){
+				if ($item){
+					$result[] = array($item, FL::HTML_CONTENT);
+					$item = '';
+				}
+			}else{
+				$item .= $char;
+			}
+		}
+		if ($item){
+			$result[] = array($item, FL::HTML_CONTENT);
+		}
+		return $result;
+	}
 }

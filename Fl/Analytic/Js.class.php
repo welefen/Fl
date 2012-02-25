@@ -17,20 +17,72 @@ class Fl_Analytic_Js{
 	
 	private $_output = array();
 	
-	private $_whitespace = array();
+    /**
+     * 空白字符
+     * @var type 
+     */
+	static $whitespace = array(
+        '\n','\r',' ','\t'
+    );
 	
-	private $_wordchar = array();
+    /**
+     * 字母表
+     * @var type 
+     */
+	static $wordchar = array(
+        'a','b','c','d','e','f','g','h','i','j','k','l','m',
+        'n','o','p','q','r','s','t','u','v','w','x','y','z',
+        'A','B','C','D','E','F','G','H','I','J','K','L','M',
+        'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+        '0','1','2','3','4','5','6','7','8','9','_','$','.'
+    );
 	
-	private $_digits = array();
+    /**
+     * 数字
+     * @var type 
+     */
+	static $digits = array(
+        '0','1','2','3','4','5','6','7','8','9'
+    );
 	
-	private $_punct = array();
+    /**
+     * 操作符
+     * @var type 
+     */
+	static $punct = array(
+        '+','-','*','/','%','&','++','--','=','+=','-=',
+        '*=','/=','%=','==','===','!=','!==','>','<','>=',
+        '<=','>>','<<','>>>', '>>>=','>>=','<<=','&&','&=',
+        '|','||','!','!!',',',':','?','^','^=','|=','::'
+    );
+	
+    /**
+     * 关键字
+     * @var type 
+     */
+	static $keyword = array(
+        "break",    "case",         "catch",    "const",    "continue",
+        "default",  "delete",       "do",       "else",     "finally",
+        "for",      "function",     "if",       "in",       "instanceof",
+        "new",      "return",       "switch",   "throw",    "try",
+        "typeof",   "var",          "void",     "while",    "with"
+    );
+	
+    /**
+     * 保留字
+     * @var type 
+     */
+	static $reservedWord = array(
+        "abstract",     "boolean",      "byte",     "char",         "class",
+        "debugger",     "double",       "enum",     "export",       "extends",
+        "final",        "float",        "goto",     "implements",   "import",
+        "int",          "interface",    "long",     "native",       "package",
+        "private",      "protected",    "public",   "short",        "static",
+        "super",        "synchronized", "throws",   "transient",    "volatile"
+    );
 	
 	
 	public function __construct(){
-		$this->_whitespace = split(',', "\n,\r, ,\t");
-		$this->_wordchar = split(',', 'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,0,1,2,3,4,5,6,7,8,9,_,$');
-		$this->_digits = split(',', '0,1,2,3,4,5,6,7,8,9');
-		$this->_punct = split(' ', '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::');
 	}
 	
 	public function run($content = ''){
@@ -72,7 +124,7 @@ class Fl_Analytic_Js{
 		$result = $this->fl_instance->getTplDelimiterToken($char, $this);
 		if ($result) return $result;
 		//处理正常的字符
-		if (in_array($char, $this->_wordchar)){
+		if (in_array($char, self::$wordchar)){
 			$result = $this->_getWordToken($char);
 			if ($result) return $result;
 		}
@@ -85,7 +137,7 @@ class Fl_Analytic_Js{
 		}
 		//评论或者正则
 		if ($char === '/'){
-			//评论
+			//注释
 			$result = $this->_getCommentToken($char);
 			if ($result) return $result;
 			
@@ -121,7 +173,7 @@ class Fl_Analytic_Js{
 			if ($result) return $result;
 		}
 		//操作符
-		if (in_array($char, $this->_punct)){
+		if (in_array($char, self::$punct)){
 			$result = $this->_getPunctToken($char);
 			if ($result) return $result;
 		}
@@ -131,7 +183,7 @@ class Fl_Analytic_Js{
 	
 	//正常的字符
 	private function _getWordToken($char){
-		while (in_array($this->content[$this->parsePos], $this->_wordchar) 
+		while (in_array($this->content[$this->parsePos], self::$wordchar) 
 			&& $this->parsePos < $this->contentLength){
 
 			$char .= $this->content[$this->parsePos];
@@ -249,7 +301,7 @@ class Fl_Analytic_Js{
 		}
 		$this->parsePos++;
 		$resultString .= $sep;
-		while (in_array($this->content[$this->parsePos], $this->_wordchar) 
+		while (in_array($this->content[$this->parsePos], self::$wordchar) 
 			&& $this->parsePos < $this->contentLength ) {
 				
 			$resultString .= $this->content[$this->parsePos];
@@ -260,7 +312,7 @@ class Fl_Analytic_Js{
 	//sharp varibles
 	private function _getSharpVariblesToken($char){
 		$sharp = $char;
-		if (in_array($this->content[$this->parsePos], $this->_digits)){
+		if (in_array($this->content[$this->parsePos], self::$digits)){
 			do{
 				$c = $this->content[$this->parsePos];
 				$sharp .= $c;
@@ -276,7 +328,7 @@ class Fl_Analytic_Js{
 	}
 	//操作符
 	private function _getPunctToken($char){
-		while (in_array($char . $this->content[$this->parsePos], $this->_punct) 
+		while (in_array($char . $this->content[$this->parsePos], self::$punct) 
 			&& $this->parsePos < $this->contentLength){
 				
 			$char .= $this->content[$this->parsePos];
@@ -284,5 +336,4 @@ class Fl_Analytic_Js{
 		}
 		return array($char, $char === '=' ? FL::JS_EQUALS : FL::JS_OPERATOR);
 	}
-	
 }
