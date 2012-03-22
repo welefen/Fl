@@ -1,0 +1,4 @@
+.red{
+	color:red;
+	background:#c6e5f2 url(data:image/png;base64,iVBORw0KQmCC) no-repeat fixed center top;
+}

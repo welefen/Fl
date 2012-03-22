@@ -1,0 +1,4 @@
+<&$name=<&$value&>+1&>
+<a href="<&$name&>" >welefen</a>
+
+<&$value=<&$name+<&$test&>&>&>

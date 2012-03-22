@@ -1,0 +1,8 @@
+@keyframes testanimations{
+	0%{transform:translate(0,0);}
+	20%{transform:translate(20,20);}
+	40%{transform:translate(40,0);}
+	60%{transform:translate(60,20);}
+	80%{transform:translate(80,0);}
+	100%{transform:translate(100,20);}
+}

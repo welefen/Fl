@@ -1,0 +1,3 @@
+<div <&if $name=""&>class="welefen"<&else&>class="suredy"<&if&>>
+	<&if $name==1&><div>1</div><&else&>welefen</div>
+</div>

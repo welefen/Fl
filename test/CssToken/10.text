@@ -1,0 +1,1 @@
+#container { width: expression((documentElement.clientWidth < 725) ? "725px" : "auto" ); }

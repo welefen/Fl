@@ -1,0 +1,12 @@
+<&if $name==11&>
+	<div></div>
+<&else&>
+	<div class="
+		<&if $name=="welefen"&>welefen
+	
+	<&else&>suredy<&/if&>"
+		style="color:red;boder:<&$border&>"
+	>welefen
+	
+	<&value&>
+</div>

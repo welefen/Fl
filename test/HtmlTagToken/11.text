@@ -1,0 +1,1 @@
+<area shape="rect" coords="<&$bsLogo.bdLogoArea|sp_no_escape&>" href="<&$bsLogo.bdLogoUrl|sp_no_escape&>" target="_blank" title="<&$bsLogo.bdLogoAlt|sp_no_escape&>" <&if $bsLogo.bdLogoRec&>welefen="suredy" <&$bsLogo.bdLogoRec|sp_no_escape&><&/if&>>

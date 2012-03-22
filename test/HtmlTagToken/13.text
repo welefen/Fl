@@ -1,0 +1,7 @@
+<area 
+
+ title="<&$bsLogo.bdLogoAlt|sp_no_escape&>" 
+ 
+ <&if $bsLogo.bdLogoRec&>class = "welefen suredy"<&else&>class = suredy<&/if&>
+ 
+ >

@@ -1,0 +1,4 @@
+@-css-compiler {
+					selector-compile: no-combinator;
+					rule-compile: all;
+				 }

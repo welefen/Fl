@@ -1,0 +1,22 @@
+<&assign var=spCallBackEscape value=$spCallBack|sp_escape_callback&>
+<&if $spCallBackEscape&><&$spCallBackEscape&>(<&/if&>{bsAsynShortcuts :[
+<&foreach from=$bsUserNavs  item=sc name=sc&>
+{
+                "shortname":"<&$sc.shortname|sp_escape_data&>",
+                "fullname":"<&$sc.fullname|sp_escape_data&>",
+                "name":"<&$sc.name|sp_escape_data&>",
+                "hasIcon":"<&$sc.hasIcon&>",
+                "url":"<&$sc.url&>",
+                "type":"<&$sc.type&>",
+                "id":"<&$sc.id&>",
+                "srcId":"<&$sc.srcId&>",
+                "score":"<&$sc.score|sp_escape_data&>",
+                "source":"<&$sc.source|sp_escape_data&>",
+                "isAppend":"<&$sc.isAppend|sp_escape_data&>",
+                "su":"<&$sc.su|sp_no_escape&>"
+}
+<&if $smarty.foreach.sc.iteration != $smarty.foreach.sc.total&>,<&/if&>
+<&/foreach&>],
+state:<&$bsState|sp_escape_data&>
+}
+<&if $spCallBackEscape&>)<&/if&>

@@ -1,0 +1,130 @@
+
+<&extends file="superpage/sinc_layout.html"&>
+
+<&block name="sp_block_title"&>
+百度一下，你就知道
+<&/block&>
+
+<&block name="sp_block_css"&>
+<&include file="superpage/inc/c_superpage_index.inc"&>
+<&include file="superpage/inc/c_superpage.inc"&>
+<&/block&>
+
+<&block name="sp_block_main_content"&>
+<&include file="superpage/super_mod_shortcut.html"&>
+<&include file="superpage/super_mod_applist.html"&>
+<&include file="superpage/super_mod_feed.html"&>
+<&include file="superpage/super_mod_topsearch.html"&>
+
+<p id="u"><!--<img style="width:20px;height:20px;margin-bottom:-6px;padding-right:5px;" src="<&$bsCommon.domain.portrait&><&$bsUserInfo.portrait&>.jpg"/>--><a class="user-name-top" id="s_username_top" href="#" onclick="javascript:return false"><&$bsUserInfo.username|sp_escape_html&></a>|<&if $bsSpOpen==1&><a href="http://hi.baidu.com/sys/checkuser/<&$bsUserInfo.username|sp_escape_html|sp_path&>/3" target="_blank">我的空间</a>|<&/if&><a id="s_tradditional_link" class="last" href="/<&$bsPageInfo.baseuri&>/page/show/classic<&if $bsPageInfo.hastn&>?tn=<&$smarty.get.tn|sp_path&><&/if&>">传统首页</a>
+
+<div id="s_username_menu" class="s-username-menu" style="display:none;<&if $bsSpOpen==0&>right:71px;+right:69px;_right:68px;<&/if&>">
+<a href="<&$bsCommon.domain.passport&>">个人资料</a>
+<a href="/home/msg/show/msgsetting">首页设置</a>
+<a href="/gaoji/preferences.html">搜索设置</a>
+<a class="sep" style="overflow:hidden" href="<&$bsCommon.domain.logout&><&$bsCommon.domain.bs&>">退出</a>
+</div>
+
+<div id="m" style="width:720px">
+<p id="lg"><img src="<&$bsLogo.bdLogoSrc|sp_no_escape&>" width="270" height="129" usemap="#mp"></p><p id="nv"><a href="http://news.baidu.com">新闻</a><b>网页</b><a href="http://tieba.baidu.com">贴吧</a><a href="http://zhidao.baidu.com">知道</a><a href="http://mp3.baidu.com">MP3</a><a href="http://image.baidu.com">图片</a><a href="http://video.baidu.com">视频</a><a href="http://map.baidu.com">地图</a><a href="http://baike.baidu.com">百科</a><a style="font-family: \5b8b\4f53;" href="http://www.baidu.com/more/">更多>></a></p><div id="fm"><form name="f" action="http://www.baidu.com/s" onsubmit="S.Common.stat('searchSubmit');"><input type="text" name="wd" id="kw" maxlength="100" style="width:444px;"><input type="hidden" name="rsv_spt" value="1"><input type="hidden" name="issp" value="1"><input type="hidden" name="rsv_bp" value="0"><input type="hidden" name="ie" value="utf-8"><input type="hidden" name="tn" <&if $smarty.get.tn==""&>value="baiduhome_pg"<&else&>value="<&$smarty.get.tn|sp_escape_html&>"<&/if&> /><span class="btn_wr"><input type="submit" value="百度一下" id="su" class="btn" onmousedown="this.className='btn btn_h'" onmouseout="this.className='btn'"></span></form><span id="mHolder"><div id="mCon"><span>输入法</span></div></span><ul id="mMenu"><li><a href="#" name="ime_hw">手写</a></li><li><a href="#" name="ime_py">拼音</a></li><li class="ln"></li><li><a href="#" name="ime_cl">关闭</a></li></ul></div>
+<p id="lm"></p>
+<map name="mp"><area shape="rect" coords="<&$bsLogo.bdLogoArea|sp_no_escape&>" href="<&$bsLogo.bdLogoUrl|sp_no_escape&>" target="_blank" title="<&$bsLogo.bdLogoAlt|sp_no_escape&>" <&if $bsLogo.bdLogoRec&><&$bsLogo.bdLogoRec|sp_no_escape&><&/if&>></map>
+<div id="s_main" class="main clearfix">
+    <div id="s_modules" >
+		<&$m=[]&>
+		<&$ct=count($bsUserModules)&>
+	    <&foreach from=$bsUserModules item=module name="module"&>
+			<&$m[]=$module.id&>
+			<&if $module.id==1&>
+				<&if $ct==1&>
+					<&modShortcut isview=1 isMove=0&>
+				<&else&>
+					<&modShortcut isview=1&>
+				<&/if&>
+				<&$shortcutClass=1&>
+			<&elseif $module.id==2&>
+				<&if $ct==1&>
+					<&modAppList isview=1 isMove=0&>
+				<&else&>
+			    <&modAppList isview=1&>
+				<&/if&>
+				 <&$appClass=1&>
+			<&elseif $module.id==3&>
+				<&if $bsIsOp==0&>
+					<&if $ct==1&>
+						<&modFeed isview=1 isMove=0&>
+					<&else&>
+						<&modFeed isview=1&>
+					<&/if&>
+				<&else&>
+					<&if $ct==1&>
+						<&modFeed  isMove=0&>
+					<&else&>
+						<&modFeed&>
+					<&/if&>
+				<&/if&>
+				 <&$newsClass=1&>
+					
+			<&elseif $module.id==6&>
+				<&if $ct==1&>
+					<&modTopsearch isview=1 moduleInfo=$module isMove=0&>
+				<&else&>
+					<&modTopsearch isview=1 moduleInfo=$module&>
+				<&/if&>
+				<&$hithotClass=1&>
+			<&/if&>
+		<&/foreach&> 
+		<&$s=join(',', $m)&>
+		
+		
+	</div>
+	
+	
+	<div style="<&if $ct>0&><&if $ct==4&>display:none;<&/if&>margin-left:1px<&else&>margin-left:310px;_margin-left:155px;<&/if&>;" class="s-add-mods" id="s_add_mods" >
+			<a class="s-add-addico" id="s_add_addico">
+				<span id='s_addico_span' class="s-addico-span"  >添加服务</span>
+			</a>
+			
+			<input type="hidden" value="<&$s|sp_escape_html&>" name="aMods" id="aMods"/>
+		</div>
+	
+</div>
+</div>
+<&include file="superpage/super_inc_bottom.html"&>
+<div id="s_tips" class="tip"></div>
+<&/block&>
+
+<&block name="sp_block_bottom_js"&>
+<&include file="superpage/inc/j_superpage.inc"&>
+<script>
+<&if $shortcutClass&>
+window.logInfo={isLog:"<&$bsNavLog.isLog|sp_escape_js&>",navlogid:"<&$bsNavLog.navLogid&>",group:"<&$bsUserType&>",uname:"<&$bsUserInfo.username|sp_escape_js&>",navCount:"<&$bsUserNavs|@count&>",navModulePos:"<&$smarty.foreach.module.iteration&>",navCountFromRp:"<&$bsNavLog.navCountFromRP|sp_escape_js&>"}
+<&/if&>
+<&if $appClass&>
+window._array_appslist=[<&foreach from=$bsUserApps item=apps&>"<&$apps.id&>",<&/foreach&>""];
+<&/if&>
+<&if $bsIsOp==1&>
+	window.bsIsOp=1;
+<&else&>
+	window.bsIsOp=0;
+<&/if&>
+</script>
+<&if !$useWpo && !$abtest && rand(1,5) == 2&>
+<script>
+<&*
+setTimeout(function(){
+	var start = new Date*1,
+	 n = "img_" + start,
+    c = window[n] = new Image,size=8.3;
+	 c.onload = (c.onerror = function () {
+		 var end = new Date*1,speed=Math.ceil(size*1000/(end-start));
+		 window[n] = null;
+		 S.Common.ns_click('speed', '',{speed:speed});
+	 });
+	 c.src = "<&$bsCommon.domain.static&>/static/superpage/img/email_bg.png?v="+start; 
+	 c = null; 
+},4000)*&>
+setTimeout(function(){var e=new Date*1,d="img_"+e,b=window[d]=new Image,a=8.3;b.onload=(b.onerror=function(){var c=new Date*1,f=Math.ceil(a*1000/(c-e));window[d]=null;S.Common.ns_click("speed","",{speed:f})});b.src="<&$bsCommon.domain.static&>/static/superpage/img/email_bg.png?v="+e;b=null},4000);
+</script>
+<&/if&>
+<&/block&>

@@ -1,0 +1,8 @@
+{=block name="content"=}
+         {=block name="content_right"=}{=/block=}
+         {=block name="content_left"=}{=/block=}
+         {=block name="content_bottom"=}{=/block=}
+{=/block=}
+
+{=block name="content_bottom"=}
+{=$pager.cl = ($urlPara.cl != 3)?"&cl=`$urlPara.cl`":"" =}
