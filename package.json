@@ -1,0 +1,27 @@
+{
+	"name": "Fl",
+	"description": "a front-end lang toolkit that support tpl",
+	"version": "2.0",
+	"keywords": ["fl","js","html","css","tpl","smarty"],
+	"maintainers": {
+		"name": "welefen",
+		"email": "welefen@gmail.com",
+		"web": "http://www.welefen.com"
+	},
+	"contributors": [],
+	"bugs": {
+		"mail": "welefen@gmail.com",
+		"web": "http://www.welefen.com"
+	},
+	"licenses": [{
+		"type": "MIT",
+		"url": "https://github.com/welefen/Fl/blob/master/LICENSE"
+	}],
+	"repositories":[{
+		"type": "git",
+		"url": "https://github.com/welefen/Fl",
+		"path": "packages"	
+	}],
+	"dependencies":{},
+	"homepage": "http://www.welefen.com/category/tool-plugin/fl-tool"
+}
