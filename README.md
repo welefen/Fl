@@ -1,19 +1,7 @@
-hi,all
+== 说明
+Fl是一个支持模版语法（如：Smarty）的Js/Html/Css处理工具，处理功能包括：词法分析、美化、代码规范检测、压缩等功能
 
+目前处理v2.0版本重构中，功能还不稳定。
 
-Fl(Font-end Language Helper)是一个支持smarty语法的前端语言(html、css、js)词法分析、编码检查、美化、压缩的工具。
-
-
-使用方式：
-
-
-requirce_once "Fl/Fl.class.php";
-$flInstance = Fl::getInstance();
-
-//压缩html代码
-$compressOutput = $flInstance->compress_html($html_content);
-
-//压缩css代码
-$compressOutput = $flInstance->compress_css($css_content);
-
+如果你想使用v1.0里面的功能，请下载v1.0目录下Fl。v1.0版本的Fl目前已经多处使用，功能较为稳定，推荐使用。
 
