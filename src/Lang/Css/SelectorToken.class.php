@@ -4,40 +4,42 @@
  * Css Selector Token
  * 抛弃selector中的注释等对效果无用的代码
  * 参见：http://www.w3.org/TR/selectors/
- * @license MIT
  * @author welefen
- * @copyright 2011 - 2012
- * @version 1.0 - 2012.02.25
  *
  */
 Fl::loadClass ( 'Fl_Token' );
 Fl::loadClass ( 'Fl_Css_Static' );
 class Fl_Css_SelectorToken extends Fl_Token {
+
 	/**
 	 * 
 	 * check value is valid ?
 	 * @var boolean
 	 */
-	public $check = true;
+	public $validate = true;
+
 	/**
 	 * 
 	 * prefix space for selector token
 	 * @var boolean
 	 */
-	public $preSpace = false;
+	protected $spaceBefore = false;
+
 	/**
 	 * 
 	 * check namespace
 	 * @var boolean
 	 */
-	private $_checkNamespace = false;
+	protected $namespaceChecked = false;
+
 	/**
 	 * no skip white space
 	 * @see Fl_Token::skipWhiteSpace()
 	 */
 	public function skipWhiteSpace() {
-		$this->preSpace = parent::skipWhiteSpace ();
+		$this->spaceBefore = parent::skipWhiteSpace ();
 	}
+
 	/**
 	 * skip comment
 	 * @see Fl_Token::skipComment()
@@ -47,14 +49,8 @@ class Fl_Css_SelectorToken extends Fl_Token {
 			$this->commentBefore [] = $comment;
 		}
 	}
-	/**
-	 * get all tokens
-	 * @see Fl_Token::getAllTokens()
-	 */
-	public function getAllTokens($text = '') {
-		if ($text) {
-			$this->setText ( $text );
-		}
+
+	public function run() {
 		$output = array ();
 		$result = array ();
 		while ( $token = $this->getNextToken () ) {
@@ -72,16 +68,18 @@ class Fl_Css_SelectorToken extends Fl_Token {
 		}
 		return $output;
 	}
+
 	/**
 	 * get token info
 	 * @see Fl_Token::getTokenInfo()
 	 */
-	public function getTokenInfo($type, $value) {
+	public function getTokenInfo($type = '', $value = '') {
 		$result = parent::getTokenInfo ( $type, $value );
-		$result ['preSpace'] = $this->preSpace;
-		$this->preSpace = false;
+		$result ['spaceBefore'] = $this->spaceBefore;
+		$this->spaceBefore = false;
 		return $result;
 	}
+
 	/**
 	 * get next token
 	 * @see Fl_Token::getNextToken()
@@ -91,12 +89,9 @@ class Fl_Css_SelectorToken extends Fl_Token {
 		if ($token || $token === false) {
 			return $token;
 		}
-		$char = $this->getCurrentChar ();
-		if ($char === false) {
-			return $this->getLastToken ();
-		}
-		if (! $this->_checkNamespace) {
-			$this->_checkNamespace = true;
+		$char = $this->text {$this->pos};
+		if (! $this->namespaceChecked) {
+			$this->namespaceChecked = true;
 			if (Fl_Css_Static::checkNamespace ( $this->text )) {
 				$result = $this->readWhile ( 'getNamespaceToken' );
 				return $this->getTokenInfo ( FL_TOKEN_CSS_SELECTOR_NAMESPACE, $result );
@@ -135,7 +130,7 @@ class Fl_Css_SelectorToken extends Fl_Token {
 				$value = $this->getAttributeToken ( $char );
 				break;
 			case ':' :
-				if ($this->getPosChar ( $this->pos + 1 ) === ':') {
+				if ($this->text {$this->pos + 1} === ':') {
 					$this->getNextChar ();
 					$value = ':' . $this->readWhile ( 'getPseudoElementToken' );
 					$type = FL_TOKEN_CSS_SELECTOR_PSEUDO_ELEMENT;
@@ -148,11 +143,12 @@ class Fl_Css_SelectorToken extends Fl_Token {
 				$value = $this->readWhile ( 'getTypeToken' );
 				$type = FL_TOKEN_CSS_SELECTOR_TYPE;
 		}
-		if ($this->check && ! Fl_Css_Static::checkSelectorToken ( $type, $value )) {
+		if ($this->validate && ! Fl_Css_Static::checkSelectorToken ( $type, $value )) {
 			$this->throwException ( $value . ' is not valid' );
 		}
 		return $this->getTokenInfo ( $type, $value );
 	}
+
 	/**
 	 * 
 	 * char util
@@ -165,10 +161,15 @@ class Fl_Css_SelectorToken extends Fl_Token {
 		if (Fl_Css_Static::isSelectorCharUtil ( $char )) {
 			return true;
 		}
+		if ($this->hasTplToken && $this->ld == substr ( $this->text, $this->pos + 1, strlen ( $this->ld ) )) {
+			return true;
+		}
 		return false;
 	}
+
 	/**
-	 * 
+	 * @namespace foo "http://www.example.com";
+	 * foo|*
 	 * get namespace token
 	 */
 	public function getNamespaceToken($char = '') {
@@ -176,39 +177,43 @@ class Fl_Css_SelectorToken extends Fl_Token {
 			return false;
 		}
 	}
+
 	/**
 	 * 
 	 * get #id token
 	 * @param string $char
 	 */
 	public function getIdToken($char = '') {
-		$nextChar = $this->getPosChar ( $this->pos + 1 );
+		$nextChar = $this->text {$this->pos + 1};
 		if ($this->charUtil ( $nextChar )) {
 			return false;
 		}
 	}
+
 	/**
 	 * 
 	 * get such as div token
 	 * @param string $char
 	 */
 	public function getTypeToken($char = '') {
-		$nextChar = $this->getPosChar ( $this->pos + 1 );
+		$nextChar = $this->text {$this->pos + 1};
 		if ($this->charUtil ( $nextChar )) {
 			return false;
 		}
 	}
+
 	/**
 	 * 
 	 * get .class token
 	 * @param string $char
 	 */
 	public function getClassToken($char = '') {
-		$nextChar = $this->getPosChar ( $this->pos + 1 );
+		$nextChar = $this->text {$this->pos + 1};
 		if ($this->charUtil ( $nextChar )) {
 			return false;
 		}
 	}
+
 	/**
 	 * 
 	 * get attrubite selectors token
@@ -216,8 +221,8 @@ class Fl_Css_SelectorToken extends Fl_Token {
 	 */
 	public function getAttributeToken($char = '') {
 		$result = '';
-		while ( ! $this->isEof () ) {
-			$char = $this->getCurrentChar ();
+		while ( $this->pos < $this->length ) {
+			$char = $this->text {$this->pos};
 			if ($char === '"' || $char === "'") {
 				$quote = $this->getQuoteText ( $char, true, true );
 				$result .= $quote;
@@ -236,16 +241,18 @@ class Fl_Css_SelectorToken extends Fl_Token {
 		}
 		return $result;
 	}
+
 	/**
 	 * 
 	 * get ::xxx token
 	 */
 	public function getPseudoElementToken($char = '') {
-		$nextChar = $this->getPosChar ( $this->pos + 1 );
+		$nextChar = $this->text {$this->pos + 1};
 		if ($this->charUtil ( $nextChar )) {
 			return false;
 		}
 	}
+
 	/**
 	 * 
 	 * get such as :hover token
@@ -255,8 +262,8 @@ class Fl_Css_SelectorToken extends Fl_Token {
 		$result = $char;
 		$this->getNextChar ();
 		$parenthesesNum = 0;
-		while ( ! $this->isEof () ) {
-			$char = $this->getCurrentChar ();
+		while ( $this->pos < $this->length ) {
+			$char = $this->text {$this->pos};
 			if ($parenthesesNum === 0 && Fl_Css_Static::isSelectorCharUtil ( $char )) {
 				break;
 			} else if ($char === '(') {
@@ -274,7 +281,7 @@ class Fl_Css_SelectorToken extends Fl_Token {
 			}
 		}
 		if ($parenthesesNum !== 0) {
-			$this->throwException ( 'get Pseudo Class error' );
+			$this->throwException ( 'get Pseudo Class error in ' . __LINE__ );
 		}
 		return $result;
 	}

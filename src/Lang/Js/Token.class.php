@@ -3,36 +3,40 @@ Fl::loadClass ( "Fl_Token" );
 Fl::loadClass ( "Fl_Js_Static" );
 /**
  * 
- * JS的词法分析
+ * JS Tokenizar
  * @author welefen
- * @version 1.0-2012.02.15
  *
  */
 class Fl_Js_Token extends Fl_Token {
-	/**
-	 * 
-	 * 临时存储变量
-	 * @var string
-	 */
-	public $tmp = '';
+
 	/**
 	 * 
 	 * 是否允许是正则， 主要是正则和除法（/）比较像，要对他们进行区别
 	 * @var boolean
 	 */
-	public $regexpAllowed = false;
+	public $regexpAllowed = true;
+
 	/**
 	 * 
 	 * 是否进行简单的数据校验
 	 * @var booelean
 	 */
 	public $validate = true;
+
 	/**
 	 * 
-	 * 用于存放校验数据
+	 * validate data, check number
 	 * @var array
 	 */
-	public $validateData = array ('(' => 0, ')' => 0, '{' => 0, '}' => 0, '[' => 0, ']' => 0 );
+	public $validateData = array (
+		'(' => 0, 
+		')' => 0, 
+		'{' => 0, 
+		'}' => 0, 
+		'[' => 0, 
+		']' => 0 
+	);
+
 	/**
 	 * 获取下一个TOKEN
 	 * (non-PHPdoc)
@@ -48,10 +52,7 @@ class Fl_Js_Token extends Fl_Token {
 		if ($token) {
 			return $token;
 		}
-		$char = $this->getCurrentChar ();
-		if ($char === false) {
-			return $this->getLastToken ();
-		}
+		$char = $this->text [$this->pos];
 		//字符串
 		$result = $this->getQuoteText ( $char, true, true );
 		if ($result) {
@@ -59,14 +60,14 @@ class Fl_Js_Token extends Fl_Token {
 			return $this->getTokenInfo ( FL_TOKEN_JS_STRING, $result );
 		}
 		//数值
-		if (Fl_Js_Static::isDigit ( $char )) {
-			$result = $this->readWhile ( 'getNumberToken' );
+		if (Fl_Js_Static::isDigit ( $char ) || $char === '.' && preg_match ( "/\d/", $this->text {$this->pos + 1} )) {
+			$result = $this->getNumberToken ( $char );
 			return $this->getTokenInfo ( FL_TOKEN_JS_NUMBER, $result );
 		}
 		//符号
 		if (Fl_Js_Static::isPuncChar ( $char ) || $char === '.') {
 			$this->getNextChar ();
-			if (array_key_exists ( $char, $this->validateData )) {
+			if (isset ( $this->validateData [$char] )) {
 				$this->validateData [$char] ++;
 			}
 			return $this->getTokenInfo ( FL_TOKEN_JS_PUNC, $char );
@@ -77,8 +78,7 @@ class Fl_Js_Token extends Fl_Token {
 		}
 		//操作符号
 		if (Fl_Js_Static::isOperatorChar ( $char ) || $char === '/') {
-			//echo $char;
-			$result = $this->readWhile ( 'getOperatorToken' );
+			$result = $this->getOperatorToken ( $char );
 			return $this->getTokenInfo ( FL_TOKEN_JS_OPERATOR, $result );
 		}
 		//单词
@@ -96,8 +96,9 @@ class Fl_Js_Token extends Fl_Token {
 		}
 		$this->throwException ( 'Unexpected character ' . $char );
 	}
+
 	/**
-	 * (non-PHPdoc)
+	 * get token info, add regexp allowed item
 	 * @see Fl_Token::getTokenInfo()
 	 */
 	public function getTokenInfo($type = '', $value = '', $isComment = false) {
@@ -105,9 +106,10 @@ class Fl_Js_Token extends Fl_Token {
 		$this->regexpAllowed = Fl_Js_Static::isRegexpAllowed ( $type, $value );
 		return $result;
 	}
+
 	/**
 	 * 
-	 * 获取正则的token
+	 * get regexp token
 	 * @param string $char
 	 */
 	public function getRegexpToken($char) {
@@ -134,16 +136,20 @@ class Fl_Js_Token extends Fl_Token {
 			}
 		}
 		$result .= '/';
-		$char = $this->getCurrentChar ();
+		$char = $this->text [$this->pos];
 		if (Fl_Js_Static::isIdentifierStart ( $char )) {
 			$mods = $this->readWhile ( 'getWordToken' );
-			//检测正则的修饰符是否合法
+			//check modifier is valid
 			if (! Fl_Js_Static::checkRegexpModifiers ( $mods )) {
 				$this->throwException ( 'Invalid flags supplied to RegExp constructor "' . $mods . '"' );
 			}
 		}
-		return array ($result, $mods );
+		return array (
+			$result, 
+			$mods 
+		);
 	}
+
 	/**
 	 * 
 	 * 获取单词token
@@ -155,31 +161,40 @@ class Fl_Js_Token extends Fl_Token {
 			return true;
 		}
 	}
+
 	/**
 	 * 
 	 * 获取操作符Token
 	 * @param string $char
 	 */
 	public function getOperatorToken($char) {
-		$this->tmp .= $char;
-		if (! Fl_Js_Static::isOperator ( $this->tmp )) {
-			$this->tmp = '';
-			$this->pendingNextChar = true;
-			return true;
+		$result = $this->getNextChar ();
+		while ( $this->pos < $this->length ) {
+			$tmp = $result . $this->text {$this->pos};
+			if (! Fl_Js_Static::isOperator ( $tmp )) {
+				break;
+			}
+			$result .= $this->getNextChar ();
 		}
+		return $result;
 	}
+
 	/**
 	 * 
 	 * 获取数值Token
 	 */
 	public function getNumberToken($char) {
-		$this->tmp .= $char;
-		if (! Fl_Js_Static::isNumberPrefix ( $this->tmp ) && ! Fl_Js_Static::isNumber ( $this->tmp )) {
-			$this->tmp = '';
-			$this->pendingNextChar = true;
-			return true;
+		$result = $this->getNextChar ();
+		while ( $this->pos < $this->length ) {
+			$tmp = $result . $this->text {$this->pos};
+			if (! Fl_Js_Static::isNumberPrefix ( $tmp ) && ! Fl_Js_Static::isNumber ( $tmp )) {
+				break;
+			}
+			$result .= $this->getNextChar ();
 		}
+		return $result;
 	}
+
 	/**
 	 * 
 	 * 获取一些特殊的token，如: IE的条件编译
@@ -193,9 +208,8 @@ class Fl_Js_Token extends Fl_Token {
 		}
 		return false;
 	}
+
 	/**
-	 * 跳过注释
-	 * (non-PHPdoc)
 	 * @see Fl_Token::skipComment()
 	 */
 	public function skipComment() {
@@ -203,30 +217,43 @@ class Fl_Js_Token extends Fl_Token {
 			$mulComment = $this->getComment ( 'multi' );
 			if ($mulComment) {
 				$this->commentBefore [] = $mulComment;
+				continue;
+			}
+			$inlineComment = $this->getComment ( 'inline' );
+			if ($inlineComment) {
+				$this->commentBefore [] = $inlineComment;
+				continue;
+			}
+			//处理最后一个行内注释，但没有换行符，就不能getComment方法匹配到了。
+			if ($this->text [$this->pos] === '/' && $this->text [$this->pos + 1] === '/') {
+				$comment = substr ( $this->text, $this->pos );
+				$this->commentBefore [] = $comment;
+				$this->pos = $this->length;
 			} else {
-				$inlineComment = $this->getComment ( 'inline' );
-				if ($inlineComment) {
-					$this->commentBefore [] = $inlineComment;
-				} else {
-					//处理最后一个行内注释，但没有换行符，就不能getComment方法匹配到了。
-					if ($this->getCurrentChar () === '/' && $this->getPosChar ( $this->pos + 1 ) === '/') {
-						$comment = substr ( $this->text, $this->pos );
-						$this->commentBefore [] = $comment;
-						$this->pos = $this->length;
-					} else {
-						break;
-					}
-				}
+				break;
 			}
 		}
 	}
+
 	/**
-	 * 获取最后一个节点(non-PHPdoc)
 	 * @see Fl_Token::getLastToken()
 	 */
 	public function getLastToken() {
 		if ($this->validate) {
-			$data = array (array ('(', ')' ), array ('{', '}' ), array ('[', ']' ) );
+			$data = array (
+				array (
+					'(', 
+					')' 
+				), 
+				array (
+					'{', 
+					'}' 
+				), 
+				array (
+					'[', 
+					']' 
+				) 
+			);
 			foreach ( $data as $item ) {
 				if ($this->validateData [$item [0]] != $this->validateData [$item [1]]) {
 					$this->throwException ( '"' . $item [0] . '"(' . $this->validateData [$item [0]] . ') & "' . $item [1] . '"(' . $this->validateData [$item [1]] . ') count not equal' );

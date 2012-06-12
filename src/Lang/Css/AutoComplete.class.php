@@ -6,6 +6,6 @@
  * @author welefen
  *
  */
-class Fl_Css_AutoComplete extends Fl_Base{
-	
+Fl::loadClass ( 'Fl_Base' );
+class Fl_Css_AutoComplete extends Fl_Base {
 }

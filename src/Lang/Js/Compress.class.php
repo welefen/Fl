@@ -7,5 +7,4 @@
  *
  */
 class Fl_Js_Compress extends Fl_Base {
-	
 }

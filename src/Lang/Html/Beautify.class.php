@@ -7,6 +7,8 @@ Fl::loadClass ( 'Fl_Html_Token' );
  * @author welefen
  *
  */
-class Fl_Html_Beautify extends Fl_Base{
-	
+class Fl_Html_Beautify extends Fl_Base {
+
+	public function run() {
+	}
 }

@@ -8,9 +8,7 @@
  * @version 1.0 - 2012.02.25
  *
  */
-
-Fl::loadClass ( 'Fl_Tpl_Interface' );
-
-class Fl_Tpl_PHP implements Fl_Tpl_Interface {
-
+//Fl::loadClass ( 'Fl_Tpl_Interface' );
+class Fl_Tpl_PHP {
+	
 }

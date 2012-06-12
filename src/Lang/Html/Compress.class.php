@@ -1,6 +1,7 @@
 <?php
 Fl::loadClass ( 'Fl_Html_Token' );
 Fl::loadClass ( 'Fl_Html_Static' );
+Fl::loadClass ( 'Fl_Tpl' );
 /**
  * 
  * HTML压缩类，支持模版语法的压缩
@@ -8,98 +9,80 @@ Fl::loadClass ( 'Fl_Html_Static' );
  *
  */
 class Fl_Html_Compress extends Fl_Base {
-	/**
-	 * 
-	 * token类名
-	 * @var string
-	 */
-	public $tokenClass = 'Fl_Html_Token';
-	/**
-	 * 
-	 * token类实例
-	 * @var object
-	 */
-	public $tokenInstance = null;
+
 	/**
 	 * 
 	 * 压缩选项
 	 * @var array
 	 */
-	public $options = array ();
+	public $options = array (
+		"removeComment" => true, 
+		"removeTextExtBlank" => true, 
+		"removeBlockBlank" => true, 
+		"blockBlankList" => array (), 
+		"removeAttrDefaultValue" => true, 
+		"removeOptionalTag" => true, 
+		"removeAttrQuote" => true, 
+		"removeAttrExtBlank" => true, 
+		"optionalTagList" => array (), 
+		"tagToLower" => true, 
+		"newline" => "", 
+		"endSingleTag" => false, 
+		"attrOnlyName" => true, 
+		"charsLineBreak" => 8000 
+	);
+
 	/**
 	 * 
 	 * 前一个token
 	 * @var array
 	 */
-	public $preToken = array ();
+	protected $preToken = array ();
+
 	/**
 	 * 
 	 * 下一个token
 	 * @var array
 	 */
-	public $nextToken = array ();
+	protected $nextToken = array ();
+
 	/**
 	 * 
 	 * 最终输出结果
 	 * @var array
 	 */
-	public $output = array ();
+	protected $output = array ();
+
 	/**
 	 * 
 	 * 上一个输出的文本
 	 * @var string
 	 */
-	public $preOutputText = '';
-	
+	protected $preOutputText = '';
+
 	/**
 	 * 
 	 * 是否是XML
 	 * @var boolean
 	 */
 	public $isXML = false;
+
 	/**
 	 * 
 	 * 保留换行符
 	 * @var boolean
 	 */
-	public $retentionNewline = false;
-	
-	public function __construct($text = '') {
-		parent::__construct ( $text );
-		$this->setDefaultOptions ();
-	}
-	/**
-	 * 
-	 * 设置默认配置项
-	 */
-	public function setDefaultOptions() {
-		$options = array ();
-		$options ['removeComment'] = true; //去除注释
-		$options ['removeTextExtBlank'] = true; //去除文本节点里多余的空白字符
-		$options ['removeBlockBlank'] = true; //去除2个block元素之间的空白字符，如：</div> <div>
-		$options ['blockBlankList'] = array (); //block元素白名单，命中白名单则不去除
-		$options ['removeAttrDefaultValue'] = true; //去除一些元素的默认值
-		$options ['removeOptionalTag'] = true; //去除一些可以去除的闭合标签
-		$options ['removeAttrQuote'] = true; //去除属性值的引号，如果可以去除的话
-		$options ['removeAttrExtBlank'] = true; //去除属性值里多余的空白字符
-		$options ['optionalTagList'] = array ();
-		$options ['tagToLower'] = true; //将tag名小写,如果是XML，则不变为小写
-		$options ['newline'] = ''; //换行符改变，默认删除
-		$options ['endSingleTag'] = false; //闭合单一标签，如： <input type="text" />; 加上"/"
-		$options ['attrOnlyName'] = true; //只要属性名，如disabled="true"
-		$options ['charsLineBreak'] = 8000; //一行放多少个字符
-		$this->options = $options;
-	}
+	protected $retentionNewline = false;
+
 	/**
 	 * 
 	 * 压缩HTML
 	 * @param string $text
 	 * @param array $options
 	 */
-	public function run($text = '', $options = array()) {
-		$this->setText ( $text );
+	public function run($options = array()) {
 		$this->options = array_merge ( $this->options, $options );
-		$this->tokenInstance = $this->getTokenInstance ();
+		$this->tokenInstance = $this->getInstance ( 'Fl_Html_Token' );
 		$token = array ();
 		$this->nextToken = $this->getNextToken ();
 		$end = false;
@@ -132,6 +115,7 @@ class Fl_Html_Compress extends Fl_Base {
 		}
 		return join ( '', $this->output );
 	}
+
 	/**
 	 * 
 	 * 获取下一个token
@@ -142,17 +126,20 @@ class Fl_Html_Compress extends Fl_Base {
 			return false;
 		}
 		if ($nextToken ['type'] === FL_TOKEN_HTML_TAG_START) {
-			$detail = Fl_Html_Static::getTagAttrs ( $nextToken ['value'], $this );
+			$detail = $this->getInstance ( 'Fl_Html_TagToken', $nextToken ['value'] )->run ();
 			$nextToken = array_merge ( $nextToken, $detail );
 		} else if ($nextToken ['type'] === FL_TOKEN_HTML_TAG_END) {
 			$tag = Fl_Html_Static::getEndTagName ( $nextToken ['value'], $this );
-			$nextToken = array_merge ( $nextToken, array ('tag' => $tag ) );
+			$nextToken = array_merge ( $nextToken, array (
+				'tag' => $tag 
+			) );
 		}
 		if ($nextToken ['tag']) {
 			$nextToken ['lowerTag'] = strtolower ( $nextToken ['tag'] );
 		}
 		return $nextToken;
 	}
+
 	/**
 	 * 
 	 * 压缩每个token
@@ -179,6 +166,7 @@ class Fl_Html_Compress extends Fl_Base {
 		}
 		return $return;
 	}
+
 	/**
 	 * 
 	 * 压缩一些通用的，如：注释，换行等
@@ -192,12 +180,11 @@ class Fl_Html_Compress extends Fl_Base {
 		if (count ( $token ['commentBefore'] )) {
 			foreach ( $token ['commentBefore'] as $item ) {
 				//如果注释内容第一个字符是!，则保留该注释
-				if (preg_match ( '/^\<\!\-\-\s*\!/', $item ) || ! $this->options ['removeComment']) {
-					$comment .= $item;
+				if (preg_match ( '/^\<\!\-\-\s*\!/', $item ['text'] ) || ! $this->options ['removeComment']) {
+					$comment .= $item ['text'];
 				}
 			}
 		}
-		
 		//是否去除换行符
 		if ($token ['newlineBefore']) {
 			if ($this->retentionNewline) {
@@ -225,6 +212,7 @@ class Fl_Html_Compress extends Fl_Base {
 		}
 		return $return;
 	}
+
 	/**
 	 * 
 	 * 压缩默认的token
@@ -233,6 +221,7 @@ class Fl_Html_Compress extends Fl_Base {
 	public function compressDefault($token) {
 		return $token ['value'];
 	}
+
 	/**
 	 * 
 	 * 压缩文本
@@ -259,6 +248,7 @@ class Fl_Html_Compress extends Fl_Base {
 		}
 		return $value;
 	}
+
 	/**
 	 * 
 	 * 压缩开始标签
@@ -278,7 +268,9 @@ class Fl_Html_Compress extends Fl_Base {
 					continue;
 				}
 				if ($this->options ['attrOnlyName'] && Fl_Html_Static::isTagOnlyNameAttr ( $item [0] )) {
-					$item = array ($item [0] );
+					$item = array (
+						$item [0] 
+					);
 				} else if ($this->options ['removeAttrQuote'] && Fl_Html_Static::isAttrValueNoQuote ( $valueDetail ['text'], $this )) {
 					$item [2] = $valueDetail ['text'];
 				}
@@ -316,6 +308,7 @@ class Fl_Html_Compress extends Fl_Base {
 		$return .= Fl_Html_Static::RIGHT;
 		return $return;
 	}
+
 	/**
 	 * 
 	 * 压缩闭合标签
@@ -330,15 +323,16 @@ class Fl_Html_Compress extends Fl_Base {
 		$tag = $this->options ['tagToLower'] ? $token ['lowerTag'] : $token ['tag'];
 		return '</' . $tag . '>';
 	}
+
 	/**
 	 * 
 	 * 压缩模版语法
 	 * @param array $token
 	 */
 	public function compressTpl($token) {
-		Fl::loadClass ( 'Fl_Tpl' );
 		return Fl_Tpl::factory ( $this )->compress ( $token ['value'], $this );
 	}
+
 	/**
 	 * 
 	 * 判断当前的text是否可删除

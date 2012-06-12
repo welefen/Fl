@@ -9,19 +9,21 @@ Fl::loadClass ( 'Fl_Html_Static' );
  *
  */
 class Fl_Html_TagToken extends Fl_Token {
+
 	/**
 	 * 
 	 * tagname
 	 * @var string
 	 */
-	public $tagName = '';
+	protected $tagName = '';
+
 	/**
 	 * 
 	 * tag分析初始化
 	 * @param string $text
 	 */
-	private function _init($text = '') {
-		$text = $text ? $text : $this->text;
+	protected function _init() {
+		$text = $this->text;
 		if ($text {0} != Fl_Html_Static::LEFT || $text {strlen ( $text ) - 1} != Fl_Html_Static::RIGHT) {
 			$this->throwException ( 'getAttrs must be for a tag' );
 		}
@@ -40,11 +42,12 @@ class Fl_Html_TagToken extends Fl_Token {
 		}
 		$this->setText ( $text );
 	}
+
 	/**
 	 * 
 	 * 获取tag名
 	 */
-	public function getTagName() {
+	protected function getTagName() {
 		if ($this->tagName) {
 			return $this->tagName;
 		}
@@ -56,32 +59,33 @@ class Fl_Html_TagToken extends Fl_Token {
 		$this->pos = strlen ( $this->tagName );
 		return $this->tagName;
 	}
+
 	/**
-	 * 
-	 * 获取tag的属性， 并返回tag name
+	 * run
+	 * @see Fl_Token::run()
 	 */
-	public function getAttrs($text = '') {
-		$this->_init ( $text );
+	public function run() {
+		$this->_init ();
 		$tagName = $this->getTagName ();
-		$tokens = $this->getAttrTokens ();
-		return array ('tag' => $tagName, 'attrs' => $tokens );
+		$attrs = $this->getAttrs ();
+		return array (
+			'tag' => $tagName, 
+			'attrs' => $attrs 
+		);
 	}
-	
-	public function run($text = ''){
-		return $this->getAttrs($text);
-	}
+
 	/**
 	 * 
 	 * 获取tag属性，根据HTML5规范进行分析
 	 * http://www.w3.org/TR/html5/syntax.html
 	 */
-	public function getAttrTokens() {
+	protected function getAttrs() {
 		$name = $value = '';
 		$return = array ();
 		$hasEqual = false; //是否有等号
 		$preSpace = false;
-		while ( ! $this->isEof () ) {
-			$char = $this->getCurrentChar ();
+		while ( $this->pos < $this->length ) {
+			$char = $this->text {$this->pos};
 			$tpl = $this->getTplToken ();
 			if ($tpl) {
 				if ($this->checkTplHasOutput ( $tpl )) {
@@ -92,23 +96,32 @@ class Fl_Html_TagToken extends Fl_Token {
 					}
 				} else {
 					if ($name || $value) {
-						$return [] = $hasEqual ? array ($name, '=', $value ) : array ($name );
+						$return [] = $hasEqual ? array (
+							$name, 
+							'=', 
+							$value 
+						) : array (
+							$name 
+						);
 						$name = $value = '';
 						$hasEqual = false;
 					}
-					$return [] = array ($tpl );
+					$return [] = array (
+						$tpl 
+					);
 				}
 				$preSpace = false;
 				continue;
 			}
-			
 			if ($char === '=') {
 				$hasEqual = true;
 				$preSpace = false;
 			} else if (! $hasEqual && $char === '/') {
-				if ($this->getPosChar ( $this->pos - 1 ) !== $char) {
+				if ($this->text {$this->pos - 1} !== $char) {
 					if ($name) {
-						$return [] = array ($name );
+						$return [] = array (
+							$name 
+						);
 						$name = $value = '';
 						$hasEqual = false;
 					}
@@ -121,13 +134,23 @@ class Fl_Html_TagToken extends Fl_Token {
 				$this->pendingNextChar = true;
 				$value = $this->getQuoteText ( $char, false );
 				$preSpace = false;
-				$return [] = $hasEqual ? array ($name, '=', $value ) : array ($name );
+				$return [] = $hasEqual ? array (
+					$name, 
+					'=', 
+					$value 
+				) : array (
+					$name 
+				);
 				$name = $value = '';
 				$hasEqual = false;
 			} else if ($this->isWhiteSpace ( $char )) {
 				if ($hasEqual) {
 					if ($value) {
-						$return [] = array ($name, '=', $value );
+						$return [] = array (
+							$name, 
+							'=', 
+							$value 
+						);
 						$name = $value = '';
 						$hasEqual = false;
 						$preSpace = false;
@@ -138,7 +161,9 @@ class Fl_Html_TagToken extends Fl_Token {
 			} else {
 				if ($preSpace) {
 					if ($name) {
-						$return [] = array ($name );
+						$return [] = array (
+							$name 
+						);
 						$name = '';
 					}
 				}
@@ -156,7 +181,13 @@ class Fl_Html_TagToken extends Fl_Token {
 			}
 		}
 		if ($name || $value) {
-			$return [] = $hasEqual ? array ($name, '=', $value ) : array ($name );
+			$return [] = $hasEqual ? array (
+				$name, 
+				'=', 
+				$value 
+			) : array (
+				$name 
+			);
 		}
 		return $return;
 	}

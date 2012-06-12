@@ -9,133 +9,117 @@ Fl::loadClass ( 'Fl_Define' );
  *
  */
 abstract class Fl_Token extends Fl_Base {
-	/**
-	 * 
-	 * 要分析的文本
-	 * @var string
-	 */
-	public $text = '';
+
 	/**
 	 * 
 	 * 分析到的位置
 	 * @var int
 	 */
-	public $pos = 0;
+	protected $pos = 0;
+
 	/**
 	 * 
 	 * token所在的位置
 	 * @var int
 	 */
-	public $tokpos = 0;
+	protected $tokpos = 0;
+
 	/**
 	 * 
 	 * 分析到的行
 	 * @var int
 	 */
-	public $line = 0;
+	protected $line = 0;
+
 	/**
 	 * 
 	 * token所在的行
 	 * @var int
 	 */
-	public $tokline = 0;
+	protected $tokline = 0;
+
 	/**
 	 * 
 	 * 分析到的列
 	 * @var int
 	 */
-	public $col = 0;
+	protected $col = 0;
+
 	/**
 	 * 
 	 * token所在的列
 	 * @var int
 	 */
-	public $tokcol = 0;
+	protected $tokcol = 0;
+
 	/**
 	 * 
 	 * 当前token之前换行个数
 	 * @var boolean
 	 */
-	public $newlineBefore = 0;
+	protected $newlineBefore = 0;
+
 	/**
 	 * 
 	 * 当前token之前注释列表
 	 * @var array
 	 */
-	public $commentBefore = array ();
+	protected $commentBefore = array ();
+
 	/**
 	 * 
 	 * 评论类型及前后定界符
 	 * @var array
 	 */
-	public $commentType = array ();
+	protected $commentType = array ();
+
 	/**
 	 * 空白字符
 	 */
-	protected $_whiteSpace = array (" ", "\n", "\t", "\f", "\b", "\x{180e}" );
-	/**
-	 * 
-	 * 是否有模板语法的TOKEN
-	 * @var boolean
-	 */
-	public $hasTplToken = false;
-	/**
-	 * 是否进行模版语法的检测
-	 */
-	private $_hasTplTokenCheck = false;
+	protected $whiteSpace = array (
+		" " => 1, 
+		"\n" => 1, 
+		"\t" => 1, 
+		"\f" => 1, 
+		"\b" => 1, 
+		"\x{180e}" => 1 
+	);
+
 	/**
 	 * 
 	 * 是否暂停下一个字符的读取，在readWhile方法里使用
 	 * @var boolean
 	 */
-	public $pendingNextChar = false;
+	protected $pendingNextChar = false;
+
 	/**
 	 * 
 	 * 最后一个token的类型
 	 * @var string
 	 */
-	public $lastTokenType = FL_TOKEN_LAST;
-	/**
-	 * 
-	 * 构造函数
-	 * @param string $text
-	 */
-	public function __construct($text = '') {
-		parent::__construct ( $text );
-		$this->setCommentType ();
-	}
+	protected $lastTokenType = FL_TOKEN_LAST;
+
 	/**
 	 * 
 	 * 设置评论类型以及左右定界符
 	 * @param string $type
 	 * @param array $value
 	 */
-	public function setCommentType($type = '', $value = array()) {
-		if ($type) {
-			$this->commentType [$type] = $value;
-		} else {
-			$this->commentType ['multi'] = array ('prefix' => '/*', 'suffix' => '*/' );
-			$this->commentType ['inline'] = array ('prefix' => '//', 'suffix' => "\n" );
-			$this->commentType ['html'] = array ('prefix' => '<!--', 'suffix' => '-->' );
-		}
+	public function init() {
+		$this->commentType ['multi'] = array (
+			'prefix' => '/*', 
+			'suffix' => '*/' 
+		);
+		$this->commentType ['inline'] = array (
+			'prefix' => '//', 
+			'suffix' => "\n" 
+		);
+		$this->commentType ['html'] = array (
+			'prefix' => '<!--', 
+			'suffix' => '-->' 
+		);
 	}
-	/**
-	 * 
-	 * 检测是否含有模板语法的TOKEN
-	 */
-	public function checkHasTplToken() {
-		if ($this->_hasTplTokenCheck) {
-			return $this->hasTplToken;
-		}
-		$this->_hasTplTokenCheck = true;
-		if (! $this->tpl || ! $this->ld || ! $this->rd) {
-			return false;
-		}
-		if ($this->find ( $this->ld ) === false || $this->find ( $this->rd ) === false) {
-			return false;
-		}
-		return $this->hasTplToken = true;
-	}
+
 	/**
 	 * 
 	 * 获取要分析文本的长度,一个中文2个字节
@@ -143,26 +127,7 @@ abstract class Fl_Token extends Fl_Base {
 	public function size() {
 		return strlen ( $this->text );
 	}
-	/**
-	 * 
-	 * 获取某个位置的字符
-	 */
-	public function getPosChar($pos) {
-		if ($pos >= $this->length) {
-			return false;
-		}
-		return $this->text {$pos};
-	}
-	/**
-	 * 
-	 * 获取当前的字符
-	 */
-	public function getCurrentChar() {
-		if ($this->pos >= $this->length) {
-			return false;
-		}
-		return $this->text {$this->pos};
-	}
+
 	/**
 	 * 
 	 * 获取下一个字符.
@@ -181,6 +146,7 @@ abstract class Fl_Token extends Fl_Base {
 		}
 		return $char;
 	}
+
 	/**
 	 * 
 	 * 循环读取字符
@@ -189,8 +155,6 @@ abstract class Fl_Token extends Fl_Base {
 	public function readWhile($fn = '') {
 		$return = $char = $result = '';
 		while ( $this->pos < $this->length ) {
-			//是否需要通过getCurrentChar来获取当前的字符需要性能测试
-			//$char = $this->getCurrentChar ();
 			$char = $this->text {$this->pos};
 			$result = $this->$fn ( $char );
 			if (! $this->pendingNextChar) {
@@ -207,28 +171,23 @@ abstract class Fl_Token extends Fl_Base {
 		}
 		return $return;
 	}
+
 	/**
 	 * 
 	 * 检测是否是空白字符
 	 * @param string $char
 	 */
 	public function isWhiteSpace($char = '') {
-		return in_array ( $char, $this->_whiteSpace );
+		return isset ( $this->whiteSpace [$char] );
 	}
-	/**
-	 * 
-	 * 是否已经结束
-	 */
-	public function isEof() {
-		return $this->pos >= $this->length;
-	}
+
 	/**
 	 * 
 	 * 跳过空白字符
 	 */
 	public function skipWhiteSpace() {
 		$flag = false;
-		while ( $this->isWhiteSpace ( $this->getCurrentChar () ) ) {
+		while ( $this->isWhiteSpace ( $this->text {$this->pos} ) ) {
 			$flag = true;
 			if ($this->getNextChar () === false) {
 				break;
@@ -236,6 +195,7 @@ abstract class Fl_Token extends Fl_Base {
 		}
 		return $flag;
 	}
+
 	/**
 	 * 
 	 * 开始一个token
@@ -245,6 +205,7 @@ abstract class Fl_Token extends Fl_Base {
 		$this->tokcol = $this->col;
 		$this->tokpos = $this->pos;
 	}
+
 	/**
 	 * 
 	 * 查找某个字符串
@@ -266,7 +227,7 @@ abstract class Fl_Token extends Fl_Base {
 		}
 		$len = strlen ( $what );
 		while ( $pos ) {
-			if ($this->getPosChar ( $pos - 1 ) !== '\\') {
+			if ($this->text {$pos - 1} !== '\\') {
 				break;
 			}
 			if ($sensitive) {
@@ -277,6 +238,7 @@ abstract class Fl_Token extends Fl_Base {
 		}
 		return $pos;
 	}
+
 	/**
 	 * 
 	 * 以某些字符开头
@@ -284,38 +246,51 @@ abstract class Fl_Token extends Fl_Base {
 	 * @param boolean $sensitive
 	 * @param boolean $checkFirst 是否检测首个字符
 	 */
-	public function startWith($what, $sensitive = true, $checkFirst = false) {
-		$sub = substr ( $this->text, $this->pos, strlen ( $what ) );
+	public function startWith($what, $sensitive = true, $len = 0) {
+		$sub = substr ( $this->text, $this->pos, $len ? $len : strlen ( $what ) );
 		if ($sensitive) {
 			return $what === $sub;
 		} else {
 			return strtolower ( $sub ) === strtolower ( $what );
 		}
 	}
+
 	/**
 	 * 
 	 * 获取注释内容
 	 * @param string $type
 	 * @param boolean $skipWhitespace 是否跳过空白
 	 */
-	public function getComment($type = 'multi', $skipWhitespace = true) {
-		if (! array_key_exists ( $type, $this->commentType )) {
+	public function getComment($type = 'multi', $skipWhitespace = true, $returnArray = false) {
+		if (! isset ( $this->commentType [$type] )) {
 			$this->throwException ( 'comment type ' . $type . ' not found.' );
 		}
 		$value = $this->commentType [$type];
+		$pos = $this->pos;
+		$line = $this->line;
+		$col = $this->col;
 		$result = $this->getMatched ( $value ['prefix'], $value ['suffix'] );
-		if ($result && $skipWhitespace) {
-			$this->skipWhiteSpace ();
+		if ($result) {
+			$skipWhitespace && $this->skipWhiteSpace ();
+			if ($returnArray) {
+				return array (
+					'text' => $result, 
+					'pos' => $pos, 
+					'line' => $line, 
+					'col' => $col 
+				);
+			}
 		}
 		return $result;
 	}
+
 	/**
 	 * 
 	 * 跳过注释，每个类型的语言里跳过注释的实现方式不一样
 	 */
 	public function skipComment() {
-	
 	}
+
 	/** 
 	 * 获取最后一个token，最后可能含有注释
 	 */
@@ -327,13 +302,7 @@ abstract class Fl_Token extends Fl_Base {
 		}
 		return false;
 	}
-	/**
-	 * 
-	 * 获取向后匹配的字符
-	 */
-	public function getMatchedChar($char = '"') {
-	
-	}
+
 	/**
 	 * 
 	 * 获取当前特定长度的字符串，并更新pos, col, line等信息
@@ -355,6 +324,7 @@ abstract class Fl_Token extends Fl_Base {
 		$this->pos += strlen ( $sub );
 		return $sub;
 	}
+
 	/**
 	 * 
 	 * 获取匹配的字符，当前状态下必须是以start字符串开始
@@ -365,11 +335,11 @@ abstract class Fl_Token extends Fl_Base {
 	 * @param boolean $sensitive 是否区分大小写
 	 */
 	public function getMatched($start, $end, $nested = true, $fixed = false, $sensitive = true) {
-		if (! $this->startWith ( $start, $sensitive, true )) {
+		$startLen = strlen ( $start );
+		if (! $this->startWith ( $start, $sensitive, $startLen )) {
 			return false;
 		}
 		$startPos = $this->pos;
-		$startLen = strlen ( $start );
 		if ($startLen !== 1) {
 			$fixed = false;
 		}
@@ -406,8 +376,10 @@ abstract class Fl_Token extends Fl_Base {
 		}
 		$strlen = $endPos - $startPos + $endLen;
 		$this->pos -= $strlen;
-		return $this->getSubText ( $strlen );
+		$result = $this->getSubText ( $strlen );
+		return $result;
 	}
+
 	/**
 	 * 
 	 * 获取token的相关信息
@@ -416,7 +388,9 @@ abstract class Fl_Token extends Fl_Base {
 	 * @param boolean $isComment
 	 */
 	public function getTokenInfo($type = '', $value = '', $isComment = false) {
-		$return = array ('type' => $type );
+		$return = array (
+			'type' => $type 
+		);
 		$return ['value'] = $value;
 		$return ['line'] = $this->tokline;
 		$return ['col'] = $this->tokcol;
@@ -429,6 +403,7 @@ abstract class Fl_Token extends Fl_Base {
 		$this->newlineBefore = 0;
 		return $return;
 	}
+
 	/**
 	 * 
 	 * 检测是不是同一个token
@@ -442,46 +417,37 @@ abstract class Fl_Token extends Fl_Base {
 		}
 		return false;
 	}
+
 	/**
 	 * 
 	 * 获取下一个token
 	 */
 	public function getNextToken() {
-		$char = $this->getCurrentChar ();
-		if ($char === false) {
-			return $this->getLastToken ();
-		}
 		$this->skipWhiteSpace ();
 		$this->skipComment ();
 		$this->startToken ();
 		$tplToken = $this->getTplToken ();
 		if ($tplToken !== false) {
-			$this->hasTplToken = true;
 			return $this->getTokenInfo ( FL_TOKEN_TPL, $tplToken );
 		}
+		if ($this->pos >= $this->length) {
+			return $this->getLastToken ();
+		}
 	}
+
 	/**
 	 * 
 	 * 获取所有的token
 	 */
-	public function getAllTokens($text = '') {
-		if ($text) {
-			$this->setText ( $text );
-		}
+	public function run() {
+		$this->checkHasTplToken ();
 		$result = array ();
 		while ( $token = $this->getNextToken () ) {
 			$result [] = $token;
 		}
 		return $result;
 	}
-	/**
-	 * 
-	 * @getAllTokens
-	 * @param string $text
-	 */
-	public function run($text = '') {
-		return $this->getAllTokens ( $text );
-	}
+
 	/**
 	 * 
 	 * 获取模版语法的Token
@@ -494,6 +460,7 @@ abstract class Fl_Token extends Fl_Base {
 		Fl::loadClass ( 'Fl_Tpl' );
 		return Fl_Tpl::factory ( $this )->getToken ( $this );
 	}
+
 	/**
 	 * 
 	 * 异常处理
@@ -502,6 +469,7 @@ abstract class Fl_Token extends Fl_Base {
 		$ext = ' at line:' . ($this->line + 1) . ', col:' . ($this->col + 1) . ', pos:' . $this->pos;
 		parent::throwException ( $msg . $ext, $code );
 	}
+
 	/**
 	 * 
 	 * 获取引号内的内容，支持模版语法
@@ -520,7 +488,7 @@ abstract class Fl_Token extends Fl_Base {
 			$this->getNextChar ();
 		}
 		$escape = false;
-		while ( ! $this->isEof () ) {
+		while ( $this->pos < $this->length ) {
 			$tpl = $this->getTplToken ();
 			if ($tpl) {
 				$return .= $tpl;
@@ -528,7 +496,7 @@ abstract class Fl_Token extends Fl_Base {
 			$currentChar = $this->getNextChar ();
 			if ($useEscape && $currentChar === "\\") {
 				$escape = ! $escape;
-			} else if ($currentChar === $char && $this->getCurrentChar () !== $char) {
+			} else if ($currentChar === $char && $this->text {$this->pos} !== $char) {
 				if ($escape) {
 					$escape = false;
 				} else {
@@ -542,7 +510,7 @@ abstract class Fl_Token extends Fl_Base {
 			$return .= $currentChar;
 		}
 		if (! $find) {
-			$this->throwException ( __FUNCTION__ . "uncaught end exception with " . $char . " char" );
+			$this->throwException ( __FUNCTION__ . " uncaught end exception with " . $char . " char" );
 		}
 		$this->pendingNextChar = true;
 		return $return;

@@ -6,12 +6,14 @@
  *
  */
 class Fl_Tpl {
+
 	/**
 	 * 
 	 * 对象管理器
 	 * @var array
 	 */
 	public static $register = array ();
+
 	/**
 	 * 
 	 * 模版语言的工厂

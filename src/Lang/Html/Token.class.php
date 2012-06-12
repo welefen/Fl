@@ -14,27 +14,34 @@ Fl::loadClass ( 'Fl_Html_Static' );
  *
  */
 class Fl_Html_Token extends Fl_Token {
+
 	/**
 	 * 
 	 * 是否检测Tag标签合法，如： <div class="welefen" 这种没有>结束标签就是非法的
 	 * @var boolean
 	 */
-	public $tagChecked = true;
+	public $validate = true;
+
 	/**
 	 * 
 	 * 当前检测的是否是XML
 	 * @var boolean
 	 */
 	public $isXML = false;
+
 	/**
 	 * 
 	 * html里不能过滤空格字符
 	 * @var array
 	 */
-	protected $_whiteSpace = array ("\n", "\t", "\f" );
+	protected $whiteSpace = array (
+		"\n" => 1, 
+		"\t" => 1, 
+		"\f" => 1 
+	);
+
 	/**
-	 * 获取下一个TOKEN
-	 * (non-PHPdoc)
+	 * get next token
 	 * @see Fl_Token::getNextToken()
 	 */
 	public function getNextToken() {
@@ -42,10 +49,7 @@ class Fl_Html_Token extends Fl_Token {
 		if ($token || $token === false) {
 			return $token;
 		}
-		$char = $this->getCurrentChar ();
-		if ($char === false) {
-			return $this->getLastToken ();
-		}
+		$char = $this->text {$this->pos};
 		//现在特殊token的配置第一个字符都是<，所有可以优先判断<进行提速
 		if ($char === Fl_Html_Static::LEFT) {
 			$token = $this->getSpecialToken ();
@@ -53,11 +57,11 @@ class Fl_Html_Token extends Fl_Token {
 				return $token;
 			}
 		}
-		$next = $this->getPosChar ( $this->pos + 1 );
+		$next = $this->text {$this->pos + 1};
 		//当前字符为<，且下个字符不为<，且下个字符是个合法的tag首字符
 		if ($char === Fl_Html_Static::LEFT && $next !== Fl_Html_Static::RIGHT && Fl_Html_Static::isTagFirstChar ( $next )) {
 			$token = $this->readWhile ( 'getTagToken' );
-			if ($this->tagChecked) {
+			if ($this->validate) {
 				$lastChar = $token {strlen ( $token ) - 1};
 				//检测tag最有一个字符是否是>
 				if ($lastChar !== Fl_Html_Static::RIGHT) {
@@ -70,32 +74,48 @@ class Fl_Html_Token extends Fl_Token {
 			} elseif (! $this->isXML && strpos ( $token, Fl_Html_Static::XML_PREFIX ) === 0) {
 				$this->isXML = true;
 				$type = FL_TOKEN_XML_HEAD;
-				array_push ( Fl_Html_Static::$specialTokens, array (Fl_Html_Static::CDATA_PREFIX, Fl_Html_Static::CDATA_SUFFIX, FL_TOKEN_XML_CDATA ) );
+				array_push ( Fl_Html_Static::$specialTokens, array (
+					Fl_Html_Static::CDATA_PREFIX, 
+					Fl_Html_Static::CDATA_SUFFIX, 
+					FL_TOKEN_XML_CDATA 
+				) );
 			}
 			return $this->getTokenInfo ( $type, $token );
 		}
 		$token = $this->readWhile ( 'getTextToken' );
 		if (isset ( $token )) {
+			//check tag name
+			if ($this->validate && ($token === '<' || $token {strlen ( $token ) - 1} === '<')) {
+				if ($this->hasTplToken && $this->ld === substr ( $this->text, $this->pos, strlen ( $this->ld ) )) {
+					$text = substr ( $this->text, $this->pos );
+					$pattern = "/" . preg_quote ( $this->ld, "/" ) . ".*?" . preg_quote ( $this->rd, "/" ) . "/e";
+					$text = preg_replace ( $pattern, "", $text );
+					$pos = strpos ( $text, ">" );
+					if ($pos !== false && strpos ( substr ( $text, 0, $pos ), "<" ) === false) {
+						$this->throwException ( "tag name can't have tpl." );
+					}
+				}
+			}
 			$this->newlineBefore -= count ( explode ( FL_NEWLINE, $token ) ) - 1;
 			return $this->getTokenInfo ( FL_TOKEN_HTML_TEXT, $token );
 		}
 		$this->throwException ( 'uncaught char ' . $char );
 	}
+
 	/**
 	 * 
 	 * 获取文本节点
 	 */
 	public function getTextToken($char) {
-		$next = $this->getPosChar ( $this->pos + 1 );
-		$renext = $this->getPosChar ( $this->pos + 2 );
-		if ($next === false) {
+		/*if (! isset ( $this->text {$this->pos + 1} )) {
 			return false;
-		}
+		}*/
+		$next = $this->text {$this->pos + 1};
+		$renext = $this->text {$this->pos + 2};
 		/*
-		 * 如果下一个是模板语法的token，则返回
-		 * 这里用find有严重的性能问题，故直接使用substr比较
+		 * return when next token is tpl
 		 */
-		if ($this->ld && $this->ld === substr ( $this->text, $this->pos + 1, strlen ( $this->ld ) )) {
+		if ($this->hasTplToken && $this->ld === substr ( $this->text, $this->pos + 1, strlen ( $this->ld ) )) {
 			return false;
 		}
 		/*
@@ -107,6 +127,7 @@ class Fl_Html_Token extends Fl_Token {
 			return false;
 		}
 	}
+
 	/**
 	 * 
 	 * 获取标签token
@@ -124,9 +145,9 @@ class Fl_Html_Token extends Fl_Token {
 			return false;
 		}
 	}
+
 	/**
 	 * 跳过注释
-	 * (non-PHPdoc)
 	 * @see Fl_Token::skipComment()
 	 */
 	public function skipComment() {
@@ -141,13 +162,14 @@ class Fl_Html_Token extends Fl_Token {
 			if ($flag) {
 				break;
 			}
-			$comment = $this->getComment ( 'html' );
+			$comment = $this->getComment ( 'html', true, true );
 			if (! $comment) {
 				break;
 			}
 			$this->commentBefore [] = $comment;
 		}
 	}
+
 	/**
 	 * 
 	 * 获取特殊的token, 如: style, script, IE hack等等

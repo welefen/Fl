@@ -12,22 +12,17 @@
  *
  */
 class Fl {
+
 	/**
 	 * 
-	 * 单例模式对应的实例
-	 * @var object
+	 * class find path
+	 * @var array
 	 */
-	private static $_instance = null;
-	/**
-	 * 
-	 * 单例模式
-	 */
-	public static function getInstance() {
-		if (self::$_instance === null) {
-			self::$_instance = new self ();
-		}
-		return self::$_instance;
-	}
+	public static $classPath = array (
+		'Lang', 
+		'Util' 
+	);
+
 	/**
 	 * 
 	 * 加载类文件
@@ -42,11 +37,9 @@ class Fl {
 			}
 			$class = ucwords ( str_replace ( "_", " ", $class ) );
 			$path = str_replace ( ' ', '/', $class );
-			
-			$classPath = array ('Lang', 'Util' );
 			$exist = false;
-			foreach ( $classPath as $dir ) {
-				$repath = str_replace ( array ('fl', 'Fl' ), $dir, $path );
+			foreach ( self::$classPath as $dir ) {
+				$repath = str_ireplace ( 'fl', $dir, $path );
 				$file = dirname ( __FILE__ ) . '/' . $repath . '.class.php';
 				if (file_exists ( $file )) {
 					require_once $file;
@@ -56,22 +49,12 @@ class Fl {
 			}
 			if (! $exist) {
 				self::loadClass ( 'Fl_Exception' );
-				throw new Fl_Exception ( $sourceClass . ' is not exist', $code );
+				throw new Fl_Exception ( $sourceClass . ' is not exist', - 1 );
 			}
 		}
 		if ($new) {
 			return new $class ();
 		}
 		return $class;
-	}
-	/**
-	 * 
-	 * 魔术方法
-	 * @param string $method
-	 * @param array $args
-	 */
-	public function __call($method, $args) {
-		self::loadClass ( $method );
-		return new $method ( $args );
 	}
 }

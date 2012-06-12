@@ -8,4 +8,5 @@
  */
 class Fl_Exception extends Exception {
 
+	public $message = '';
 }

@@ -6,24 +6,63 @@ Fl::loadClass ( 'Fl_Token' );
 Fl::loadClass ( 'Fl_Css_Static' );
 /**
  * 
- * CSS的词法分析
+ * CSS Tokenizar
  * @author welefen
  *
  */
 class Fl_Css_Token extends Fl_Token {
+
 	/**
 	 * 
-	 * 上一个token的类型
+	 * validate tokens
+	 * @var boolean
+	 */
+	public $validate = true;
+
+	/**
+	 * 
+	 * prev token type
 	 * @var string
 	 */
-	public $preTokenType = '';
+	protected $preTokenType = '';
+
 	/**
 	 * 
-	 * 花括号的个数
+	 * bracket number
 	 * @var array
 	 */
-	public $bracesNum = array (0, 0 );
-	
+	protected $bracesNum = array (
+		0, 
+		0 
+	);
+
+	/**
+	 * trim text
+	 * @see Fl_Base::trim()
+	 */
+	public function trim($text = '') {
+		$text = parent::trim ( $text );
+		//replace \0069 to ascii
+		$text = preg_replace ( "/\\\\(\d{2,})/e", "self::hex2asc('\\1')", $text );
+		//remove `\0` in css. but can't remove like `color\0:red`
+		$text = preg_replace ( "/\\\\0+(?=[^\d\s\;\:\}])/", "", $text );
+		return $text;
+	}
+
+	/**
+	 * 
+	 * hex to ascii char
+	 * @param string $str
+	 */
+	public static function hex2asc($str) {
+		$str = trim ( $str );
+		$len = strlen ( $str );
+		for($i = 0; $i < $len; $i += 2) {
+			$data .= chr ( hexdec ( substr ( $str, $i, 2 ) ) );
+		}
+		return $data;
+	}
+
 	/**
 	 * 获取下一个TOKEN
 	 * @see Fl_Token::getNextToken()
@@ -33,33 +72,38 @@ class Fl_Css_Token extends Fl_Token {
 		if ($token || $token === false) {
 			return $token;
 		}
-		$char = $this->getCurrentChar ();
-		if ($char === false) {
-			return $this->getLastToken ();
+		$char = $this->text {$this->pos};
+		switch ($char) {
+			case "@" :
+				$value = $this->readWhile ( 'getAtToken' );
+				$type = $this->getAtDetailType ( $value );
+				break;
+			case "{" :
+				$type = $this->getStartBracesType ();
+				$this->getNextChar ();
+				break;
+			case "}" :
+				$type = $this->getEndBracesType ();
+				$this->getNextChar ();
+				break;
+			case ":" :
+				if ($this->preTokenType == FL_TOKEN_CSS_PROPERTY || $this->preTokenType == FL_TOKEN_TPL) {
+					$this->getNextChar ();
+					$this->preTokenType = FL_TOKEN_CSS_COLON;
+					$type = $this->preTokenType;
+				}
+				break;
+			case ";" :
+				if ($this->validate && $this->preTokenType === FL_TOKEN_CSS_PROPERTY) {
+					$this->throwException ( "`;` can not after propery" );
+				}
+				$this->getNextChar ();
+				$this->preTokenType = FL_TOKEN_CSS_SEMICOLON;
+				$type = $this->preTokenType;
+				break;
 		}
-		if ($char === '@') {
-			$result = $this->readWhile ( 'getAtToken' );
-			$type = $this->getAtDetailType ( $result );
-			return $this->getTokenInfo ( $type, $result );
-		} else if ($char === '{') {
-			$type = $this->getStartBracesType ();
-			$this->getNextChar ();
-			return $this->getTokenInfo ( $type, $char );
-		} else if ($char === '}') {
-			$type = $this->getEndBracesType ();
-			$this->getNextChar ();
-			return $this->getTokenInfo ( $type, $char );
-		} else if ($char === ':') {
-			if ($this->preTokenType != FL_TOKEN_CSS_PROPERTY && $this->preTokenType != FL_TOKEN_TPL) {
-				$this->throwException ( 'prev value is not property or tpl' );
-			}
-			$this->getNextChar ();
-			$this->preTokenType = FL_TOKEN_CSS_COLON;
-			return $this->getTokenInfo ( FL_TOKEN_CSS_COLON, $char );
-		} else if ($char === ';') {
-			$this->getNextChar ();
-			$this->preTokenType = FL_TOKEN_CSS_SEMICOLON;
-			return $this->getTokenInfo ( FL_TOKEN_CSS_SEMICOLON, $char );
+		if ($type) {
+			return $this->getTokenInfo ( $type, isset ( $value ) ? $value : $char );
 		}
 		$token = $this->getSpecialToken ();
 		if ($token) {
@@ -72,20 +116,21 @@ class Fl_Css_Token extends Fl_Token {
 				$this->preTokenType = FL_TOKEN_CSS_PROPERTY;
 				return $this->getTokenInfo ( FL_TOKEN_CSS_PROPERTY, $result );
 			case FL_TOKEN_CSS_COLON :
-			case FL_TOKEN_CSS_PROPERTY :
-				$result = $this->getValueToken ();
+				#case FL_TOKEN_CSS_PROPERTY :
+				$result = trim ( $this->getValueToken () );
 				$this->preTokenType = FL_TOKEN_CSS_VALUE;
 				return $this->getTokenInfo ( FL_TOKEN_CSS_VALUE, $result );
 			default :
-				$result = $this->readWhile ( 'getSelectorToken' );
-				if ($this->getPosChar ( $this->pos ) !== '{') {
-					$this->throwException ( 'get Selector error' );
+				$result = trim ( $this->readWhile ( 'getSelectorToken' ) );
+				if ($this->validate && $this->text {$this->pos} !== '{') {
+					$this->throwException ( 'get Selector error `' . $result . '`' );
 				}
 				$this->preTokenType = FL_TOKEN_CSS_SELECTOR;
 				return $this->getTokenInfo ( FL_TOKEN_CSS_SELECTOR, $result );
 		}
-		$this->throwException ( 'uncaught error' );
+		$this->throwException ( 'uncaught char ' . $char );
 	}
+
 	/**
 	 * 
 	 * 获取@开头的token
@@ -100,32 +145,30 @@ class Fl_Css_Token extends Fl_Token {
 		if ($return = $this->getQuoteText ( $char, true )) {
 			return $return;
 		}
-		if ($char === ';') {
-			return false;
-		}
-		if ($this->getPosChar ( $this->pos + 1 ) === '{') {
+		if ($char === ';' || $this->text {$this->pos + 1} === '{') {
 			return false;
 		}
 	}
+
 	/**
 	 * 
 	 * 获取@的详细类型
 	 */
 	public function getAtDetailType($result = '') {
-		$type = Fl_Css_Static::getAtDetailType ( $result, $this );
-		$this->preTokenType = $type;
-		return $type;
+		return $this->preTokenType = Fl_Css_Static::getAtDetailType ( $result, $this );
 	}
+
 	/**
 	 * 跳过评论
 	 * (non-PHPdoc)
 	 * @see Fl_Token::skipComment()
 	 */
 	public function skipComment() {
-		while ( $comment = $this->getComment ( 'multi' ) ) {
+		while ( $comment = $this->getComment ( 'multi', true, true ) ) {
 			$this->commentBefore [] = $comment;
 		}
 	}
+
 	/**
 	 * 
 	 * 获取左花括号的类型
@@ -134,8 +177,10 @@ class Fl_Css_Token extends Fl_Token {
 		switch ($this->preTokenType) {
 			case FL_TOKEN_CSS_AT_MEDIA :
 			case FL_TOKEN_CSS_AT_KEYFRAMES :
+			case FL_TOKEN_CSS_AT_MOZILLA :
 				$type = FL_TOKEN_CSS_BRACES_TWO_START;
 				break;
+			case FL_TOKEN_CSS_AT_FONTFACE :
 			case FL_TOKEN_CSS_SELECTOR :
 			case FL_TOKEN_CSS_AT_PAGE :
 			case FL_TOKEN_CSS_AT_OTHER :
@@ -143,12 +188,13 @@ class Fl_Css_Token extends Fl_Token {
 				break;
 		}
 		if (! $type) {
-			$this->throwException ( 'get { error' );
+			$this->throwException ( 'get { error in ' . __LINE__ );
 		}
 		$this->bracesNum [0] ++;
 		$this->preTokenType = $type;
 		return $type;
 	}
+
 	/**
 	 * 
 	 * 获取右花括号的类型
@@ -166,46 +212,63 @@ class Fl_Css_Token extends Fl_Token {
 				$type = FL_TOKEN_CSS_BRACES_TWO_END;
 		}
 		$this->bracesNum [1] ++;
-		$this->preTokenType = $type;
-		return $type;
+		return $this->preTokenType = $type;
 	}
+
 	/**
 	 * 
 	 * 获取属性名
 	 */
 	public function getPropertyToken($char = '') {
-		$nextChar = $this->getPosChar ( $this->pos + 1 );
+		$nextChar = $this->text {$this->pos + 1};
+		//not break on next char is blank, `* display:none`
 		if ($nextChar === ':' || $nextChar === '{' || $nextChar === ';' || $nextChar === '}') {
 			return false;
 		}
 	}
+
 	/**
 	 * 
 	 * 获取属性值
 	 */
 	public function getValueToken() {
 		$return = '';
+		$ldLen = strlen ( $this->ld );
 		while ( ($char = $this->getNextChar ()) !== false ) {
 			$return .= $char;
-			//expression和background（dataURI）的值可能含有:和;，这会导致后面的解析出问题，所以要特殊处理
+			//value may be have comment, such as:
+			//@font-face {
+			//  font-family: 'WebFont';
+			//  src: url('myfont.eot?#') format('eot'),  /* IE6–8 */
+			//       url('myfont.woff') format('woff'),  /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+			//       url('myfont.ttf') format('truetype');  /* Saf3—5, Chrome4+, FF3.5, Opera 10+ */
+			//}
+			$comment = $this->getComment ( 'multi', false );
+			if ($comment) {
+				$return .= $comment;
+			}
+			//expression or background（dataURI）value may be have `:` or `;`
 			if ($char === '(') {
-				if (preg_match ( "/expression\s*/ies", $return )) {
+				//@TODO:this condition check it not safe
+				if (preg_match ( "/expression\s*/is", $return ) || stripos ( $this->text, "javascript" ) === $this->pos || stripos ( $this->text, "vbscript" ) === $this->pos) {
 					$value = $this->getJsText ();
 					$return .= $value;
 				} else {
-					$matched = $this->getMatched ( $this->getCurrentChar (), ')', false, false, false );
+					$matched = $this->getMatched ( $this->text {$this->pos}, ')', false, false, false );
 					if ($matched) {
 						$return .= $matched;
 					}
 				}
 			}
-			$nextChar = $this->getPosChar ( $this->pos );
+			$nextChar = $this->text {$this->pos};
+			//value may be has `/`, such as font: 13px/28px; 
 			if ($nextChar === ';' || $nextChar === '}') {
 				break;
 			}
 		}
 		return $return;
 	}
+
 	/**
 	 * 
 	 * 获取expression里js部分的值
@@ -218,14 +281,15 @@ class Fl_Css_Token extends Fl_Token {
 			if ($char === ')') {
 				$instance = new Fl_Js_Token ( $result );
 				$instance->validate = false;
-				$output = $instance->getAllTokens ();
-				if ($instance->validateData ['('] === $instance->validateData [')']) {
+				$output = $instance->run ();
+				if (($instance->validateData ['('] + 1) === $instance->validateData [')']) {
 					break;
 				}
 			}
 		}
 		return $result;
 	}
+
 	/**
 	 * 
 	 * 获取selector
@@ -239,10 +303,16 @@ class Fl_Css_Token extends Fl_Token {
 		if ($return = $this->getQuoteText ( $char, true )) {
 			return $return;
 		}
-		if ($this->getPosChar ( $this->pos + 1 ) === '{') {
+		//for "div.red/***/{}"
+		if ($this->text {$this->pos} === '{') {
+			$this->pendingNextChar = true;
+			return true;
+		}
+		if ($this->text {$this->pos + 1} === '{') {
 			return false;
 		}
 	}
+
 	/**
 	 * 
 	 * 获取一些特殊的token，如: chrome下的hack
@@ -256,13 +326,14 @@ class Fl_Css_Token extends Fl_Token {
 		}
 		return false;
 	}
+
 	/**
 	 * 在获取最后一个token的时候，检测{和}个数是否相等
 	 * @see Fl_Token::getLastToken()
 	 */
 	public function getLastToken() {
-		if ($this->bracesNum [0] != $this->bracesNum [1]) {
-			$this->throwException ( '{ & } num not equal' );
+		if ($this->validate && $this->bracesNum [0] != $this->bracesNum [1]) {
+			$this->throwException ( '{ & } num not equal.' );
 		}
 		return parent::getLastToken ();
 	}
