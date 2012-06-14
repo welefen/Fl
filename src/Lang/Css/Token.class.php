@@ -105,14 +105,17 @@ class Fl_Css_Token extends Fl_Token {
 		if ($type) {
 			return $this->getTokenInfo ( $type, isset ( $value ) ? $value : $char );
 		}
-		$token = $this->getSpecialToken ();
-		if ($token) {
-			return $token;
+		//specail tokens now only have [;color:red;]
+		if ($char === '[') {
+			$token = $this->getSpecialToken ();
+			if ($token) {
+				return $token;
+			}
 		}
 		switch ($this->preTokenType) {
 			case FL_TOKEN_CSS_BRACES_ONE_START :
 			case FL_TOKEN_CSS_SEMICOLON :
-				$result = $this->readWhile ( 'getPropertyToken' );
+				$result = $this->getPropertyToken ( $char );
 				$this->preTokenType = FL_TOKEN_CSS_PROPERTY;
 				return $this->getTokenInfo ( FL_TOKEN_CSS_PROPERTY, $result );
 			case FL_TOKEN_CSS_COLON :
@@ -122,8 +125,9 @@ class Fl_Css_Token extends Fl_Token {
 				return $this->getTokenInfo ( FL_TOKEN_CSS_VALUE, $result );
 			default :
 				$result = trim ( $this->readWhile ( 'getSelectorToken' ) );
+				//$result = $this->getSelectorToken ( $char );
 				if ($this->validate && $this->text {$this->pos} !== '{') {
-					$this->throwException ( 'get Selector error `' . $result . '`' );
+					$this->throwException ( 'get Selector error `' . $result . '`' . $this->text );
 				}
 				$this->preTokenType = FL_TOKEN_CSS_SELECTOR;
 				return $this->getTokenInfo ( FL_TOKEN_CSS_SELECTOR, $result );
@@ -160,12 +164,18 @@ class Fl_Css_Token extends Fl_Token {
 
 	/**
 	 * 跳过评论
-	 * (non-PHPdoc)
 	 * @see Fl_Token::skipComment()
 	 */
 	public function skipComment() {
-		while ( $comment = $this->getComment ( 'multi', true, true ) ) {
-			$this->commentBefore [] = $comment;
+		while ( true ) {
+			if ($this->text {$this->pos} === '/') {
+				$comment = $this->getComment ( 'multi', true, true );
+				if ($comment) {
+					$this->commentBefore [] = $comment;
+					continue;
+				}
+			}
+			break;
 		}
 	}
 
@@ -220,11 +230,16 @@ class Fl_Css_Token extends Fl_Token {
 	 * 获取属性名
 	 */
 	public function getPropertyToken($char = '') {
-		$nextChar = $this->text {$this->pos + 1};
-		//not break on next char is blank, `* display:none`
-		if ($nextChar === ':' || $nextChar === '{' || $nextChar === ';' || $nextChar === '}') {
-			return false;
+		$result = '';
+		while ( $this->pos < $this->length ) {
+			$result .= $this->getNextChar ();
+			$nextChar = $this->text {$this->pos};
+			//not break on next char is blank, `* display:none`
+			if ($nextChar === ':' || $nextChar === '{' || $nextChar === ';' || $nextChar === '}') {
+				break;
+			}
 		}
+		return $result;
 	}
 
 	/**
@@ -243,9 +258,11 @@ class Fl_Css_Token extends Fl_Token {
 			//       url('myfont.woff') format('woff'),  /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
 			//       url('myfont.ttf') format('truetype');  /* Saf3—5, Chrome4+, FF3.5, Opera 10+ */
 			//}
-			$comment = $this->getComment ( 'multi', false );
-			if ($comment) {
-				$return .= $comment;
+			if ($this->text {$this->pos} === '/') {
+				$comment = $this->getComment ( 'multi', false );
+				if ($comment) {
+					$return .= $comment;
+				}
 			}
 			//expression or background（dataURI）value may be have `:` or `;`
 			if ($char === '(') {
@@ -295,13 +312,17 @@ class Fl_Css_Token extends Fl_Token {
 	 * 获取selector
 	 */
 	public function getSelectorToken($char = '') {
-		$comment = $this->getComment ( 'multi', false );
-		if ($comment) {
-			$this->pendingNextChar = true;
-			return $comment;
+		if ($this->text {$this->pos} === '/') {
+			$comment = $this->getComment ( 'multi', false );
+			if ($comment) {
+				$this->pendingNextChar = true;
+				return $comment;
+			}
 		}
-		if ($return = $this->getQuoteText ( $char, true )) {
-			return $return;
+		if ($char === "'" || $char === '"') {
+			if ($return = $this->getQuoteText ( $char, true )) {
+				return $return;
+			}
 		}
 		//for "div.red/***/{}"
 		if ($this->text {$this->pos} === '{') {

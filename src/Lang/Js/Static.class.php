@@ -141,8 +141,8 @@ class Fl_Js_Static {
 
 	/**
 	 * 
-	 * Enter description here ...
-	 * @var unknown_type
+	 * prefix number pattern
+	 * @var regexp
 	 */
 	public static $prefixNumber = '/^0x?$/i';
 

@@ -41,18 +41,11 @@ class Fl_Css_SelectorToken extends Fl_Token {
 	}
 
 	/**
-	 * skip comment
-	 * @see Fl_Token::skipComment()
+	 * run
+	 * @see Fl_Token::run()
 	 */
-	public function skipComment() {
-		while ( $comment = $this->getComment ( 'multi' ) ) {
-			$this->commentBefore [] = $comment;
-		}
-	}
-
 	public function run() {
-		$output = array ();
-		$result = array ();
+		$output = $result = array ();
 		while ( $token = $this->getNextToken () ) {
 			if ($token ['type'] === FL_TOKEN_CSS_SELECTOR_COMMA) {
 				if (count ( $result )) {
@@ -67,6 +60,26 @@ class Fl_Css_SelectorToken extends Fl_Token {
 			$output [] = $result;
 		}
 		return $output;
+	}
+
+	/**
+	 * skip comment
+	 * @see Fl_Token::skipComment()
+	 */
+	public function skipComment() {
+		/*while ( $comment = $this->getComment ( 'multi' ) ) {
+			$this->commentBefore [] = $comment;
+		}*/
+		while ( true ) {
+			if ($this->text {$this->pos} === '/') {
+				$comment = $this->getComment ( 'multi', true );
+				if ($comment) {
+					$this->commentBefore [] = $comment;
+					continue;
+				}
+			}
+			break;
+		}
 	}
 
 	/**

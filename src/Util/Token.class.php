@@ -2,6 +2,7 @@
 Fl::loadClass ( 'Fl_Base' );
 Fl::loadClass ( 'Fl_Exception' );
 Fl::loadClass ( 'Fl_Define' );
+Fl::loadClass ( 'Fl_Tpl' );
 /**
  * 
  * 词法分析的基础类
@@ -249,10 +250,9 @@ abstract class Fl_Token extends Fl_Base {
 	public function startWith($what, $sensitive = true, $len = 0) {
 		$sub = substr ( $this->text, $this->pos, $len ? $len : strlen ( $what ) );
 		if ($sensitive) {
-			return $what === $sub;
-		} else {
-			return strtolower ( $sub ) === strtolower ( $what );
+			return $what == $sub;
 		}
+		return strtolower ( $sub ) === strtolower ( $what );
 	}
 
 	/**
@@ -262,13 +262,15 @@ abstract class Fl_Token extends Fl_Base {
 	 * @param boolean $skipWhitespace 是否跳过空白
 	 */
 	public function getComment($type = 'multi', $skipWhitespace = true, $returnArray = false) {
-		if (! isset ( $this->commentType [$type] )) {
+		/*if (! isset ( $this->commentType [$type] )) {
 			$this->throwException ( 'comment type ' . $type . ' not found.' );
+		}*/
+		if ($returnArray) {
+			$pos = $this->pos;
+			$line = $this->line;
+			$col = $this->col;
 		}
 		$value = $this->commentType [$type];
-		$pos = $this->pos;
-		$line = $this->line;
-		$col = $this->col;
 		$result = $this->getMatched ( $value ['prefix'], $value ['suffix'] );
 		if ($result) {
 			$skipWhitespace && $this->skipWhiteSpace ();
@@ -457,7 +459,6 @@ abstract class Fl_Token extends Fl_Base {
 		if (! $this->checkHasTplToken () || ! $this->startWith ( $this->ld )) {
 			return false;
 		}
-		Fl::loadClass ( 'Fl_Tpl' );
 		return Fl_Tpl::factory ( $this )->getToken ( $this );
 	}
 

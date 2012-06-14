@@ -1,10 +1,8 @@
 <?php
 /**
  * 
- * JS的语法解析(构建语法树)，借鉴于UglifyJS
- * 支持模版语法
+ * js ast class
  * @author welefen
- * @version 1.0 - 20120217
  *
  */
 Fl::loadClass ( 'Fl_Base' );

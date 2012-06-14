@@ -155,6 +155,13 @@ class Fl_Css_Static {
 
 	/**
 	 * 
+	 * multi same property pattern
+	 * @var regexp
+	 */
+	public static $multiSamePropertyPattern = "/background/i";
+
+	/**
+	 * 
 	 * multi same property in a selector
 	 * @var array
 	 */
@@ -803,11 +810,15 @@ class Fl_Css_Static {
 		$assoc = array_uintersect_assoc ( $attrs1, $attrs2, "Fl_Css_Static::checkPropertiesEqual" );
 		//if intersect attrs has hack attr, remove it
 		foreach ( $assoc as $name => $item ) {
+			if (preg_match ( self::$multiSamePropertyPattern, $name )) {
+				unset ( $assoc [$name] );
+				continue;
+			}
 			foreach ( $attrs1 as $n1 => $i1 ) {
 				if ($i1 ['property'] == $item ['property'] && ($i1 ['prefix'] || $i1 ['suffix'])) {
 					unset ( $assoc [$name] );
 				}
-				if ($i1 ['type'] === FL_TOKEN_CSS_HACK || $i1 ['type'] === FL_TOKEN_CSS_MULTI_PROPERTY) {
+				if ($i1 ['type'] === FL_TOKEN_CSS_HACK) {
 					return false;
 				}
 			}
@@ -815,7 +826,7 @@ class Fl_Css_Static {
 				if ($i1 ['property'] == $item ['property'] && ($i1 ['prefix'] || $i1 ['suffix'])) {
 					unset ( $assoc [$name] );
 				}
-				if ($i1 ['type'] === FL_TOKEN_CSS_HACK || $i1 ['type'] === FL_TOKEN_CSS_MULTI_PROPERTY) {
+				if ($i1 ['type'] === FL_TOKEN_CSS_HACK) {
 					return false;
 				}
 			}

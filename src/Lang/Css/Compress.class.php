@@ -97,9 +97,6 @@ class Fl_Css_Compress extends Fl_Base {
 	 */
 	public function run($options = array()) {
 		$this->options = array_merge ( $this->options, $options );
-		if ($this->checkHasTplToken ()) {
-			$this->options = array_merge ( $this->options, $this->tplOptions );
-		}
 		$this->tokenInstance = $this->getInstance ( "Fl_Css_Token" );
 		$selectorPos = 0;
 		$sortSelector = $this->options ['sort_selector'];
@@ -160,7 +157,6 @@ class Fl_Css_Compress extends Fl_Base {
 				$se = $this->selectorsIntersect ( $se );
 				if ($this->options ['sort_selector']) {
 					$se = Fl_Css_Static::sortSelectors ( $se );
-					$se = $this->selectorsIntersect ( $se );
 				}
 				if ($flag === 2) {
 					$se [] = $item;
@@ -451,6 +447,9 @@ class Fl_Css_Compress extends Fl_Base {
 			if ($token ['type'] === FL_TOKEN_CSS_BRACES_ONE_END) {
 				break;
 			}
+		}
+		if ($hasTpl) {
+			$this->options = array_merge ( $this->options, $this->tplOptions );
 		}
 		if (! $hasTpl && ! $hack) {
 			if ($this->options ['merge_property']) {

@@ -1,8 +1,8 @@
 <?php
 $text = file_get_contents ( "1.text" );
 require_once (dirname ( dirname ( __FILE__ ) )) . '/src/Fl.class.php';
-Fl::loadClass ( 'Fl_Css_Token' );
-$instance = new Fl_Css_Token ( $text );
+Fl::loadClass ( 'Fl_Css_Compress' );
+$instance = new Fl_Css_Compress ( $text );
 $instance->tpl = 'smarty';
 $instance->ld = '<&';
 $instance->rd = '&>';
