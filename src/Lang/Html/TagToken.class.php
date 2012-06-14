@@ -132,7 +132,7 @@ class Fl_Html_TagToken extends Fl_Token {
 				}
 				$this->getNextChar ();
 				$this->pendingNextChar = true;
-				$value = $this->getQuoteText ( $char, false );
+				$value .= $this->getQuoteText ( $char, false );
 				$preSpace = false;
 				$return [] = $hasEqual ? array (
 					$name, 

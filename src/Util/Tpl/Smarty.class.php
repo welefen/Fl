@@ -28,10 +28,9 @@ class Fl_Tpl_Smarty implements Fl_Tpl_Interface {
 		"smarty.now", 
 		"smarty.section", 
 		"smarty.block", 
-		"+", 
-		"=", 
-		"-" 
-	);
+		//"+", 
+		"=" 
+	); //"-" 
 
 	/**
 	 * 
@@ -56,7 +55,15 @@ class Fl_Tpl_Smarty implements Fl_Tpl_Interface {
 	 */
 	public function checkHasOutput($tpl, Fl_Base &$instance) {
 		$tplOutputPattern = str_replace ( "{LD}", preg_quote ( $instance->ld, "/" ), self::$tplOutputPattern );
-		return preg_match ( $tplOutputPattern, $tpl );
+		if (! preg_match ( $tplOutputPattern, $tpl )) {
+			return false;
+		}
+		$text = $instance->getTplText ( $tpl );
+		//<&$value=$name+1&>
+		if (strpos ( $text, "=" ) !== false) {
+			return false;
+		}
+		return true;
 	}
 
 	/**

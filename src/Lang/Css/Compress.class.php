@@ -28,6 +28,21 @@ class Fl_Css_Compress extends Fl_Base {
 
 	/**
 	 * 
+	 * tpl options
+	 * @var array
+	 */
+	protected $tplOptions = array (
+		"override_same_property" => false, 
+		"short_value" => false, 
+		"merge_property" => false, 
+		"sort_property" => false, 
+		"sort_selector" => false, 
+		"merge_selector" => false, 
+		"property_to_lower" => false 
+	);
+
+	/**
+	 * 
 	 * remove useless class, used class will be set in $useClassList
 	 * @var boolean
 	 */
@@ -82,6 +97,9 @@ class Fl_Css_Compress extends Fl_Base {
 	 */
 	public function run($options = array()) {
 		$this->options = array_merge ( $this->options, $options );
+		if ($this->checkHasTplToken ()) {
+			$this->options = array_merge ( $this->options, $this->tplOptions );
+		}
 		$this->tokenInstance = $this->getInstance ( "Fl_Css_Token" );
 		$selectorPos = 0;
 		$sortSelector = $this->options ['sort_selector'];
@@ -266,13 +284,13 @@ class Fl_Css_Compress extends Fl_Base {
 						), $this->selectors );
 					}
 				} else {
-					$this->selectors [$value . ($selectorPos ++)] = $se;
+					$this->selectors [$value . "%" . ($selectorPos ++)] = $se;
 				}
 			} else {
 				$selector = Fl_Css_Static::selectorTokenToText ( $result [0], false );
 				$detail ['selector'] = $selector;
 				$detail ['score'] = Fl_Css_Static::getSelectorSpecificity ( $result [0], true );
-				$this->selectors [$selector . ($selectorPos ++)] = $detail;
+				$this->selectors [$selector . "%" . ($selectorPos ++)] = $detail;
 			}
 		} else {
 			$every = true;
@@ -317,7 +335,7 @@ class Fl_Css_Compress extends Fl_Base {
 				$detail ['equal'] = $selectors;
 				$detail ['same_score'] = $same;
 				$detail ['score'] = $score;
-				$this->selectors [$selector . ($selectorPos ++)] = $detail;
+				$this->selectors [$selector . "%" . ($selectorPos ++)] = $detail;
 			}
 		}
 	}
@@ -332,65 +350,79 @@ class Fl_Css_Compress extends Fl_Base {
 			$this->throwException ( "after selector must be a {" );
 		}
 		$attrs = array ();
-		$attr = '';
+		$attr = $value = '';
 		$pos = 0;
-		//css hack in attrs
-		$hack = false;
+		$hack = $hasColon = $hasTpl = $tpl = false;
 		while ( true ) {
 			$token = $this->tokenInstance->getNextToken ();
-			if (empty ( $token ) || $token ['type'] === FL_TOKEN_CSS_BRACES_ONE_END) {
+			if (empty ( $token )) {
 				break;
 			} elseif ($token ['type'] === FL_TOKEN_CSS_PROPERTY) {
-				if ($this->options ['property_to_lower']) {
-					$attr = strtolower ( $token ['value'] );
-				} else {
-					$attr = $token ['value'];
-				}
+				$attr .= $this->options ['property_to_lower'] ? strtolower ( $token ['value'] ) : $token ['value'];
 				if (! $this->options ['override_same_property'] && isset ( $attrs [$attr] )) {
 					$attr .= $pos ++;
 				}
 			} elseif ($token ['type'] === FL_TOKEN_CSS_VALUE) {
-				if (! $attr) {
-					$this->throwException ( 'only css value is not valid.' );
+				$value .= $token ['value'];
+			} elseif ($token ['type'] === FL_TOKEN_CSS_SEMICOLON || $token ['type'] === FL_TOKEN_CSS_BRACES_ONE_END) {
+				if (! strlen ( $value )) {
+					if ($attr && $this->containTpl ( $attr )) {
+						$attrs [$attr . '%' . $pos ++] = array (
+							"type" => FL_TOKEN_TPL, 
+							"value" => $attr 
+						);
+					}
+					$attr = $value = '';
+					$hasColon = $tpl = false;
+					if ($token ['type'] === FL_TOKEN_CSS_SEMICOLON) {
+						continue;
+					} else {
+						break;
+					}
 				}
-				if (strlen ( $token ['value'] ) === 0) {
-					$attr = '';
-					continue;
-				}
-				$propertyDetail = Fl_Css_Static::getPropertyDetail ( $attr );
-				//if property is filter, can't replace `, ` to `,`
-				//see http://www.imququ.com/post/the_bug_of_ie-matrix-filter.html
-				if (strtolower ( $propertyDetail ['property'] ) !== 'filter') {
-					$token ['value'] = preg_replace ( "/,\s+/", ",", $token ['value'] );
-				}
-				$valueDetail = Fl_Css_Static::getValueDetail ( $token ['value'] );
-				//get short value
-				if ($this->options ['short_value']) {
-					$valueDetail ['value'] = Fl_Css_Static::getShortValue ( $valueDetail ['value'], $propertyDetail ['property'] );
-				}
-				//merge them with `+`
-				$detail = $propertyDetail + $valueDetail;
-				//add pos key for property sort
-				$detail ['pos'] = $pos ++;
-				/**
-				 * for div{color:red;color:blue\9;}
-				 * if suffix in css value, can not override property.
-				 */
-				$attr .= $valueDetail ['suffix'];
-				//multi same property
-				//background:red;background:url(xx.png)
-				if (Fl_Css_Static::isMultiSameProperty ( $attr )) {
-					$attr .= $pos;
-					$detail ['type'] = FL_TOKEN_CSS_MULTI_PROPERTY;
-				}
-				if (! $this->options ['override_same_property']) {
-					$attrs [$attr] = $detail;
+				if ($tpl || $this->containTpl ( $attr )) {
+					$hasTpl = true;
+					$attrs [$attr . '%' . ($pos ++)] = array (
+						"property" => $attr, 
+						"value" => $value 
+					);
 				} else {
-					$attrs = Fl_Css_Static::mergeProperties ( $attrs, array (
-						$attr => $detail 
-					) );
+					$propertyDetail = Fl_Css_Static::getPropertyDetail ( $attr );
+					//if property is filter, can't replace `, ` to `,`
+					//see http://www.imququ.com/post/the_bug_of_ie-matrix-filter.html
+					if (strtolower ( $propertyDetail ['property'] ) !== 'filter') {
+						$value = preg_replace ( "/,\s+/", ",", $value );
+					}
+					$valueDetail = Fl_Css_Static::getValueDetail ( $value );
+					//get short value
+					if ($this->options ['short_value']) {
+						$valueDetail ['value'] = Fl_Css_Static::getShortValue ( $valueDetail ['value'], $propertyDetail ['property'] );
+					}
+					//merge them with `+`
+					$detail = $propertyDetail + $valueDetail;
+					//add pos key for property sort
+					$detail ['pos'] = $pos ++;
+					/**
+					 * for div{color:red;color:blue\9;}
+					 * if suffix in css value, can not override property.
+					 */
+					$attr .= $valueDetail ['suffix'];
+					//multi same property
+					//background:red;background:url(xx.png)
+					if (Fl_Css_Static::isMultiSameProperty ( $attr )) {
+						$attr .= "%" . $pos;
+						$detail ['type'] = FL_TOKEN_CSS_MULTI_PROPERTY;
+					}
+					if (! $this->options ['override_same_property']) {
+						$attrs [$attr] = $detail;
+					} else {
+						$attrs = Fl_Css_Static::mergeProperties ( $attrs, array (
+							$attr => $detail 
+						) );
+					}
 				}
-				$attr = '';
+				$attr = $value = '';
+				$hasColon = $tpl = false;
 			} elseif ($token ['type'] === FL_TOKEN_CSS_HACK) {
 				//for css hack [;color:red;]
 				if (strpos ( $token ['value'], ":" ) != false) {
@@ -403,23 +435,31 @@ class Fl_Css_Compress extends Fl_Base {
 					$hack = true;
 				}
 			} else if ($token ['type'] === FL_TOKEN_TPL) {
-				if ($attr) {
-					$attrs [$attr . $pos ++] = array (
-						"value" => $token ['value'], 
-						"property" => $attr 
-					);
-					$attr = '';
+				if ($hasColon) {
+					$value .= $token ['value'];
 				} else {
-					$attr = $token ['value'];
+					$attr .= $token ['value'];
+				}
+				$tpl = true;
+			} elseif ($token ['type'] === FL_TOKEN_CSS_COLON) {
+				if ($hasColon) {
+					$value .= $token ['value'];
+				} else {
+					$hasColon = true;
 				}
 			}
+			if ($token ['type'] === FL_TOKEN_CSS_BRACES_ONE_END) {
+				break;
+			}
 		}
-		if ($this->options ['merge_property']) {
-			$attrs = $this->shortProperties ( $attrs );
-		}
-		//if hack in attrs, can't sort it
-		if (! $hack && $this->options ['sort_property']) {
-			$attrs = Fl_Css_Static::sortProperties ( $attrs );
+		if (! $hasTpl && ! $hack) {
+			if ($this->options ['merge_property']) {
+				$attrs = $this->shortProperties ( $attrs );
+			}
+			//if hack in attrs, can't sort it
+			if ($this->options ['sort_property']) {
+				$attrs = Fl_Css_Static::sortProperties ( $attrs );
+			}
 		}
 		return $attrs;
 	}
@@ -443,13 +483,17 @@ class Fl_Css_Compress extends Fl_Base {
 	public function propertiesToText($attrs = array()) {
 		$result = array ();
 		foreach ( $attrs as $name => $item ) {
-			$result [] = $item ['prefix'] . $item ['property'];
-			$result [] = ':';
-			$result [] = $item ['value'];
-			if ($item ['important']) {
-				$result [] = '!important';
+			if ($item ['type'] === FL_TOKEN_TPL) {
+				$result [] = $item ['value'];
+			} else {
+				$result [] = $item ['prefix'] . $item ['property'];
+				$result [] = ':';
+				$result [] = $item ['value'];
+				if ($item ['important']) {
+					$result [] = '!important';
+				}
+				$result [] = $item ['suffix'] . ';';
 			}
-			$result [] = $item ['suffix'] . ';';
 		}
 		$result = join ( '', $result );
 		if ($this->options ['remove_last_semicolon']) {

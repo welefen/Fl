@@ -96,7 +96,7 @@ function get_cls_options($cate = '') {
 		"HtmlXss" => array (
 			"properties" => array (
 				"auto_fixed" => true, 
-				"xml" => false, 
+				"isXml" => false, 
 				"identifyFn" => "" 
 			), 
 			"options" => array (

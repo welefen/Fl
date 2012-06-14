@@ -29,7 +29,7 @@ class Fl_Html_Xss extends Fl_Base {
 	 * xml document ?
 	 * @var boolean
 	 */
-	public $xml = false;
+	public $isXml = false;
 
 	/**
 	 * 
@@ -215,7 +215,7 @@ class Fl_Html_Xss extends Fl_Base {
 	 * @param string $type
 	 */
 	public function checkIt($token = array(), $type = '') {
-		if ($this->xml && $type == 'html') {
+		if ($this->isXml && $type == 'html') {
 			$type = 'xml';
 		}
 		if (! $this->containTpl ( $token ['value'] )) {
@@ -244,11 +244,19 @@ class Fl_Html_Xss extends Fl_Base {
 		$tag = array ();
 		$tokens = $this->getTokens ( 'html' );
 		$length = count ( $tokens );
+		$htmlTags = array (
+			FL_TOKEN_HTML_SCRIPT_TAG => 1, 
+			FL_TOKEN_HTML_STYLE_TAG => 1, 
+			FL_TOKEN_HTML_TEXTAREA_TAG => 1, 
+			FL_TOKEN_HTML_PRE_TAG => 1, 
+			FL_TOKEN_HTML_STATUS => 1, 
+			FL_TOKEN_HTML_IE_HACK => 1 
+		);
 		for($i = 0; $i < $length; $i ++) {
 			$item = $tokens [$i];
 			if ($item ['type'] === FL_TOKEN_XML_HEAD) {
-				return $this->xml = true;
-			} elseif ($item ['type'] === FL_TOKEN_HTML_SCRIPT_TAG || $item ['type'] === FL_TOKEN_HTML_STYLE_TAG || $item ['type'] === FL_TOKEN_HTML_TEXTAREA_TAG || $item ['type'] === FL_TOKEN_HTML_PRE_TAG) {
+				return $this->isXml = true;
+			} elseif (isset ( $htmlTags [$item ['type']] )) {
 				return true;
 			} else if ($item ['type'] === FL_TOKEN_HTML_TAG_START) {
 				if ($i > 0) {
@@ -262,7 +270,7 @@ class Fl_Html_Xss extends Fl_Base {
 					}
 				}
 				$tag [] = $item ['value'];
-				//if more than 5 tags, it likes html
+				//if more than 5 tags, it's like html
 				if (count ( $tag ) > 5) {
 					return true;
 				}
@@ -270,6 +278,7 @@ class Fl_Html_Xss extends Fl_Base {
 		}
 		//if have html tags but less than 5
 		if (count ( $tag ) > 0) {
+			//if a error have occured when tokenzier by js, it will be html
 			try {
 				$tokens = $this->getTokens ( 'js' );
 			} catch ( Fl_Exception $e ) {

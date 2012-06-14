@@ -283,7 +283,7 @@ class Fl_Html_Compress extends Fl_Base {
 		} else {
 			$return .= $tag;
 		}
-		$blankChar = ' ';
+		$blankChar = FL_SPACE;
 		$return .= $blankChar;
 		foreach ( $resultAttrs as $item ) {
 			$itemText = join ( '', $item );
@@ -292,6 +292,11 @@ class Fl_Html_Compress extends Fl_Base {
 				if ($item [1] !== '=' && $this->isTpl ( $item [0] ) && ! $this->checkTplHasOutput ( $item [0] )) {
 					//do nothing
 				} else {
+					$return .= $blankChar;
+				}
+			} else {
+				$last2Char = substr ( $return, strlen ( $return ) - 2 );
+				if ($last2Char === '\\"' || $last2Char === "\\'") {
 					$return .= $blankChar;
 				}
 			}
