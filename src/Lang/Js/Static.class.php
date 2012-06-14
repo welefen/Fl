@@ -26,32 +26,32 @@ class Fl_Js_Static {
 	 * @var array
 	 */
 	public static $keywords = array (
-		"break", 
-		"case", 
-		"catch", 
-		"const", 
-		"continue", 
-		"debugger", 
-		"default", 
-		"delete", 
-		"do", 
-		"else", 
-		"finally", 
-		"for", 
-		"function", 
-		"if", 
-		"in", 
-		"instanceof", 
-		"new", 
-		"return", 
-		"switch", 
-		"throw", 
-		"try", 
-		"typeof", 
-		"var", 
-		"void", 
-		"while", 
-		"with" 
+		"break" => 1, 
+		"case" => 1, 
+		"catch" => 1, 
+		"const" => 1, 
+		"continue" => 1, 
+		"debugger" => 1, 
+		"default" => 1, 
+		"delete" => 1, 
+		"do" => 1, 
+		"else" => 1, 
+		"finally" => 1, 
+		"for" => 1, 
+		"function" => 1, 
+		"if" => 1, 
+		"in" => 1, 
+		"instanceof" => 1, 
+		"new" => 1, 
+		"return" => 1, 
+		"switch" => 1, 
+		"throw" => 1, 
+		"try" => 1, 
+		"typeof" => 1, 
+		"var" => 1, 
+		"void" => 1, 
+		"while" => 1, 
+		"with" => 1 
 	);
 
 	/**
@@ -98,12 +98,12 @@ class Fl_Js_Static {
 	 * @var array
 	 */
 	public static $keywordsBeforeExpression = array (
-		"return", 
-		"new", 
-		"delete", 
-		"throw", 
-		"else", 
-		"case" 
+		"return" => 1, 
+		"new" => 1, 
+		"delete" => 1, 
+		"throw" => 1, 
+		"else" => 1, 
+		"case" => 1 
 	);
 
 	/**
@@ -112,10 +112,10 @@ class Fl_Js_Static {
 	 * @var array
 	 */
 	public static $keywordsAtom = array (
-		"false", 
-		"null", 
-		"true", 
-		"undefined" 
+		"false" => 1, 
+		"null" => 1, 
+		"true" => 1, 
+		"undefined" => 1 
 	);
 
 	/**
@@ -152,19 +152,19 @@ class Fl_Js_Static {
 	 * @var array
 	 */
 	public static $operatorChars = array (
-		"+", 
-		"-", 
-		"*", 
-		"&", 
-		"%", 
-		"=", 
-		"<", 
-		">", 
-		"!", 
-		"?", 
-		"|", 
-		"~", 
-		"^" 
+		"+" => 1, 
+		"-" => 1, 
+		"*" => 1, 
+		"&" => 1, 
+		"%" => 1, 
+		"=" => 1, 
+		"<" => 1, 
+		">" => 1, 
+		"!" => 1, 
+		"?" => 1, 
+		"|" => 1, 
+		"~" => 1, 
+		"^" => 1 
 	);
 
 	/**
@@ -173,50 +173,50 @@ class Fl_Js_Static {
 	 * @var array
 	 */
 	public static $operators = array (
-		"in", 
-		"instanceof", 
-		"typeof", 
-		"new", 
-		"void", 
-		"delete", 
-		"++", 
-		"--", 
-		"+", 
-		"-", 
-		"!", 
-		"~", 
-		"&", 
-		"|", 
-		"^", 
-		"*", 
-		"/", 
-		"%", 
-		">>", 
-		"<<", 
-		">>>", 
-		"<", 
-		">", 
-		"<=", 
-		">=", 
-		"==", 
-		"===", 
-		"!=", 
-		"!==", 
-		"?", 
-		"=", 
-		"+=", 
-		"-=", 
-		"/=", 
-		"*=", 
-		"%=", 
-		">>=", 
-		"<<=", 
-		">>>=", 
-		"|=", 
-		"^=", 
-		"&=", 
-		"&&", 
-		"||" 
+		"in" => 1, 
+		"instanceof" => 1, 
+		"typeof" => 1, 
+		"new" => 1, 
+		"void" => 1, 
+		"delete" => 1, 
+		"++" => 1, 
+		"--" => 1, 
+		"+" => 1, 
+		"-" => 1, 
+		"!" => 1, 
+		"~" => 1, 
+		"&" => 1, 
+		"|" => 1, 
+		"^" => 1, 
+		"*" => 1, 
+		"/" => 1, 
+		"%" => 1, 
+		">>" => 1, 
+		"<<" => 1, 
+		">>>" => 1, 
+		"<" => 1, 
+		">" => 1, 
+		"<=" => 1, 
+		">=" => 1, 
+		"==" => 1, 
+		"===" => 1, 
+		"!=" => 1, 
+		"!==" => 1, 
+		"?" => 1, 
+		"=" => 1, 
+		"+=" => 1, 
+		"-=" => 1, 
+		"/=" => 1, 
+		"*=" => 1, 
+		"%=" => 1, 
+		">>=" => 1, 
+		"<<=" => 1, 
+		">>>=" => 1, 
+		"|=" => 1, 
+		"^=" => 1, 
+		"&=" => 1, 
+		"&&" => 1, 
+		"||" => 1 
 	);
 
 	/**
@@ -225,16 +225,16 @@ class Fl_Js_Static {
 	 * @var array
 	 */
 	public static $puncBeforeExpression = array (
-		"[", 
-		"{", 
-		"(", 
-		")", 
-		"]", 
-		"}", 
-		",", 
-		".", 
-		";", 
-		":" 
+		"[" => 1, 
+		"{" => 1, 
+		"(" => 1, 
+		")" => 1, 
+		"]" => 1, 
+		"}" => 1, 
+		"," => 1, 
+		"." => 1, 
+		";" => 1, 
+		":" => 1 
 	);
 
 	/**
@@ -243,15 +243,15 @@ class Fl_Js_Static {
 	 * @var array
 	 */
 	public static $puncChars = array (
-		"[", 
-		"]", 
-		"{", 
-		"}", 
-		"(", 
-		")", 
-		",", 
-		";", 
-		":" 
+		"[" => 1, 
+		"]" => 1, 
+		"{" => 1, 
+		"}" => 1, 
+		"(" => 1, 
+		")" => 1, 
+		"," => 1, 
+		";" => 1, 
+		":" => 1 
 	);
 
 	/**
@@ -260,11 +260,11 @@ class Fl_Js_Static {
 	 * @var array
 	 */
 	public static $regexpModifiers = array (
-		"g", 
-		"m", 
-		"s", 
-		"i", 
-		"y" 
+		"g" => 1, 
+		"m" => 1, 
+		"s" => 1, 
+		"i" => 1, 
+		"y" => 1 
 	);
 
 	// regexps adapted from http://xregexp.com/plugins/#unicode
@@ -281,15 +281,15 @@ class Fl_Js_Static {
 	 * @var array
 	 */
 	public static $unaryPrefix = array (
-		"typeof", 
-		"void", 
-		"delete", 
-		"--", 
-		"++", 
-		"!", 
-		"~", 
-		"-", 
-		"+" 
+		"typeof" => 1, 
+		"void" => 1, 
+		"delete" => 1, 
+		"--" => 1, 
+		"++" => 1, 
+		"!" => 1, 
+		"~" => 1, 
+		"-" => 1, 
+		"+" => 1 
 	);
 
 	/**
@@ -298,8 +298,8 @@ class Fl_Js_Static {
 	 * @var array
 	 */
 	public static $unarySuffix = array (
-		"--", 
-		"++" 
+		"--" => 1, 
+		"++" => 1 
 	);
 
 	/**
@@ -358,18 +358,18 @@ class Fl_Js_Static {
 	 * @var array
 	 */
 	public static $labelStatement = array (
-		"for", 
-		"do", 
-		"while", 
-		"switch" 
+		"for" => 1, 
+		"do" => 1, 
+		"while" => 1, 
+		"switch" => 1 
 	);
 
 	public static $atomStartType = array (
-		FL_TOKEN_JS_ATOM, 
-		FL_TOKEN_JS_NUMBER, 
-		FL_TOKEN_JS_STRING, 
-		FL_TOKEN_JS_REGEXP, 
-		FL_TOKEN_JS_NAME 
+		FL_TOKEN_JS_ATOM => 1, 
+		FL_TOKEN_JS_NUMBER => 1, 
+		FL_TOKEN_JS_STRING => 1, 
+		FL_TOKEN_JS_REGEXP => 1, 
+		FL_TOKEN_JS_NAME => 1 
 	);
 
 	/**
@@ -379,13 +379,13 @@ class Fl_Js_Static {
 	 * @param string $value
 	 */
 	public static function isRegexpAllowed($type, $value) {
-		if ($type === FL_TOKEN_JS_OPERATOR && ! in_array ( $value, self::$unarySuffix )) {
+		if ($type === FL_TOKEN_JS_OPERATOR && ! isset ( self::$unarySuffix [$value] )) {
 			return true;
 		}
-		if ($type === FL_TOKEN_JS_KEYWORD && in_array ( $value, self::$keywordsBeforeExpression )) {
+		if ($type === FL_TOKEN_JS_KEYWORD && isset ( self::$keywordsBeforeExpression [$value] )) {
 			return true;
 		}
-		if ($type === FL_TOKEN_JS_PUNC && in_array ( $value, self::$puncBeforeExpression )) {
+		if ($type === FL_TOKEN_JS_PUNC && isset ( self::$puncBeforeExpression [$value] )) {
 			return true;
 		}
 		return false;
@@ -397,7 +397,7 @@ class Fl_Js_Static {
 	 * @param string $keyword
 	 */
 	public static function isKeywordAtom($keyword) {
-		return in_array ( $keyword, self::$keywordsAtom );
+		return isset ( self::$keywordsAtom [$keyword] );
 	}
 
 	/**
@@ -433,7 +433,7 @@ class Fl_Js_Static {
 	 * @param string $char
 	 */
 	public static function isOperatorChar($char) {
-		return in_array ( $char, self::$operatorChars );
+		return isset ( self::$operatorChars [$char] );
 	}
 
 	/**
@@ -442,7 +442,7 @@ class Fl_Js_Static {
 	 * @param string $chars
 	 */
 	public static function isOperator($chars = '') {
-		return in_array ( $chars, self::$operators );
+		return isset ( self::$operators [$chars] );
 	}
 
 	/**
@@ -451,7 +451,7 @@ class Fl_Js_Static {
 	 * @param string $word
 	 */
 	public static function isKeyword($word) {
-		return in_array ( $word, self::$keywords );
+		return isset ( self::$keywords [$word] );
 	}
 
 	/**
@@ -460,7 +460,7 @@ class Fl_Js_Static {
 	 * @param string $char
 	 */
 	public static function isPuncChar($char) {
-		return in_array ( $char, self::$puncChars );
+		return isset ( self::$puncChars [$char] );
 	}
 
 	/**
@@ -527,7 +527,7 @@ class Fl_Js_Static {
 		$len = strlen ( $mods );
 		for($i = 0; $i < $len; $i ++) {
 			$char = $mods {$i};
-			if (! in_array ( $char, self::$regexpModifiers )) {
+			if (! isset ( self::$regexpModifiers [$char] )) {
 				return false;
 			}
 		}
@@ -540,7 +540,7 @@ class Fl_Js_Static {
 	 * @param string $value
 	 */
 	public static function isAssignment($value) {
-		return array_key_exists ( $value, self::$assignment );
+		return isset ( self::$assignment [$value] );
 	}
 
 	/**
@@ -566,7 +566,7 @@ class Fl_Js_Static {
 	 * @param string $key
 	 */
 	public static function isUnaryPrefix($key) {
-		return in_array ( $key, self::$unaryPrefix );
+		return isset ( self::$unaryPrefix [$key] );
 	}
 
 	/**
@@ -575,7 +575,7 @@ class Fl_Js_Static {
 	 * @param string $key
 	 */
 	public static function isUnarySuffix($key) {
-		return in_array ( $key, self::$unarySuffix );
+		return isset ( self::$unarySuffix [$key] );
 	}
 
 	/**
@@ -584,10 +584,10 @@ class Fl_Js_Static {
 	 * @param string $keyword
 	 */
 	public static function isLabelStatement($keyword) {
-		return in_array ( $keyword, self::$labelStatement );
+		return isset ( self::$labelStatement [$keyword] );
 	}
 
 	public static function isAtomStartType($type) {
-		return in_array ( $type, self::$atomStartType );
+		return isset ( self::$atomStartType [$type] );
 	}
 }
