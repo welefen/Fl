@@ -172,7 +172,9 @@ class Fl_Css_Beautify extends Fl_Base {
 		}
 		if (isset ( $this->preToken ['type'] )) {
 			//for @ type
-			if (Fl_Css_Static::isAtType ( $token ['type'] )) {
+			if ($token ['type'] === FL_TOKEN_CSS_AT_KEYFRAMES || $token ['type'] === FL_TOKEN_CSS_AT_MOZILLA) {
+				return FL_NEWLINE . $this->getIndentString () . $token ['value'];
+			} else if (Fl_Css_Static::isAtType ( $token ['type'] )) {
 				return FL_NEWLINE . $token ['value'];
 			}
 		}

@@ -75,7 +75,8 @@ class Fl_Css_Token extends Fl_Token {
 		$char = $this->text {$this->pos};
 		switch ($char) {
 			case "@" :
-				$value = $this->readWhile ( 'getAtToken' );
+				$this->pendingNextChar = false;
+				$value = rtrim ( $this->readWhile ( 'getAtToken' ) );
 				$type = $this->getAtDetailType ( $value );
 				break;
 			case "{" :
@@ -89,8 +90,7 @@ class Fl_Css_Token extends Fl_Token {
 			case ":" :
 				if ($this->preTokenType == FL_TOKEN_CSS_PROPERTY || $this->preTokenType == FL_TOKEN_TPL) {
 					$this->getNextChar ();
-					$this->preTokenType = FL_TOKEN_CSS_COLON;
-					$type = $this->preTokenType;
+					$type = $this->preTokenType = FL_TOKEN_CSS_COLON;
 				}
 				break;
 			case ";" :
@@ -98,14 +98,13 @@ class Fl_Css_Token extends Fl_Token {
 					$this->throwException ( "`;` can not after propery" );
 				}
 				$this->getNextChar ();
-				$this->preTokenType = FL_TOKEN_CSS_SEMICOLON;
-				$type = $this->preTokenType;
+				$type = $this->preTokenType = FL_TOKEN_CSS_SEMICOLON;
 				break;
 		}
 		if ($type) {
 			return $this->getTokenInfo ( $type, isset ( $value ) ? $value : $char );
 		}
-		//specail tokens now only have [;color:red;]
+		//specail tokens now only have [;color:red;], performance opti
 		if ($char === '[') {
 			$token = $this->getSpecialToken ();
 			if ($token) {
@@ -124,8 +123,8 @@ class Fl_Css_Token extends Fl_Token {
 				$this->preTokenType = FL_TOKEN_CSS_VALUE;
 				return $this->getTokenInfo ( FL_TOKEN_CSS_VALUE, $result );
 			default :
-				$result = trim ( $this->readWhile ( 'getSelectorToken' ) );
-				//$result = $this->getSelectorToken ( $char );
+				//$result = trim ( $this->readWhile ( 'getSelectorToken' ) );
+				$result = $this->getSelectorToken ( $char );
 				if ($this->validate && $this->text {$this->pos} !== '{') {
 					$this->throwException ( 'get Selector error `' . $result . '`' . $this->text );
 				}
@@ -167,15 +166,11 @@ class Fl_Css_Token extends Fl_Token {
 	 * @see Fl_Token::skipComment()
 	 */
 	public function skipComment() {
-		while ( true ) {
-			if ($this->text {$this->pos} === '/') {
-				$comment = $this->getComment ( 'multi', true, true );
-				if ($comment) {
-					$this->commentBefore [] = $comment;
-					continue;
-				}
+		while ( $this->text {$this->pos} === '/' ) {
+			$comment = $this->getComment ( 'multi', true, true );
+			if ($comment) {
+				$this->commentBefore [] = $comment;
 			}
-			break;
 		}
 	}
 
@@ -197,8 +192,8 @@ class Fl_Css_Token extends Fl_Token {
 				$type = FL_TOKEN_CSS_BRACES_ONE_START;
 				break;
 		}
-		if (! $type) {
-			$this->throwException ( 'get { error in ' . __LINE__ );
+		if ($this->validate && ! $type) {
+			$this->throwException ( 'get { error in ' );
 		}
 		$this->bracesNum [0] ++;
 		$this->preTokenType = $type;
@@ -267,7 +262,8 @@ class Fl_Css_Token extends Fl_Token {
 			//expression or background（dataURI）value may be have `:` or `;`
 			if ($char === '(') {
 				//@TODO:this condition check it not safe
-				if (preg_match ( "/expression\s*/is", $return ) || stripos ( $this->text, "javascript" ) === $this->pos || stripos ( $this->text, "vbscript" ) === $this->pos) {
+				//if (preg_match ( "/expression\s*/is", $return ) || stripos ( $this->text, "javascript" ) === $this->pos || stripos ( $this->text, "vbscript" ) === $this->pos) {
+				if (preg_match ( "/expression\s*/is", $return ) || strtolower ( substr ( $this->text, $this->pos, 10 ) ) === "javascript" || strtolower ( substr ( $this->text, $this->pos, 8 ) ) === "vbscript") {
 					$value = $this->getJsText ();
 					$return .= $value;
 				} else {
@@ -307,31 +303,35 @@ class Fl_Css_Token extends Fl_Token {
 		return $result;
 	}
 
-	/**
-	 * 
-	 * 获取selector
-	 */
 	public function getSelectorToken($char = '') {
-		if ($this->text {$this->pos} === '/') {
-			$comment = $this->getComment ( 'multi', false );
-			if ($comment) {
-				$this->pendingNextChar = true;
-				return $comment;
+		$result = '';
+		while ( $this->pos < $this->length ) {
+			$char = $this->text {$this->pos};
+			if ($char === '/') {
+				if ($comment = $this->getComment ( 'multi', false )) {
+					$result .= $comment;
+					continue;
+				}
+			}
+			if ($char === "'" || $char === '"') {
+				if ($quote = $this->getQuoteText ( $char, true )) {
+					$result .= $quote;
+					continue;
+				}
+			}
+			//for "div.red/***\/{}"
+			if ($this->text {$this->pos} === "{") {
+				break;
+			}
+			$result .= $char;
+			if ($this->text {$this->pos + 1} === '{') {
+				$this->getNextChar ();
+				break;
+			} else {
+				$this->getNextChar ();
 			}
 		}
-		if ($char === "'" || $char === '"') {
-			if ($return = $this->getQuoteText ( $char, true )) {
-				return $return;
-			}
-		}
-		//for "div.red/***/{}"
-		if ($this->text {$this->pos} === '{') {
-			$this->pendingNextChar = true;
-			return true;
-		}
-		if ($this->text {$this->pos + 1} === '{') {
-			return false;
-		}
+		return rtrim ( $result );
 	}
 
 	/**

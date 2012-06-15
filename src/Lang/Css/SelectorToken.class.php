@@ -67,18 +67,11 @@ class Fl_Css_SelectorToken extends Fl_Token {
 	 * @see Fl_Token::skipComment()
 	 */
 	public function skipComment() {
-		/*while ( $comment = $this->getComment ( 'multi' ) ) {
-			$this->commentBefore [] = $comment;
-		}*/
-		while ( true ) {
-			if ($this->text {$this->pos} === '/') {
-				$comment = $this->getComment ( 'multi', true );
-				if ($comment) {
-					$this->commentBefore [] = $comment;
-					continue;
-				}
+		while ( $this->text {$this->pos} === '/' ) {
+			$comment = $this->getComment ( 'multi', true );
+			if ($comment) {
+				$this->commentBefore [] = $comment;
 			}
-			break;
 		}
 	}
 
@@ -132,11 +125,11 @@ class Fl_Css_SelectorToken extends Fl_Token {
 				break;
 			case '#' :
 				$type = FL_TOKEN_CSS_SELECTOR_ID;
-				$value = $this->readWhile ( 'getIdToken' );
+				$value = $this->getIdToken ();
 				break;
 			case '.' :
 				$type = FL_TOKEN_CSS_SELECTOR_CLASS;
-				$value = $this->readWhile ( 'getClassToken' );
+				$value = $this->getClassToken ();
 				break;
 			case '[' :
 				$type = FL_TOKEN_CSS_SELECTOR_ATTRIBUTES;
@@ -153,7 +146,7 @@ class Fl_Css_SelectorToken extends Fl_Token {
 				}
 				break;
 			default :
-				$value = $this->readWhile ( 'getTypeToken' );
+				$value = $this->getTypeToken ();
 				$type = FL_TOKEN_CSS_SELECTOR_TYPE;
 		}
 		if ($this->validate && ! Fl_Css_Static::checkSelectorToken ( $type, $value )) {
@@ -168,13 +161,10 @@ class Fl_Css_SelectorToken extends Fl_Token {
 	 * @param string $char
 	 */
 	public function charUtil($char = '') {
-		if ($this->isWhiteSpace ( $char )) {
-			return true;
-		}
 		if (Fl_Css_Static::isSelectorCharUtil ( $char )) {
 			return true;
 		}
-		if ($this->hasTplToken && $this->ld == substr ( $this->text, $this->pos + 1, strlen ( $this->ld ) )) {
+		if ($this->hasTplToken && $this->ld == substr ( $this->text, $this->pos, strlen ( $this->ld ) )) {
 			return true;
 		}
 		return false;
@@ -193,14 +183,26 @@ class Fl_Css_SelectorToken extends Fl_Token {
 
 	/**
 	 * 
+	 * get id or type or class token
+	 */
+	public function getCommonToken() {
+		$result = '';
+		while ( $this->pos < $this->length ) {
+			$result .= $this->getNextChar ();
+			if ($this->charUtil ( $this->text {$this->pos} )) {
+				break;
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * 
 	 * get #id token
 	 * @param string $char
 	 */
-	public function getIdToken($char = '') {
-		$nextChar = $this->text {$this->pos + 1};
-		if ($this->charUtil ( $nextChar )) {
-			return false;
-		}
+	public function getIdToken() {
+		return $this->getCommonToken ();
 	}
 
 	/**
@@ -208,23 +210,16 @@ class Fl_Css_SelectorToken extends Fl_Token {
 	 * get such as div token
 	 * @param string $char
 	 */
-	public function getTypeToken($char = '') {
-		$nextChar = $this->text {$this->pos + 1};
-		if ($this->charUtil ( $nextChar )) {
-			return false;
-		}
+	public function getTypeToken() {
+		return $this->getCommonToken ();
 	}
 
 	/**
 	 * 
 	 * get .class token
-	 * @param string $char
 	 */
-	public function getClassToken($char = '') {
-		$nextChar = $this->text {$this->pos + 1};
-		if ($this->charUtil ( $nextChar )) {
-			return false;
-		}
+	public function getClassToken() {
+		return $this->getCommonToken ();
 	}
 
 	/**
