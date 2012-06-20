@@ -12,6 +12,13 @@ class Fl_Html_TagToken extends Fl_Token {
 
 	/**
 	 * 
+	 * check validate
+	 * @var boolean
+	 */
+	public $validate = true;
+
+	/**
+	 * 
 	 * tagname
 	 * @var string
 	 */
@@ -24,7 +31,7 @@ class Fl_Html_TagToken extends Fl_Token {
 	 */
 	protected function _init() {
 		$text = $this->text;
-		if ($text {0} != Fl_Html_Static::LEFT || $text {strlen ( $text ) - 1} != Fl_Html_Static::RIGHT) {
+		if ($this->validate && ($text {0} != Fl_Html_Static::LEFT || $text {strlen ( $text ) - 1} != Fl_Html_Static::RIGHT)) {
 			$this->throwException ( 'getAttrs must be for a tag' );
 		}
 		//去除开始的<和最后的>
@@ -128,7 +135,7 @@ class Fl_Html_TagToken extends Fl_Token {
 				}
 			} else if ($char === '"' || $char === "'") {
 				if (! $hasEqual) {
-					$this->throwException ( "can't find = in tag" );
+					$this->throwException ( "can't find = in tag " . $this->text );
 				}
 				$this->getNextChar ();
 				$this->pendingNextChar = true;

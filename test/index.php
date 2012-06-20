@@ -336,6 +336,7 @@ require 'util.php';
 	
 				<?php endif;
 				?>
+				<button class="preview">预览</button>
 <button class="cancel">取消</button>
 </div>
 
@@ -532,6 +533,11 @@ $(function(){
 	})
 	$('.result').delegate('li', 'click', function(event){
 		$(this).find('.info').toggle();
+	})
+	$('.preview').click(function(){
+		var a = window.open("about:blank");
+		a.focus();
+		a.document.write($('#testResult').val());
 	})
 })
 </script>

@@ -43,6 +43,13 @@ class Fl_Html_Static {
 
 	/**
 	 * 
+	 * simple doctype
+	 * @var string
+	 */
+	const SIMPLE_DOCTYPE = '<!Doctype html>';
+
+	/**
+	 * 
 	 * html里特殊的注释, 解析的时候不能当注释来解析
 	 * @var array
 	 */
@@ -119,14 +126,14 @@ class Fl_Html_Static {
 	 * tag名的正则
 	 * @var RegexIterator
 	 */
-	public static $tagNamePattern = '/^([A-Za-z\!]{1}[A-Za-z0-9\!]*)/';
+	public static $tagNamePattern = '/^([A-Za-z\!][A-Za-z0-9\!]*)/';
 
 	/**
 	 * 
 	 * 结束标签的正则
 	 * @var RegexIterator
 	 */
-	public static $endTagNamePattern = '/^\<\/([A-Za-z]{1}[A-Za-z0-9]*)/';
+	public static $getTagNamePattern = '/^\<\/?([A-Za-z][A-Za-z0-9]*)/';
 
 	/**
 	 * 
@@ -201,6 +208,8 @@ class Fl_Html_Static {
 	 * @var array
 	 */
 	public static $blockTag = array (
+		'html',
+		'meta',
 		'address', 
 		'blockquote', 
 		'center', 
@@ -303,15 +312,15 @@ class Fl_Html_Static {
 
 	/**
 	 * 
-	 * 获取结束标签的名字
-	 * @param string $endTag
+	 * 获取开始或者结束标签的名字
+	 * @param string $tag
 	 */
-	public static function getEndTagName($endTag = '', Fl_Base $instance) {
-		preg_match ( self::$endTagNamePattern, $endTag, $matches );
+	public static function getTagName($tag = '', Fl_Base $instance) {
+		preg_match ( self::$getTagNamePattern, $tag, $matches );
 		if (is_array ( $matches ) && $matches [1]) {
 			return $matches [1];
 		}
-		$instance->throwException ( 'analytic end tag error' );
+		$instance->throwException ( 'tag tag error' );
 	}
 
 	/**

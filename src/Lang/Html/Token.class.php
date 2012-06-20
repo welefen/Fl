@@ -1,23 +1,14 @@
 <?php
-/**
- * 继承自Fl_Token类
- */
 Fl::loadClass ( 'Fl_Token' );
 Fl::loadClass ( 'Fl_Html_Static' );
 /**
  * 
- * HTML词法分析类
- * 支持XML
- * @author welefen
- * @version 1.0 - 2011.11.05
- * @license 
+ * HTML Tokenizar
  *
  */
 class Fl_Html_Token extends Fl_Token {
 
 	/**
-	 * 
-	 * 是否检测Tag标签合法，如： <div class="welefen" 这种没有>结束标签就是非法的
 	 * @var boolean
 	 */
 	public $validate = true;
@@ -91,7 +82,7 @@ class Fl_Html_Token extends Fl_Token {
 					$pattern = "/" . preg_quote ( $this->ld, "/" ) . ".*?" . preg_quote ( $this->rd, "/" ) . "/e";
 					$text = preg_replace ( $pattern, "", $text );
 					$pos = strpos ( $text, ">" );
-					if ($pos !== false && strpos ( substr ( $text, 0, $pos ), "<" ) === false) {
+					if ($this->validate && $pos !== false && strpos ( substr ( $text, 0, $pos ), "<" ) === false) {
 						$this->throwException ( "tag name can't have tpl." );
 					}
 				}
@@ -151,7 +142,7 @@ class Fl_Html_Token extends Fl_Token {
 	 * @see Fl_Token::skipComment()
 	 */
 	public function skipComment() {
-		while ( true ) {
+		while ( $this->text {$this->pos} === '<' ) {
 			$flag = false;
 			foreach ( Fl_Html_Static::$specialCommentPrefix as $item ) {
 				if ($this->startWith ( $item, false )) {

@@ -48,7 +48,7 @@ class Fl_Css_SelectorToken extends Fl_Token {
 		$output = $result = array ();
 		while ( $token = $this->getNextToken () ) {
 			if ($token ['type'] === FL_TOKEN_CSS_SELECTOR_COMMA) {
-				if (count ( $result )) {
+				if (! empty ( $result )) {
 					$output [] = $result;
 					$result = array ();
 				}
@@ -56,7 +56,7 @@ class Fl_Css_SelectorToken extends Fl_Token {
 				$result [] = $token;
 			}
 		}
-		if (count ( $result )) {
+		if (! empty ( $result )) {
 			$output [] = $result;
 		}
 		return $output;

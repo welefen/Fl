@@ -32,7 +32,7 @@ class Fl_Js_Ast extends Fl_Base {
 
 	/**
 	 * 
-	 * 临时存储的token
+	 * peek token
 	 * @var array or false
 	 */
 	protected $peekToken = false;
@@ -66,8 +66,7 @@ class Fl_Js_Ast extends Fl_Base {
 	protected $inDirectives = true;
 
 	/**
-	 * 
-	 * 标签
+	 * label: for ... 
 	 * @var array
 	 */
 	protected $labels = array ();

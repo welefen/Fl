@@ -93,6 +93,27 @@ function get_cls_options($cate = '') {
 				"isXML" => false 
 			) 
 		), 
+		"HtmlCompress" => array (
+			"options" => array (
+				"remove_comment" => true, 
+				"simple_doctype" => true, 
+				"newline_to_space" => true, 
+				"tag_to_lower" => true, 
+				"remove_inter_tag_space" => false,  //not safe
+				"remove_inter_block_tag_space" => true,  //safe
+				"replace_multi_space" => " ", 
+				"remove_script_attrs" => true, 
+				"remove_style_attrs" => true, 
+				"remove_optional_attrs" => true, 
+				"remove_attrs_quote" => true, 
+				"remove_attrs_optional_value" => true, 
+				"remove_http_protocal" => true, 
+				"remove_https_protocal" => true, 
+				"remove_optional_end_tag" => true, 
+				"chars_line_break" => 8000, 
+				"compress_tag" => true 
+			) 
+		), 
 		"HtmlXss" => array (
 			"properties" => array (
 				"auto_fixed" => true, 

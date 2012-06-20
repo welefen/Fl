@@ -1,10 +1,10 @@
 <?php
-Fl::loadClass ( 'Fl_Html_Token' );
+Fl::loadClass ( 'Fl_Base' );
 Fl::loadClass ( 'Fl_Html_Static' );
 Fl::loadClass ( 'Fl_Tpl' );
 /**
  * 
- * HTML压缩类，支持模版语法的压缩
+ * HTML Compress support tpl
  * @author welefen
  *
  */
@@ -16,63 +16,66 @@ class Fl_Html_Compress extends Fl_Base {
 	 * @var array
 	 */
 	public $options = array (
-		"removeComment" => true, 
-		"removeTextExtBlank" => true, 
-		"removeBlockBlank" => true, 
-		"blockBlankList" => array (), 
-		"removeAttrDefaultValue" => true, 
-		"removeOptionalTag" => true, 
-		"removeAttrQuote" => true, 
-		"removeAttrExtBlank" => true, 
-		"optionalTagList" => array (), 
-		"tagToLower" => true, 
-		"newline" => "", 
-		"endSingleTag" => false, 
-		"attrOnlyName" => true, 
-		"charsLineBreak" => 8000 
+		"remove_comment" => true, 
+		"simple_doctype" => true, 
+		"newline_to_space" => true, 
+		"tag_to_lower" => true, 
+		"remove_inter_tag_space" => false,  //not safe
+		"remove_inter_block_tag_space" => true,  //safe
+		"replace_multi_space" => FL_SPACE, 
+		"remove_script_attrs" => true, 
+		"remove_style_attrs" => true, 
+		"remove_optional_attrs" => true, 
+		"remove_attrs_quote" => true, 
+		"remove_attrs_optional_value" => true, 
+		"remove_http_protocal" => true, 
+		"remove_https_protocal" => true, 
+		"remove_optional_end_tag" => true, 
+		"remove_optional_end_tag_list" => array (), 
+		"chars_line_break" => 8000, 
+		"compress_tag" => true 
 	);
 
 	/**
 	 * 
-	 * 前一个token
+	 * is a xml
+	 * @var boolean
+	 */
+	public $isXML = false;
+
+	/**
+	 * prev token
 	 * @var array
 	 */
 	protected $preToken = array ();
 
 	/**
 	 * 
-	 * 下一个token
+	 * next token
 	 * @var array
 	 */
 	protected $nextToken = array ();
 
 	/**
 	 * 
-	 * 最终输出结果
+	 * output
 	 * @var array
 	 */
 	protected $output = array ();
 
 	/**
 	 * 
-	 * 上一个输出的文本
+	 * prev output text
 	 * @var string
 	 */
 	protected $preOutputText = '';
 
 	/**
 	 * 
-	 * 是否是XML
-	 * @var boolean
+	 * token instance
+	 * @var object
 	 */
-	public $isXML = false;
-
-	/**
-	 * 
-	 * 保留换行符
-	 * @var boolean
-	 */
-	protected $retentionNewline = false;
+	protected $tokenInstance = null;
 
 	/**
 	 * 
@@ -82,11 +85,15 @@ class Fl_Html_Compress extends Fl_Base {
 	 */
 	public function run($options = array()) {
 		$this->options = array_merge ( $this->options, $options );
+		if ($this->isXML) {
+			$this->options ['tag_to_lower'] = false;
+		}
 		$this->tokenInstance = $this->getInstance ( 'Fl_Html_Token' );
 		$token = array ();
 		$this->nextToken = $this->getNextToken ();
 		$end = false;
 		$num = 0;
+		$charsLineBreak = intval ( $this->options ['chars_line_break'] );
 		while ( true ) {
 			$this->preToken = $token;
 			$token = $this->nextToken;
@@ -95,14 +102,13 @@ class Fl_Html_Compress extends Fl_Base {
 				$end = true;
 				$this->nextToken = array ();
 			}
-			if (! $this->isXML && $token ['type'] === FL_TOKEN_XML_HEAD) {
+			if ($token ['type'] === FL_TOKEN_XML_HEAD) {
 				$this->isXML = true;
-				//如果是XML,是区分标签名大小写的
-				$this->options ['tagToLower'] = false;
+				$this->options ['tag_to_lower'] = false;
 			}
 			$this->preOutputText = $this->compressToken ( $token );
 			$len = strlen ( $this->preOutputText );
-			if (($num + $len) > $this->options ['charsLineBreak']) {
+			if ($charsLineBreak && ($num + $len) > $charsLineBreak) {
 				$this->output [] = FL_NEWLINE;
 				$num = $len;
 			} else {
@@ -125,14 +131,18 @@ class Fl_Html_Compress extends Fl_Base {
 		if (! $nextToken) {
 			return false;
 		}
-		if ($nextToken ['type'] === FL_TOKEN_HTML_TAG_START) {
-			$detail = $this->getInstance ( 'Fl_Html_TagToken', $nextToken ['value'] )->run ();
-			$nextToken = array_merge ( $nextToken, $detail );
-		} else if ($nextToken ['type'] === FL_TOKEN_HTML_TAG_END) {
-			$tag = Fl_Html_Static::getEndTagName ( $nextToken ['value'], $this );
-			$nextToken = array_merge ( $nextToken, array (
-				'tag' => $tag 
-			) );
+		if ($this->options ['compress_tag']) {
+			if ($nextToken ['type'] === FL_TOKEN_HTML_TAG_START) {
+				$result = $this->getInstance ( "Fl_Html_TagToken", $nextToken ['value'] )->run ();
+				$nextToken ['tag'] = $result ['tag'];
+				$nextToken ['attrs'] = $result ['attrs'];
+			} elseif ($nextToken ['type'] === FL_TOKEN_HTML_TAG_END) {
+				$nextToken ['tag'] = Fl_Html_Static::getTagName ( $nextToken ['value'], $this );
+			}
+		} else {
+			if (Fl_Html_Static::isTag ( $nextToken )) {
+				$nextToken ['tag'] = Fl_Html_Static::getTagName ( $nextToken ['value'], $this );
+			}
 		}
 		if ($nextToken ['tag']) {
 			$nextToken ['lowerTag'] = strtolower ( $nextToken ['tag'] );
@@ -146,25 +156,31 @@ class Fl_Html_Compress extends Fl_Base {
 	 * @param array $token
 	 */
 	public function compressToken($token) {
-		$return = $this->compressCommon ( $token );
+		$result = $this->compressCommon ( $token );
 		switch ($token ['type']) {
+			case FL_TOKEN_HTML_DOCTYPE :
+				if ($this->options ['simple_doctype']) {
+					return Fl_Html_Static::SIMPLE_DOCTYPE;
+				} else {
+					$result .= $token ['value'];
+					break;
+				}
 			case FL_TOKEN_HTML_TAG_START :
-				$return .= $this->compressStartTag ( $token );
+				$result .= $this->compressStartTag ( $token );
 				break;
 			case FL_TOKEN_HTML_TEXT :
-				$return .= $this->compressText ( $token );
+				$result .= $this->compressText ( $token );
 				break;
 			case FL_TOKEN_TPL :
-				$return .= $this->compressTpl ( $token );
+				$result .= $this->compressTpl ( $token );
 				break;
 			case FL_TOKEN_HTML_TAG_END :
-				$return .= $this->compressEndTag ( $token );
+				$result .= $this->compressEndTag ( $token );
 				break;
 			default :
-				$return .= $this->compressDefault ( $token );
-				break;
+				$result .= $this->compressDefault ( $token );
 		}
-		return $return;
+		return $result;
 	}
 
 	/**
@@ -173,36 +189,35 @@ class Fl_Html_Compress extends Fl_Base {
 	 * @param array $token
 	 */
 	public function compressCommon($token) {
-		$return = '';
-		$comment = '';
-		$newline = '';
-		//是否去掉注释
-		if (count ( $token ['commentBefore'] )) {
-			foreach ( $token ['commentBefore'] as $item ) {
-				//如果注释内容第一个字符是!，则保留该注释
-				if (preg_match ( '/^\<\!\-\-\s*\!/', $item ['text'] ) || ! $this->options ['removeComment']) {
-					$comment .= $item ['text'];
-				}
+		$return = $comment = $newline = '';
+		foreach ( $token ['commentBefore'] as $item ) {
+			//如果注释内容第一个字符是!，则保留该注释
+			if (preg_match ( '/^\<\!\-\-\!/', $item ['text'] ) || ! $this->options ['remove_comment']) {
+				$comment .= $item ['text'];
 			}
 		}
-		//是否去除换行符
-		if ($token ['newlineBefore']) {
-			if ($this->retentionNewline) {
-				$newline = "\n";
-				$this->retentionNewline = false;
-			} else {
-				//如果是模版语法且不会输出，则不添加空白字符
-				if ($token ['type'] === FL_TOKEN_TPL && ! $this->checkTplHasOutput ( $token ['value'] )) {
-					//$newline = '';
-				} else {
-					$preText = $this->preOutputText;
-					if (! $this->isXML && $preText && substr ( $preText, strlen ( $preText ) - 1, 1 ) !== $this->options ['newline']) {
-						$newline = $this->options ['newline'];
-						if ($this->textCanRemove ( $newline, $this->preToken, $token )) {
-							$newline = '';
-						}
-					}
-				}
+		if (! $token ['newlineBefore']) {
+			return $comment;
+		}
+		//如果是模版语法且不会输出，则不添加空白字符
+		if ($token ['type'] === FL_TOKEN_TPL && ! $this->checkTplHasOutput ( $token ['value'] )) {
+			return $comment;
+		}
+		if ($this->options ['newline_to_space']) {
+			$newline = FL_SPACE;
+		} else {
+			$newline = FL_NEWLINE;
+		}
+		$preText = $this->preOutputText;
+		if (! $this->isXML && $preText && substr ( $preText, strlen ( $preText ) - 1, 1 ) == $newline) {
+			return $comment;
+		}
+		if (Fl_Html_Static::isTag ( $token )) {
+			if ($this->options ['remove_inter_tag_space']) {
+				return $comment;
+			}
+			if ($this->options ['remove_inter_block_tag_space'] && Fl_Html_Static::isBlockTag ( $token ['tag'] )) {
+				return $comment;
 			}
 		}
 		if ($token ['col'] == 0) {
@@ -230,21 +245,18 @@ class Fl_Html_Compress extends Fl_Base {
 		$value = $token ['value'];
 		//如果文本中含有//，则不去除换行等，主要是一些异步接口（JS环境）会被识别成HTML环境，如果有JS的//注释就要注意了
 		if (strpos ( $value, '//' ) !== false) {
-			$this->retentionNewline = true;
 			return $value;
 		}
-		//将多个空白字符合并为一个
-		if ($this->options ['removeTextExtBlank']) {
-			$value = str_replace ( Fl_Html_Static::$whiteSpace, "", $value );
-			$value = preg_replace ( "/\s+/", " ", $value );
+		if ($this->options ['newline_to_space']) {
+			$value = str_replace ( FL_NEWLINE, FL_SPACE, $value );
 		}
-		//如果下一个是块级元素，则文本右侧的空白字符可以去除
-		if ($this->textCanRemove ( " ", $this->preToken, $this->nextToken )) {
+		if ($this->options ['replace_multi_space'] !== false) {
+			$value = preg_replace ( FL_SPACE_PATTERN, $this->options ['replace_multi_space'], $value );
+		}
+		if ($this->options ['remove_inter_tag_space']) {
 			$value = rtrim ( $value );
-		}
-		//如果下一个是块级元素，且文本是空白字符，则完全去除
-		if ($this->textCanRemove ( $value, $this->preToken, $this->nextToken )) {
-			$value = '';
+		} elseif ($this->options ['remove_inter_block_tag_space'] && Fl_Html_Static::isTag ( $this->nextToken ) && Fl_Html_Static::isBlockTag ( $this->nextToken ['lowerTag'] )) {
+			$value = rtrim ( $value );
 		}
 		return $value;
 	}
@@ -254,7 +266,7 @@ class Fl_Html_Compress extends Fl_Base {
 	 * 压缩开始标签
 	 */
 	public function compressStartTag($token) {
-		if ($this->isXML) {
+		if ($this->isXML || ! $this->options ['compress_tag']) {
 			return $token ['value'];
 		}
 		$tag = $token ['tag'];
@@ -264,21 +276,36 @@ class Fl_Html_Compress extends Fl_Base {
 		foreach ( $attrs as $item ) {
 			if ($item [1] === '=') {
 				$valueDetail = Fl_Html_Static::getUnquoteText ( $item [2] );
-				if ($this->options ['removeAttrDefaultValue'] && Fl_Html_Static::isTagAttrDefaultValue ( $item [0], $valueDetail ['text'], $lowerTag )) {
+				if ($this->options ['remove_optional_attrs'] && Fl_Html_Static::isTagAttrDefaultValue ( $item [0], $valueDetail ['text'], $lowerTag )) {
 					continue;
 				}
-				if ($this->options ['attrOnlyName'] && Fl_Html_Static::isTagOnlyNameAttr ( $item [0] )) {
+				if ($this->options ['remove_attrs_optional_value'] && Fl_Html_Static::isTagOnlyNameAttr ( $item [0] )) {
 					$item = array (
 						$item [0] 
 					);
-				} else if ($this->options ['removeAttrQuote'] && Fl_Html_Static::isAttrValueNoQuote ( $valueDetail ['text'], $this )) {
+					continue;
+				} else if ($this->options ['remove_attrs_quote'] && Fl_Html_Static::isAttrValueNoQuote ( $valueDetail ['text'], $this )) {
 					$item [2] = $valueDetail ['text'];
+				}
+				if ($this->options ['remove_http_protocal'] || $this->options ['remove_https_protocal']) {
+					$nameLower = strtolower ( $item [0] );
+					if ($nameLower === 'href' || $nameLower === "src") {
+						$valueDetail = Fl_Html_Static::getUnquoteText ( $item [2] );
+						$value = $valueDetail ['text'];
+						if ($this->options ['remove_http_protocal'] && strpos ( $value, "http://" ) === 0) {
+							$value = substr ( $value, 5 );
+							$item [2] = $valueDetail ['quote'] . $value . $valueDetail ['quote'];
+						} elseif ($this->options ['remove_https_protocal'] && strpos ( $value, "https://" ) === 0) {
+							$value = substr ( $value, 6 );
+							$item [2] = $valueDetail ['quote'] . $value . $valueDetail ['quote'];
+						}
+					}
 				}
 			}
 			$resultAttrs [] = $item;
 		}
 		$return = Fl_Html_Static::LEFT;
-		if ($this->options ['tagToLower']) {
+		if ($this->options ['tag_to_lower']) {
 			$return .= $lowerTag;
 		} else {
 			$return .= $tag;
@@ -302,15 +329,7 @@ class Fl_Html_Compress extends Fl_Base {
 			}
 			$return .= $itemText;
 		}
-		if ($this->options ['endSingleTag'] && Fl_Html_Static::isSingleTag ( $lowerTag )) {
-			$lastChar = substr ( $return, strlen ( $return ) - 1 );
-			if ($lastChar !== '"' && $lastChar !== "'" && $lastChar !== $blankChar) {
-				$return .= $blankChar;
-			}
-			$return .= '/';
-		}
-		$return = rtrim ( $return );
-		$return .= Fl_Html_Static::RIGHT;
+		$return = rtrim ( $return ) . Fl_Html_Static::RIGHT;
 		return $return;
 	}
 
@@ -320,12 +339,12 @@ class Fl_Html_Compress extends Fl_Base {
 	 * @param array $token
 	 */
 	public function compressEndTag($token) {
-		if ($this->options ['removeOptionalTag']) {
-			if (Fl_Html_Static::isOptionalEndTag ( $token ['lowerTag'], $this->options ['optionalTagList'] )) {
+		if ($this->options ['remove_optional_end_tag']) {
+			if (Fl_Html_Static::isOptionalEndTag ( $token ['lowerTag'], $this->options ['remove_optional_end_tag_list'] )) {
 				return '';
 			}
 		}
-		$tag = $this->options ['tagToLower'] ? $token ['lowerTag'] : $token ['tag'];
+		$tag = $this->options ['tag_to_lower'] ? $token ['lowerTag'] : $token ['tag'];
 		return '</' . $tag . '>';
 	}
 
@@ -336,25 +355,5 @@ class Fl_Html_Compress extends Fl_Base {
 	 */
 	public function compressTpl($token) {
 		return Fl_Tpl::factory ( $this )->compress ( $token ['value'], $this );
-	}
-
-	/**
-	 * 
-	 * 判断当前的text是否可删除
-	 * @param string $text
-	 * @param array $nextToken
-	 */
-	public function textCanRemove($text, $preToken = array(), $nextToken = array()) {
-		if ($this->options ['removeBlockBlank'] && preg_match ( '/^\s+$/', $text )) {
-			$pregTag = $pregToken ['lowerTag'];
-			$nextTag = $nextToken ['lowerTag'];
-			if ($pregTag && Fl_Html_Static::isBlockTag ( $pregTag, $this->options ['blockBlankList'] )) {
-				return true;
-			}
-			if ($nextTag && Fl_Html_Static::isBlockTag ( $nextTag, $this->options ['blockBlankList'] )) {
-				return true;
-			}
-		}
-		return false;
 	}
 }

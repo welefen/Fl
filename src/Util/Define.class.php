@@ -10,6 +10,7 @@
 //换行符
 define ( 'FL_NEWLINE', "\n" );
 define ( 'FL_SPACE', " " );
+define ( "FL_SPACE_PATTERN", "/\s+/" );
 //结束符
 define ( 'FL_TOKEN_EOF', 'eof' );
 //模版

@@ -38,8 +38,7 @@ class Fl_Js_Token extends Fl_Token {
 	);
 
 	/**
-	 * 获取下一个TOKEN
-	 * (non-PHPdoc)
+	 * get next token
 	 * @see Fl_Token::getNextToken()
 	 */
 	public function getNextToken() {
@@ -52,7 +51,7 @@ class Fl_Js_Token extends Fl_Token {
 		if ($token) {
 			return $token;
 		}
-		$char = $this->text [$this->pos];
+		$char = $this->text {$this->pos};
 		//字符串
 		$result = $this->getQuoteText ( $char, true, true );
 		if ($result) {
@@ -213,7 +212,7 @@ class Fl_Js_Token extends Fl_Token {
 	 * @see Fl_Token::skipComment()
 	 */
 	public function skipComment() {
-		while ( true ) {
+		while ( $this->text {$this->pos} === '/' ) {
 			$mulComment = $this->getComment ( 'multi' );
 			if ($mulComment) {
 				$this->commentBefore [] = $mulComment;
@@ -240,22 +239,9 @@ class Fl_Js_Token extends Fl_Token {
 	 */
 	public function getLastToken() {
 		if ($this->validate) {
-			$data = array (
-				array (
-					'(', 
-					')' 
-				), 
-				array (
-					'{', 
-					'}' 
-				), 
-				array (
-					'[', 
-					']' 
-				) 
-			);
-			foreach ( $data as $item ) {
-				if ($this->validateData [$item [0]] != $this->validateData [$item [1]]) {
+			$length = count ( $this->validateData );
+			for($i = 0; $i < $length; $i += 2) {
+				if ($this->validateData [$i] != $this->validateData [$i + 1]) {
 					$this->throwException ( '"' . $item [0] . '"(' . $this->validateData [$item [0]] . ') & "' . $item [1] . '"(' . $this->validateData [$item [1]] . ') count not equal' );
 				}
 			}

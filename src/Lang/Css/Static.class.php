@@ -255,6 +255,110 @@ class Fl_Css_Static {
 
 	/**
 	 * 
+	 * regular property list
+	 * @var array
+	 */
+	public static $propertyList = array (
+		"background-attachment" => 1, 
+		"background-color" => 1, 
+		"background-image" => 1, 
+		"background-position" => 1, 
+		"background-repeat" => 1, 
+		"background", 
+		"border-collapse", 
+		"border-color", 
+		"border-spacing", 
+		"border-style", 
+		"border-top", 
+		"border-right", 
+		"border-bottom", 
+		"border-left", 
+		"border-top-color", 
+		"border-right-color", 
+		"border-bottom-color", 
+		"border-left-color", 
+		"border-top-style", 
+		"border-right-style", 
+		"border-bottom-style", 
+		"border-left-style", 
+		"border-top-width", 
+		"border-right-width", 
+		"border-bottom-width", 
+		"border-left-width", 
+		"border-width", 
+		"border", 
+		"bottom", 
+		"caption-side", 
+		"clear", 
+		"clip", 
+		"color", 
+		"content", 
+		"counter-increment", 
+		"counter-reset", 
+		"cursor", 
+		"direction", 
+		"display", 
+		"empty-cells", 
+		"flot", 
+		"font-family", 
+		"font-size", 
+		"font-style", 
+		"font-variant", 
+		"font-weight", 
+		"font", 
+		"height", 
+		"left", 
+		"letter-spacing", 
+		"line-height", 
+		"list-style-image", 
+		"list-style-position", 
+		"list-style-type", 
+		"list-style", 
+		"margin-right", 
+		"margin-left", 
+		"margin-top", 
+		"margin-bottom", 
+		"margin", 
+		"max-height", 
+		"max-width", 
+		"min-height", 
+		"min-width", 
+		"opacity", 
+		"orphans", 
+		"outline-color", 
+		"outline-style", 
+		"outline-width", 
+		"outline", 
+		"overflow", 
+		"padding-top", 
+		"padding-right", 
+		"padding-bottom", 
+		"padding-left", 
+		"padding", 
+		"page-break-after", 
+		"page-break-before", 
+		"page-break-inside", 
+		"position", 
+		"quotes", 
+		"right", 
+		"table-layout", 
+		"text-align", 
+		"text-decoration", 
+		"text-indent", 
+		"text-transform", 
+		"top", 
+		"unicode-bidi", 
+		"vertical-align", 
+		"visibility", 
+		"white-space", 
+		"windows", 
+		"width", 
+		"word-spacing", 
+		"z-index" 
+	);
+
+	/**
+	 * 
 	 * remove comment from text
 	 * @param string $text
 	 */
@@ -524,12 +628,12 @@ class Fl_Css_Static {
 		//remove newline in value
 		$value = str_replace ( FL_NEWLINE, "", $value );
 		//replace multi space to one
-		$value = preg_replace ( "/\s+/", " ", $value );
+		$value = preg_replace ( FL_SPACE_PATTERN, " ", $value );
 		//can't replace `, ` to `,`, see http://www.imququ.com/post/the_bug_of_ie-matrix-filter.html
 		//$value = str_replace ( ", ", ",", $value );
-		$value = str_replace ( "0 0 0 0", "0", $value );
-		$value = str_replace ( "0 0 0", "0", $value );
-		$value = str_replace ( "0 0", "0", $value );
+		//$value = str_replace ( "0 0 0 0", "0", $value );
+		//$value = str_replace ( "0 0 0", "0", $value );
+		//$value = str_replace ( "0 0", "0", $value );
 		//Replace 0(px,em,%) with 0.
 		$value = preg_replace ( "/([\s:])(0)(px|em|%|in|cm|mm|pc|pt|ex)/is", "$1$2", $value );
 		//Replace 0.6 to .6
@@ -647,7 +751,7 @@ class Fl_Css_Static {
 	 * @param string $value
 	 */
 	public static function short4NumValue($value = '', $append = array(), $returnArray = false) {
-		$value = preg_split ( "/\s+/", $value );
+		$value = preg_split ( FL_SPACE_PATTERN, $value );
 		$count = count ( $value );
 		$v = array (
 			"1" => array (
