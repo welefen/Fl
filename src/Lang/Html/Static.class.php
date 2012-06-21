@@ -183,23 +183,23 @@ class Fl_Html_Static {
 	 * @var array
 	 */
 	public static $optionalEndTag = array (
-		"html", 
-		"body", 
-		"colgroup", 
-		"thead", 
-		"tr", 
-		"tbody", 
-		"td", 
-		"th", 
-		"p", 
-		"dt", 
-		"dd", 
-		"li", 
-		"option", 
-		"tfoot", 
-		"rt", 
-		"rp", 
-		"optgroup" 
+		"html" => 1, 
+		"body" => 1, 
+		"colgroup" => 1, 
+		"thead" => 1, 
+		"tr" => 1, 
+		"tbody" => 1, 
+		"td" => 1, 
+		"th" => 1, 
+		"p" => 1, 
+		"dt" => 1, 
+		"dd" => 1, 
+		"li" => 1, 
+		"option" => 1, 
+		"tfoot" => 1, 
+		"rt" => 1, 
+		"rp" => 1, 
+		"optgroup" => 1 
 	);
 
 	/**
@@ -208,31 +208,37 @@ class Fl_Html_Static {
 	 * @var array
 	 */
 	public static $blockTag = array (
-		'html',
-		'meta',
-		'address', 
-		'blockquote', 
-		'center', 
-		'dir', 
-		'div', 
-		'dl', 
-		'fieldset', 
-		'form', 
-		'h1', 
-		'h2', 
-		'h3', 
-		'h4', 
-		'h5', 
-		'h6', 
-		'hr', 
-		'menu', 
-		'noframes', 
-		'noscript', 
-		'ol', 
-		'p', 
-		'pre', 
-		'table', 
-		'ul' 
+		'html' => 1, 
+		'meta' => 1, 
+		'style' => 1, 
+		'script' => 1, 
+		'head' => 1, 
+		'link' => 1, 
+		'title' => 1, 
+		'body' => 1, 
+		'address' => 2, 
+		'blockquote' => 2, 
+		'center' => 2, 
+		'dir' => 2, 
+		'div' => 2, 
+		'dl' => 2, 
+		'fieldset' => 2, 
+		'form' => 2, 
+		'h1' => 2, 
+		'h2' => 2, 
+		'h3' => 2, 
+		'h4' => 2, 
+		'h5' => 2, 
+		'h6' => 2, 
+		'hr' => 2, 
+		'menu' => 2, 
+		'noframes' => 2, 
+		'noscript' => 2, 
+		'ol' => 2, 
+		'p' => 2, 
+		'pre' => 2, 
+		'table' => 2, 
+		'ul' => 2 
 	);
 
 	/**
@@ -256,8 +262,13 @@ class Fl_Html_Static {
 		'form' => array (
 			'method' => 'get' 
 		), 
+		'style' => array (
+			'type' => 'text/css', 
+			'rel' => 'stylesheet' 
+		), 
 		'script' => array (
-			'type' => 'text/javascript' 
+			'type' => 'text/javascript', 
+			'language' => 'javascript' 
 		) 
 	);
 
@@ -267,11 +278,11 @@ class Fl_Html_Static {
 	 * @var array
 	 */
 	public static $tagAttrOnlyName = array (
-		'disabled', 
-		'selected', 
-		'checked', 
-		'readonly', 
-		'multiple' 
+		'disabled' => 1, 
+		'selected' => 1, 
+		'checked' => 1, 
+		'readonly' => 1, 
+		'multiple' => 1 
 	);
 
 	/**
@@ -282,23 +293,36 @@ class Fl_Html_Static {
 	 * @var array
 	 */
 	public static $relValues = array (
-		'alternate', 
-		'appendix', 
-		'bookmark', 
-		'canonical', 
-		'chapter', 
-		'contents', 
-		'copyright', 
-		'glossary', 
-		'help', 
-		'index', 
-		'next', 
-		'nofollow', 
-		'prev', 
-		'section', 
-		'start', 
-		'stylesheet', 
-		'subsection' 
+		'alternate' => 1, 
+		'appendix' => 1, 
+		'bookmark' => 1, 
+		'canonical' => 1, 
+		'chapter' => 1, 
+		'contents' => 1, 
+		'copyright' => 1, 
+		'glossary' => 1, 
+		'help' => 1, 
+		'index' => 1, 
+		'next' => 1, 
+		'nofollow' => 1, 
+		'prev' => 1, 
+		'section' => 1, 
+		'start' => 1, 
+		'stylesheet' => 1, 
+		'subsection' => 1 
+	);
+
+	/**
+	 * 
+	 * no newline for token
+	 * @var array
+	 */
+	public static $noNewlineTokens = array (
+		FL_TOKEN_HTML_STATUS => 1, 
+		FL_TOKEN_HTML_SCRIPT_TAG => 1, 
+		FL_TOKEN_HTML_STYLE_TAG => 1, 
+		FL_TOKEN_HTML_PRE_TAG => 1, 
+		FL_TOKEN_HTML_IE_HACK => 1 
 	);
 
 	/**
@@ -339,7 +363,7 @@ class Fl_Html_Static {
 	 * @param array $blackList
 	 */
 	public static function isBlockTag($tag, $blackList = array()) {
-		return in_array ( $tag, self::$blockTag ) && ! in_array ( $tag, $blackList );
+		return isset ( self::$blockTag [$tag] ) && ! in_array ( $tag, $blackList );
 	}
 
 	/**
@@ -349,7 +373,7 @@ class Fl_Html_Static {
 	 * @param array $blackList
 	 */
 	public static function isOptionalEndTag($tag, $blackList = array()) {
-		return in_array ( $tag, self::$optionalEndTag ) && ! in_array ( $tag, $blackList );
+		return isset ( self::$optionalEndTag [$tag] ) && ! in_array ( $tag, $blackList );
 	}
 
 	/**
@@ -383,7 +407,7 @@ class Fl_Html_Static {
 		foreach ( self::$tagAttrDefaultValue as $key => $attrs ) {
 			if ($key === '*' || $tag === $key) {
 				foreach ( $attrs as $attrName => $attrValue ) {
-					if ($name === $attrName && $value === $attrValue) {
+					if ($name === $attrName && strtolower ( $value ) === $attrValue) {
 						return true;
 					}
 				}
@@ -420,7 +444,7 @@ class Fl_Html_Static {
 	 * @param string $name
 	 */
 	public static function isTagOnlyNameAttr($name) {
-		return in_array ( $name, self::$tagAttrOnlyName );
+		return isset ( self::$tagAttrOnlyName [$name] );
 	}
 
 	/**
@@ -430,14 +454,50 @@ class Fl_Html_Static {
 	 * @return 返回不符合规范的部分
 	 */
 	public static function checkRelValue($value) {
-		$values = split ( "/\s+/", $value );
+		$values = split ( FL_SPACE_PATTERN, $value );
 		$return = array ();
 		foreach ( $values as $item ) {
-			if (! in_array ( $item, self::$relValues )) {
+			if (! isset ( self::$relValues [$item] )) {
 				$return [] = $item;
 			}
 		}
 		return $return;
+	}
+
+	/**
+	 * 
+	 * 
+	 */
+	public static function splitSpecialValue($value, $type = 'script', $instance) {
+		$value = trim ( $value );
+		$pos = 0;
+		$i = 0;
+		$v = '';
+		while ( true ) {
+			$pos = strpos ( $value, ">", $pos );
+			$v = substr ( $value, 0, $pos + 1 );
+			try {
+				$instance->getInstance ( "Fl_Html_TagToken", $v )->run ();
+				break;
+			} catch ( Fl_Exception $e ) {
+				$i ++;
+				if ($i > 5) {
+					throw new Fl_Exception ( "split special value error `" . $value . "`", $code );
+				}
+			}
+		}
+		$prefix = $v;
+		$suffix = "</" . $type . ">";
+		$content = substr ( $value, $pos + 1, strlen ( $value ) - $pos - 1 - strlen ( $suffix ) );
+		return array (
+			"tag_start" => $prefix, 
+			"content" => $content, 
+			"tag_end" => $suffix 
+		);
+	}
+
+	public static function isNoNewlineToken($type) {
+		return isset ( self::$noNewlineTokens [$type] );
 	}
 
 	/**

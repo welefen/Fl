@@ -111,7 +111,10 @@ function get_cls_options($cate = '') {
 				"remove_https_protocal" => true, 
 				"remove_optional_end_tag" => true, 
 				"chars_line_break" => 8000, 
-				"compress_tag" => true 
+				"compress_tag" => true, 
+				"compress_style_value" => true, 
+				"compress_inline_style" => true, 
+				"compress_inline_script" => true 
 			) 
 		), 
 		"HtmlXss" => array (

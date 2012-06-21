@@ -23,8 +23,8 @@ class Fl_Html_Compress extends Fl_Base {
 		"remove_inter_tag_space" => false,  //not safe
 		"remove_inter_block_tag_space" => true,  //safe
 		"replace_multi_space" => FL_SPACE, 
-		"remove_script_attrs" => true, 
-		"remove_style_attrs" => true, 
+		"remove_empty_script" => true, 
+		"remove_empty_style" => true, 
 		"remove_optional_attrs" => true, 
 		"remove_attrs_quote" => true, 
 		"remove_attrs_optional_value" => true, 
@@ -33,6 +33,9 @@ class Fl_Html_Compress extends Fl_Base {
 		"remove_optional_end_tag" => true, 
 		"remove_optional_end_tag_list" => array (), 
 		"chars_line_break" => 8000, 
+		"compress_style_value" => true, 
+		"compress_inline_style" => true, 
+		"compress_inline_script" => true, 
 		"compress_tag" => true 
 	);
 
@@ -59,9 +62,9 @@ class Fl_Html_Compress extends Fl_Base {
 	/**
 	 * 
 	 * output
-	 * @var array
+	 * @var string
 	 */
-	protected $output = array ();
+	protected $output = '';
 
 	/**
 	 * 
@@ -109,17 +112,20 @@ class Fl_Html_Compress extends Fl_Base {
 			$this->preOutputText = $this->compressToken ( $token );
 			$len = strlen ( $this->preOutputText );
 			if ($charsLineBreak && ($num + $len) > $charsLineBreak) {
-				$this->output [] = FL_NEWLINE;
+				$this->output .= FL_NEWLINE;
 				$num = $len;
 			} else {
 				$num += $len;
 			}
-			$this->output [] = $this->preOutputText;
+			if ($this->output {strlen ( $this->output ) - 1} === FL_SPACE) {
+				$this->preOutputText = ltrim ( $this->preOutputText );
+			}
+			$this->output .= $this->preOutputText;
 			if ($end) {
 				break;
 			}
 		}
-		return join ( '', $this->output );
+		return $this->output;
 	}
 
 	/**
@@ -170,6 +176,14 @@ class Fl_Html_Compress extends Fl_Base {
 				break;
 			case FL_TOKEN_HTML_TEXT :
 				$result .= $this->compressText ( $token );
+				$result = preg_replace ( "/ +/", FL_SPACE, $result );
+				if ($result == FL_SPACE && (Fl_Html_Static::isTag ( $this->nextToken ) || Fl_Html_Static::isTag ( $this->preToken ))) {
+					if ($this->options ['remove_inter_tag_space']) {
+						$result = '';
+					} else if ($this->options ['remove_inter_block_tag_space'] && (Fl_Html_Static::isBlockTag ( $this->nextToken ['lowerTag'] ) || Fl_Html_Static::isBlockTag ( $this->preToken ['lowerTag'] ))) {
+						$result = '';
+					}
+				}
 				break;
 			case FL_TOKEN_TPL :
 				$result .= $this->compressTpl ( $token );
@@ -177,10 +191,74 @@ class Fl_Html_Compress extends Fl_Base {
 			case FL_TOKEN_HTML_TAG_END :
 				$result .= $this->compressEndTag ( $token );
 				break;
+			case FL_TOKEN_HTML_SCRIPT_TAG :
+				$result .= $this->compressScript ( $token );
+				break;
+			case FL_TOKEN_HTML_STYLE_TAG :
+				$result .= $this->compressStyle ( $token );
+				break;
 			default :
 				$result .= $this->compressDefault ( $token );
 		}
 		return $result;
+	}
+
+	/**
+	 * 
+	 * compress script
+	 * @param array $token
+	 */
+	public function compressScript($token) {
+		if (! $this->options ['compress_tag']) {
+			return $token ['value'];
+		}
+		$info = Fl_Html_Static::splitSpecialValue ( $token ['value'], 'script', $this );
+		$content = trim ( $info ['content'] );
+		$tagInfo = $this->getInstance ( "Fl_Html_TagToken", $info ['tag_start'] )->run ();
+		$isExternal = false;
+		foreach ( $tagInfo ['attrs'] as $item ) {
+			$nameLower = strtolower ( $item [0] );
+			if ($nameLower === 'src' && count ( $item ) === 3) {
+				$isExternal = true;
+				break;
+			}
+		}
+		if (! $isExternal && $this->options ['remove_empty_script'] && ! $content) {
+			return '';
+		}
+		if ($this->options ['compress_inline_script'] && $content) {
+			$content = $this->getInstance ( "Fl_Js_Compress", $content )->run ();
+		}
+		if ($this->options ['remove_optional_attrs']) {
+			$tagInfo ['lowerTag'] = strtolower ( $tagInfo ['tag'] );
+			$info ['tag_start'] = $this->compressStartTag ( $tagInfo );
+		}
+		return $info ['tag_start'] . $content . $info ['tag_end'];
+	}
+
+	/**
+	 * 
+	 * compress style
+	 * @param array $token
+	 */
+	public function compressStyle($token) {
+		if (! $this->options ['compress_tag']) {
+			return $token ['value'];
+		}
+		$info = Fl_Html_Static::splitSpecialValue ( $token ['value'], 'style', $this );
+		$content = trim ( $info ['content'] );
+		if ($this->options ['remove_empty_style'] && ! $content) {
+			return '';
+		}
+		if ($this->options ['compress_inline_style'] && $content) {
+			$content = $this->getInstance ( "Fl_Css_Compress", $content )->run ();
+		}
+		if ($this->options ['remove_optional_attrs']) {
+			$tagInfo = $this->getInstance ( "Fl_Html_TagToken", $info ['tag_start'] )->run ();
+			$tagInfo ['lowerTag'] = strtolower ( $tagInfo ['tag'] );
+			$info ['tag_start'] = $this->compressStartTag ( $tagInfo );
+		}
+		return $info ['tag_start'] . $content . $info ['tag_end'];
 	}
 
 	/**
@@ -197,6 +275,9 @@ class Fl_Html_Compress extends Fl_Base {
 			}
 		}
 		if (! $token ['newlineBefore']) {
+			return $comment;
+		}
+		if (Fl_Html_Static::isNoNewlineToken ( $token ['type'] )) {
 			return $comment;
 		}
 		//如果是模版语法且不会输出，则不添加空白字符
@@ -217,6 +298,13 @@ class Fl_Html_Compress extends Fl_Base {
 				return $comment;
 			}
 			if ($this->options ['remove_inter_block_tag_space'] && Fl_Html_Static::isBlockTag ( $token ['tag'] )) {
+				return $comment;
+			}
+		}
+		if (Fl_Html_Static::isTag ( $this->nextToken ) || Fl_Html_Static::isTag ( $this->preToken )) {
+			if ($this->options ['remove_inter_tag_space']) {
+				return $comment;
+			} else if ($this->options ['remove_inter_block_tag_space'] && (Fl_Html_Static::isBlockTag ( $this->nextToken ['lowerTag'] ) || Fl_Html_Static::isBlockTag ( $this->preToken ['lowerTag'] ))) {
 				return $comment;
 			}
 		}
@@ -287,8 +375,8 @@ class Fl_Html_Compress extends Fl_Base {
 				} else if ($this->options ['remove_attrs_quote'] && Fl_Html_Static::isAttrValueNoQuote ( $valueDetail ['text'], $this )) {
 					$item [2] = $valueDetail ['text'];
 				}
+				$nameLower = strtolower ( $item [0] );
 				if ($this->options ['remove_http_protocal'] || $this->options ['remove_https_protocal']) {
-					$nameLower = strtolower ( $item [0] );
 					if ($nameLower === 'href' || $nameLower === "src") {
 						$valueDetail = Fl_Html_Static::getUnquoteText ( $item [2] );
 						$value = $valueDetail ['text'];
@@ -300,6 +388,11 @@ class Fl_Html_Compress extends Fl_Base {
 							$item [2] = $valueDetail ['quote'] . $value . $valueDetail ['quote'];
 						}
 					}
+				}
+				if ($this->options ['compress_style_value'] && $nameLower === 'style') {
+					$valueDetail = Fl_Html_Static::getUnquoteText ( $item [2] );
+					$value = $this->getInstance ( "Fl_Css_Compress", "*{" . $valueDetail ["text"] . "}" )->run ();
+					$item [2] = $valueDetail ['quote'] . substr ( $value, 2, strlen ( $value ) - 3 ) . $valueDetail ['quote'];
 				}
 			}
 			$resultAttrs [] = $item;
