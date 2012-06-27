@@ -456,6 +456,9 @@ abstract class Fl_Token extends Fl_Base {
 	 * @param object $obj
 	 */
 	public function getTplToken() {
+		if ($this->tplTokenHasChecked && ! $this->hasTplToken) {
+			return false;
+		}
 		if (! $this->checkHasTplToken () || ! $this->startWith ( $this->ld )) {
 			return false;
 		}

@@ -10,5 +10,6 @@ Fl::loadClass ( 'Fl_Html_Token' );
 class Fl_Html_Beautify extends Fl_Base {
 
 	public function run() {
+		
 	}
 }

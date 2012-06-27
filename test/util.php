@@ -102,19 +102,22 @@ function get_cls_options($cate = '') {
 				"remove_inter_tag_space" => false,  //not safe
 				"remove_inter_block_tag_space" => true,  //safe
 				"replace_multi_space" => " ", 
-				"remove_script_attrs" => true, 
-				"remove_style_attrs" => true, 
+				"remove_empty_script" => true, 
+				"remove_empty_style" => true, 
 				"remove_optional_attrs" => true, 
 				"remove_attrs_quote" => true, 
 				"remove_attrs_optional_value" => true, 
 				"remove_http_protocal" => true, 
 				"remove_https_protocal" => true, 
 				"remove_optional_end_tag" => true, 
+				"remove_optional_end_tag_list" => array (), 
 				"chars_line_break" => 8000, 
-				"compress_tag" => true, 
 				"compress_style_value" => true, 
 				"compress_inline_style" => true, 
-				"compress_inline_script" => true 
+				"compress_inline_script" => true, 
+				"compress_tag" => true, 
+				"merge_adjacent_style" => true, 
+				"merge_adjacent_script" => true 
 			) 
 		), 
 		"HtmlXss" => array (

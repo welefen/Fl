@@ -142,7 +142,7 @@ class Fl_Html_Token extends Fl_Token {
 	 * @see Fl_Token::skipComment()
 	 */
 	public function skipComment() {
-		while ( $this->text {$this->pos} === '<' ) {
+		while ( $this->text {$this->pos + 1} === '!' && $this->text {$this->pos} === '<' ) {
 			$flag = false;
 			foreach ( Fl_Html_Static::$specialCommentPrefix as $item ) {
 				if ($this->startWith ( $item, false )) {

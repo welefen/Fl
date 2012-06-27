@@ -251,10 +251,13 @@ class Fl_Html_Static {
 			'class' => '', 
 			'alt' => '', 
 			'title' => '', 
-			'style' => '' 
+			'style' => '', 
+			'id' => '', 
+			'name' => '' 
 		), 
 		'link' => array (
-			'media' => 'screen' 
+			'media' => 'screen', 
+			'type' => 'text/css' 
 		), 
 		'input' => array (
 			'type' => 'text' 
@@ -373,7 +376,7 @@ class Fl_Html_Static {
 	 * @param array $blackList
 	 */
 	public static function isOptionalEndTag($tag, $blackList = array()) {
-		return isset ( self::$optionalEndTag [$tag] ) && ! in_array ( $tag, $blackList );
+		return isset ( self::$optionalEndTag [$tag] ) && ! empty ( $blackList ) && ! in_array ( $tag, $blackList );
 	}
 
 	/**
