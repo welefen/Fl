@@ -11,7 +11,10 @@
 	margin: 0;
 	outline: 0;
 }
-
+body{
+	font-size:14px;
+	font-family: arial;
+}
 *::-webkit-scrollbar {
 	width: 5px;
 }

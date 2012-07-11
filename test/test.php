@@ -84,6 +84,6 @@ try {
 	if (isLocal ()) {
 		print_r ( $e );
 	} else {
-		echo $e->message;
+		echo "Fatal Error: " . $e->message;
 	}
 }

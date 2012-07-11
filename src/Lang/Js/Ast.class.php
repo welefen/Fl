@@ -88,7 +88,8 @@ class Fl_Js_Ast extends Fl_Base {
 	 */
 	public function statementAst() {
 		if ($this->isToken ( FL_TOKEN_JS_OPERATOR, "/" ) || $this->isToken ( FL_TOKEN_JS_OPERATOR, "/=" )) {
-			$this->peekToken = false;
+			//$this->peekToken = false;
+		//$this->currentToken = $this->getNextToken();
 		}
 		switch ($this->currentToken ['type']) {
 			case FL_TOKEN_JS_STRING :
@@ -107,7 +108,7 @@ class Fl_Js_Ast extends Fl_Base {
 			case FL_TOKEN_JS_ATOM :
 				return $this->simpleStatement ();
 			case FL_TOKEN_JS_NAME :
-				if ($this->isToken ( FL_TOKEN_JS_PUNC, ":", $this->peekToken )) {
+				if ($this->isToken ( FL_TOKEN_JS_PUNC, ":", $this->getPeekToken () )) {
 					$value = $this->currentToken ['value'];
 					$this->getNextToken ();
 					$this->getNextToken ();
@@ -300,6 +301,7 @@ class Fl_Js_Ast extends Fl_Base {
 			$arguments [] = $this->currentToken ['value'];
 			$this->getNextToken ();
 		}
+		$this->getNextToken ();
 		//获取函数body
 		++ $this->funtionDepth;
 		$loop = $this->loopDepth;
@@ -346,10 +348,12 @@ class Fl_Js_Ast extends Fl_Base {
 		$return = '';
 		if ($this->isToken ( FL_TOKEN_JS_PUNC, ";" )) {
 			$this->getNextToken ();
-		} else if ($this->canInsertSemicolon ()) {
 		} else {
-			$return = $this->expressionAst ();
-			$this->isSemicolon ();
+			if ($this->canInsertSemicolon ()) {
+			} else {
+				$return = $this->expressionAst ();
+				$this->isSemicolon ();
+			}
 		}
 		return array (
 			"return", 
@@ -635,7 +639,8 @@ class Fl_Js_Ast extends Fl_Base {
 		if ($this->isToken ( FL_TOKEN_JS_OPERATOR ) && Fl_Js_Static::isUnaryPrefix ( $this->currentToken ['value'] )) {
 			return $this->makeUnary ( "unary-prefix", $this->execEach ( $this->currentToken ['value'], 'getNextToken' ), $this->maybeUnary ( $allowCalls ) );
 		}
-		$val = $this->maybeEmbedTokens ( 'exprAtomAst', $allowCalls );
+		//$val = $this->maybeEmbedTokens ( 'exprAtomAst', $allowCalls );
+		$val = $this->exprAtomAst($allowCalls);
 		while ( $this->isToken ( FL_TOKEN_JS_OPERATOR ) && Fl_Js_Static::isUnarySuffix ( $this->currentToken ['value'] ) && ! $this->currentToken ['newlineBefore'] ) {
 			$val = $this->makeUnary ( "unary-postfix", $this->currentToken ['value'], $val );
 			$this->getNextToken ();

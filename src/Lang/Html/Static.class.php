@@ -204,6 +204,68 @@ class Fl_Html_Static {
 
 	/**
 	 * 
+	 * optional tag end until
+	 * @var array
+	 */
+	public static $optionalEndTagUntil = array (
+		"body" => array (
+			"html" 
+		), 
+		"colgroup" => array (
+			"NORMAL" 
+		), 
+		"thead" => array (
+			"NORMAL" 
+		), 
+		"tr" => array (
+			"NORMAL" 
+		), 
+		"tbody" => array (
+			"NORMAL" 
+		), 
+		"td" => array (
+			"NORMAL" 
+		), 
+		"th" => array (
+			"NORMAL" 
+		), 
+		"p" => array (
+			"NORMAL", 
+			"BLOCK" 
+		), 
+		"dt" => array (
+			"NORMAL" 
+		), 
+		"dd" => array (
+			"NORMAL" 
+		), 
+		"li" => array (
+			"NORMAL" 
+		), 
+		"option" => array (
+			"NORMAL" 
+		), 
+		"tfoot" => array (
+			"NORMAL" 
+		), 
+		"rt" => array (
+			"NORMAL" 
+		), 
+		"rp" => array (
+			"NORMAL" 
+		), 
+		"optgroup" => array (
+			"NORMAL" 
+		) 
+	);
+
+	public static $optionalEndTagNormalUntil = array (
+		"body", 
+		"html" 
+	);
+
+	/**
+	 * 
 	 * 块级标签
 	 * @var array
 	 */
@@ -469,7 +531,7 @@ class Fl_Html_Static {
 
 	/**
 	 * 
-	 * 
+	 * split specail value, such as script,style,pre,textarea
 	 */
 	public static function splitSpecialValue($value, $type = 'script', $instance) {
 		$value = trim ( $value );
@@ -497,6 +559,47 @@ class Fl_Html_Static {
 			"content" => $content, 
 			"tag_end" => $suffix 
 		);
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param string $tag
+	 * @param array $nextToken
+	 */
+	public static function optionalTagUntil($tag, $nextToken = array(), $instance) {
+		$nextTag = strtolower ( Fl_Html_Static::getTagName ( $nextToken ['value'], $instance ) );
+		switch ($nextToken ['type']) {
+			case FL_TOKEN_HTML_TAG_END :
+				if ($tag === $nextTag) {
+					return true;
+				}
+				break;
+			case FL_TOKEN_HTML_TAG_START :
+				if (isset ( Fl_Html_Static::$optionalEndTag [$tag] )) {
+					if ($tag === $nextTag) {
+						return true;
+					}
+				} else {
+					if (isset ( Fl_Html_Static::$optionalEndTagUntil [$tag] )) {
+						$nextUtilTags = Fl_Html_Static::$optionalEndTagUntil [$tag];
+						foreach ( $nextUtilTags as $item ) {
+							if ($nextTag === $item) {
+								return true;
+							}
+							if ($item === "BLOCK") {
+								$item = Fl_Html_Static::$blockTag;
+							} elseif ($item === "NORMAL") {
+								$item = Fl_Html_Static::$optionalEndTagNormalUntil;
+							}
+							if (is_array ( $item ) && isset ( $item [$nextTag] )) {
+								return true;
+							}
+						}
+					}
+				}
+		}
+		return false;
 	}
 
 	public static function isNoNewlineToken($type) {

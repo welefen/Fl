@@ -1,1 +1,132 @@
-<h1>a javascript/html/css toolkit that support tpl.</h1>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Fl Test Platform</title>
+<style rel="stylesheet">
+@charset "utf-8";
+
+* {
+	padding: 0;
+	margin: 0;
+	outline: 0;
+}
+img{border:0;}
+body {
+	font-size: 16px;
+	line-height:24px;
+	font-family: arial;
+	color: #bbb;
+	background: #363946;
+	overflow-y:scroll;
+}
+
+*::-webkit-scrollbar {
+	width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	background: rgba(0, 0, 0, 0.8);
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+*::-webkit-scrollbar-thumb:window-inactive {
+	background: rgba(0, 0, 0, 0.4);
+}
+
+header {
+	height: 80px;
+	background: #2D303B;
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(rgba(81, 86, 100, .95)
+		), color-stop(0.88, rgba(57, 61, 71, .95) ), to(rgba(51, 54, 63, .95)
+		) );
+	-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .6), inset 0 1px 0
+		rgba(255, 255, 255, .1), inset 0 -1px 0 rgba(0, 0, 0, .2);
+	opacity: .90;
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+	-webkit-box-sizing: border-box;
+	display: block;
+	
+}
+ul{list-style:none}
+header .hd {
+	width: 980px;
+	margin: auto;
+	position:relative;
+}
+h1{
+	font-size:38px;
+	line-height:60px;
+	border-bottom:1px solid #666;
+}
+.clearfix:after{content:'\20';display:block;height:0;clear:both}.clearfix{zoom:1}
+a{text-decoration:none;color: #ccc;}
+.content {
+	width: 980px;
+	margin: auto;
+	margin-top: 50px;
+}
+.nav{
+	padding-top:45px;
+	margin-left:280px;
+}
+.nav li{
+	float:left;
+	margin:0 20px;
+	font-size:20px;
+}
+.content p{
+	margin-top:20px;
+}
+.fork{
+	position:absolute;
+	top:0;
+	right:0;
+}
+footer{
+	width:980px;
+	margin:auto;
+	text-align:center;
+	margin-top:50px;
+	color:#666;
+}
+</style>
+</head>
+<body id="bd">
+<header>
+<div class="hd">
+	<a href="/" style="float:left;"><img src="logo.png"></a>
+	<nav style="float:left">
+		<ul class="clearfix nav">
+			<!-- <li><a href="#intro">介绍</a></li>
+			<li><a href="#api">Api文档</a></li>
+			<li><a href="#guide">开发文档</a></li> -->
+		</ul>
+	</nav>
+</div>
+<a class="fork" href="https://github.com/welefen/Fl" target="_blank">
+<img src="forkme.png"/>
+</a>
+</header>
+<div class="content">
+<h1>A Js/Html/Css Toolkit That Support Template</h1>
+<p>
+Fl是一款支持模版语法(如：Smarty)的Js/Html/Css处理工具，支持编码规范检测、代码美化、压缩、XSS漏洞自动修复等各种功能。
+使用Fl可以很好的解决团队内编码规范、WEB安全等问题。
+</p>
+<p>Fl使用PHP开发，需要PHP > 5，但不依赖PHP的其他模块。后续考虑提供Node.js版本。</p>
+</div>
+<footer>
+2012 @welefen
+</footer>
+</body>
+</html>

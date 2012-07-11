@@ -26,6 +26,7 @@ function get_test_cate_list() {
 		'HtmlToken' => "Fl_Html_Token", 
 		'HtmlTagToken' => 'Fl_Html_TagToken', 
 		'HtmlCompress' => 'Fl_Html_Compress', 
+		'HtmlAst' => 'Fl_Html_Ast', 
 		'HtmlDomQuery' => 'Fl_Html_Dom', 
 		'HtmlValidate' => 'Fl_Html_Validate', 
 		'HtmlXss' => 'Fl_Html_Xss', 
@@ -118,6 +119,11 @@ function get_cls_options($cate = '') {
 				"compress_tag" => true, 
 				"merge_adjacent_style" => true, 
 				"merge_adjacent_script" => true 
+			) 
+		), 
+		"HtmlAst" => array (
+			"properties" => array (
+				"embedToken" => false 
 			) 
 		), 
 		"HtmlXss" => array (
