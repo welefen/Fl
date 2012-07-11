@@ -50,6 +50,9 @@ define ( 'FL_TOKEN_HTML_DOCTYPE', 'doc type' );
 define ( 'FL_TOKEN_XML_HEAD', 'xml head' );
 //xml cdata
 define ( 'FL_TOKEN_XML_CDATA', 'xml cdata' );
+
+define ( 'FL_TOKEN_HTML_SINGLE_TAG', 'single tag' );
+define ( 'FL_TOKEN_HTML_TAG', 'tag' );
 /**
  * CSS相关的TOKEN
  */

@@ -520,8 +520,8 @@ $(function(){
 			md5: $(this).parent().attr('data-md5')
 		},function(data){
 			$('#text').val(data.text);
-			$('#ld').val(data.ld);
-			$('#rd').val(data.rd);
+			$('#ld').val(data.ld||data.properties.ld);
+			$('#rd').val(data.rd||data.properties.rd);
 		})
 		$.post('test.php?type=retest', {
 			cate: current,

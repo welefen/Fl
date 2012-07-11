@@ -48,8 +48,10 @@ class Fl_Html_Beautify extends Fl_Base {
 		}
 		$this->options = array_merge ( $this->options, $options );
 		$instance = $this->getInstance ( "Fl_Html_Ast" );
-		$instance->embedToken = true;
-		$ast = $instance->run ();
+		$ast = $instance->run ( array (
+			"embed_token" => true, 
+			"remove_blank_text" => true 
+		) );
 		return $this->beautifyAst ( $ast );
 	}
 
@@ -62,7 +64,7 @@ class Fl_Html_Beautify extends Fl_Base {
 		$result = '';
 		foreach ( $ast as $item ) {
 			$result .= $this->beautifyComment ( $item ['value'] );
-			$isTag = $item ['type'] === 'tag';
+			$isTag = $item ['type'] === FL_TOKEN_HTML_TAG;
 			if ($isTag) {
 				$result .= $this->getIndentString ();
 			}
@@ -72,9 +74,6 @@ class Fl_Html_Beautify extends Fl_Base {
 			}
 			if ($item ['type'] !== "text") {
 				if ($isTag) {
-					if (Fl_Html_Static::isBlockTag ( $item ['tag'] )) {
-						$result .= FL_NEWLINE;
-					}
 				} else {
 					$result .= FL_NEWLINE;
 				}

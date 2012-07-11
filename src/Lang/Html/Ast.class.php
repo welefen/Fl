@@ -10,10 +10,14 @@ class Fl_Html_Ast extends Fl_Base {
 
 	/**
 	 * 
-	 * embed token info in return data
+	 * options
 	 * @var array
 	 */
-	public $embedToken = array ();
+	public $options = array (
+		"embed_token" => false, 
+		"remove_blank_text" => false, 
+		"remove_blank_text_in_block_tag" => true 
+	);
 
 	/**
 	 * html token instance
@@ -52,10 +56,11 @@ class Fl_Html_Ast extends Fl_Base {
 	 * run
 	 * @see Fl_Base::run()
 	 */
-	public function run() {
+	public function run($options = array()) {
 		if ($this->checkHasTplToken ()) {
 			return false;
 		}
+		$this->options = array_merge ( $this->options, $options );
 		$this->tokenInstance = $this->getInstance ( "Fl_Html_Token" );
 		$this->getNextToken ();
 		while ( $this->currentToken ) {
@@ -100,8 +105,20 @@ class Fl_Html_Ast extends Fl_Base {
 			case FL_TOKEN_HTML_TEXTAREA_TAG :
 				return $this->specialStatement ();
 			case FL_TOKEN_HTML_TEXT :
+				//blank text will be ignored
+				if (preg_match ( FL_SPACE_PATTERN, $this->currentToken ['value'] )) {
+					if ($this->options ['remove_blank_text']) {
+						return false;
+					}
+					if (count ( $this->inTags ) && $this->options ['remove_blank_text_in_block_tag']) {
+						$inTag = $this->inTags [count ( $this->inTags ) - 1];
+						if (Fl_Html_Static::isBlockTag ( $inTag )) {
+							return false;
+						}
+					}
+				}
 				return array (
-					"type" => "text", 
+					"type" => FL_TOKEN_HTML_TEXT, 
 					"value" => $this->getValue ( $this->currentToken ) 
 				);
 			default :
@@ -118,7 +135,7 @@ class Fl_Html_Ast extends Fl_Base {
 	 * @param array $token
 	 */
 	public function getValue($token) {
-		if ($this->embedToken) {
+		if ($this->options ['embed_token']) {
 			return $token;
 		}
 		return $token ['value'];
@@ -133,7 +150,7 @@ class Fl_Html_Ast extends Fl_Base {
 		$tag = strtolower ( Fl_Html_Static::getTagName ( $token ['value'], $this ) );
 		if (Fl_Html_Static::isSingleTag ( $tag )) {
 			return array (
-				"type" => 'single_tag', 
+				"type" => FL_TOKEN_HTML_SINGLE_TAG, 
 				"value" => $this->getValue ( $token ) 
 			);
 		}
@@ -158,7 +175,7 @@ class Fl_Html_Ast extends Fl_Base {
 		}
 		array_pop ( $this->inTags );
 		return array (
-			"type" => "tag", 
+			"type" => FL_TOKEN_HTML_TAG, 
 			"tag" => $tag, 
 			"value" => $this->getValue ( $token ), 
 			"children" => $result, 
@@ -179,7 +196,7 @@ class Fl_Html_Ast extends Fl_Base {
 			"value" => $this->getValue ( $this->currentToken ), 
 			"children" => array (
 				array (
-					"type" => text, 
+					"type" => FL_TOKEN_HTML_TEXT, 
 					"value" => $this->getValue ( array_merge ( $this->currentToken, array (
 						"value" => $special ["content"] 
 					) ) ) 

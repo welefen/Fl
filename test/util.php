@@ -122,8 +122,8 @@ function get_cls_options($cate = '') {
 			) 
 		), 
 		"HtmlAst" => array (
-			"properties" => array (
-				"embedToken" => false 
+			"options" => array (
+				"embed_token" => false 
 			) 
 		), 
 		"HtmlXss" => array (
@@ -253,7 +253,6 @@ function retest_case($cate, $md5) {
 			if (! $options) {
 				$options = array ();
 			}
-			$instance = new $class ( $text );
 			if ($properties) {
 				foreach ( $properties as $name => $value ) {
 					$instance->$name = $value;

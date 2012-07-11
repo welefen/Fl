@@ -300,7 +300,21 @@ class Fl_Html_Static {
 		'p' => 2, 
 		'pre' => 2, 
 		'table' => 2, 
-		'ul' => 2 
+		'ul' => 2, 
+		//html5 block tags
+		'section' => 2, 
+		'header' => 2, 
+		'footer' => 2, 
+		'hgroup' => 2, 
+		'nav' => 2, 
+		'dialog' => 2, 
+		'datalist' => 2, 
+		'details' => 2, 
+		'figcaption' => 2, 
+		'figure' => 2, 
+		'meter' => 2, 
+		'output' => 2, 
+		'progress' => 2 
 	);
 
 	/**
