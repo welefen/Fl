@@ -106,7 +106,7 @@ class Fl_Html_Ast extends Fl_Base {
 				return $this->specialStatement ();
 			case FL_TOKEN_HTML_TEXT :
 				//blank text will be ignored
-				if (preg_match ( FL_SPACE_PATTERN, $this->currentToken ['value'] )) {
+				if (preg_match ( "/^\s+$/", $this->currentToken ['value'] )) {
 					if ($this->options ['remove_blank_text']) {
 						return false;
 					}

@@ -14,7 +14,7 @@ class Fl_Html_Beautify extends Fl_Base {
 	 * @var array
 	 */
 	public $options = array (
-		"indent" => "\t" 
+		"indent" => "    " 
 	);
 
 	/**
@@ -62,35 +62,65 @@ class Fl_Html_Beautify extends Fl_Base {
 	 */
 	public function beautifyAst($ast, $childTag = '') {
 		$result = '';
+		$first = true;
 		foreach ( $ast as $item ) {
+			if (! $first) {
+				$result = rtrim ( $result, FL_NEWLINE ) . FL_NEWLINE;
+			}
+			if ($first) {
+				$first = false;
+			}
 			$result .= $this->beautifyComment ( $item ['value'] );
-			$isTag = $item ['type'] === FL_TOKEN_HTML_TAG;
-			if ($isTag) {
+			$indent = $newline = false;
+			if ($item ['type'] === FL_TOKEN_HTML_TAG) {
+				$count = count ( $item ['children'] );
+				if ($count > 1) {
+					$indent = true;
+					$newline = true;
+				} elseif ($count === 1) {
+					$c = $item ['children'] [$count - 1];
+					if ($c ['type'] !== FL_TOKEN_HTML_TEXT) {
+						$indent = true;
+						$newline = true;
+					}
+				}
+			} else {
+				if (count ( $ast ) > 1) {
+					$newline = true;
+				}
+				if ($item ['type'] === FL_TOKEN_HTML_DOCTYPE || $item ['type'] === FL_TOKEN_HTML_SINGLE_TAG) {
+					$newline = true;
+				}
+			}
+			if ($item ['type'] !== FL_TOKEN_HTML_TEXT) {
 				$result .= $this->getIndentString ();
+			} else {
+				if (count ( $ast ) > 1) {
+					$result .= $this->getIndentString ();
+				}
 			}
 			$result .= $item ['value'] ['value'];
-			if ($isTag) {
+			if ($newline) {
+				$result .= FL_NEWLINE;
+			}
+			if ($indent) {
 				$this->indent ++;
 			}
-			if ($item ['type'] !== "text") {
-				if ($isTag) {
-				} else {
-					$result .= FL_NEWLINE;
-				}
-			}
-			$this->preToken = $item ['value'];
-			if (! empty ( $item ['children'] )) {
+			if (count ( $item ['children'] )) {
 				$result .= $this->beautifyAst ( $item ['children'] );
 			}
-			if ($isTag) {
-				if (Fl_Html_Static::isBlockTag ( $item ['tag'] )) {
+			if ($item ['type'] === FL_TOKEN_HTML_TAG) {
+				if ($newline) {
 					$result .= FL_NEWLINE;
 				}
+				if ($indent) {
+					$this->indent --;
+					$result .= $this->getIndentString ();
+				}
 				$result .= '</' . $item ['tag'] . '>';
-				$this->indent --;
 			}
 		}
-		return $result;
+		return rtrim ( $result, FL_NEWLINE );
 	}
 
 	/**
@@ -103,21 +133,8 @@ class Fl_Html_Beautify extends Fl_Base {
 			return '';
 		}
 		$comments = $token ['commentBefore'];
-		$preLine = intval ( $this->preToken ['line'] );
-		$result = '';
-		$indent = $this->getIndentString ();
-		$first = ! isset ( $this->preToken ['value'] );
 		foreach ( $comments as $comment ) {
-			if ($comment ['line'] > $preLine || $newline) {
-				$result .= FL_NEWLINE . $indent;
-				$result .= join ( FL_NEWLINE . $indent, explode ( FL_NEWLINE, $comment ['text'] ) );
-			} else if ($first) {
-				$result .= $comment ['text'] . FL_NEWLINE;
-			} else {
-				$result .= FL_SPACE;
-				$result .= $comment ['text'];
-			}
-			$preLine = $comment ['line'];
+			$result .= $comment ['text'];
 		}
 		return $result;
 	}
