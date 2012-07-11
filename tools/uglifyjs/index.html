@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+<script src="parse.js"></script>
+<script src="process.js"></script>
+</head>
+<body>
+<textarea id="text" style="width:90%;height:100px">
+
+function HOP(obj, prop) {
+        return Object.prototype.hasOwnProperty.call(obj, prop);
+};
+</textarea>
+<button onclick="test()" style="display:block;">测试</button>
+<script>
+function test(){
+	var text = document.getElementById('text').value;
+	var result = jsp.parse(text);
+	console.log(result)
+}
+</script>
+</body>
+</html>
