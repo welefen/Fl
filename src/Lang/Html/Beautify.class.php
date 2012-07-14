@@ -14,7 +14,9 @@ class Fl_Html_Beautify extends Fl_Base {
 	 * @var array
 	 */
 	public $options = array (
-		"indent" => "    " 
+		"indent" => "    ", 
+		"beautify_css" => true, 
+		"beautify_js" => true 
 	);
 
 	/**
@@ -52,7 +54,7 @@ class Fl_Html_Beautify extends Fl_Base {
 			"embed_token" => true, 
 			"remove_blank_text" => true 
 		) );
-		return $this->beautifyAst ( $ast );
+		return rtrim ( $this->beautifyAst ( $ast ), FL_NEWLINE );
 	}
 
 	/**
@@ -60,7 +62,7 @@ class Fl_Html_Beautify extends Fl_Base {
 	 * beautify
 	 * @param array $ast
 	 */
-	public function beautifyAst($ast, $childTag = '') {
+	public function beautifyAst($ast, $parentType = '') {
 		$result = '';
 		$first = true;
 		foreach ( $ast as $item ) {
@@ -91,6 +93,10 @@ class Fl_Html_Beautify extends Fl_Base {
 				if ($item ['type'] === FL_TOKEN_HTML_DOCTYPE || $item ['type'] === FL_TOKEN_HTML_SINGLE_TAG) {
 					$newline = true;
 				}
+				if ($item ['type'] === FL_TOKEN_HTML_STYLE_TAG || $item ['type'] === FL_TOKEN_HTML_SCRIPT_TAG) {
+					$newline = true;
+					$indent = true;
+				}
 			}
 			if ($item ['type'] !== FL_TOKEN_HTML_TEXT) {
 				$result .= $this->getIndentString ();
@@ -99,7 +105,13 @@ class Fl_Html_Beautify extends Fl_Base {
 					$result .= $this->getIndentString ();
 				}
 			}
-			$result .= $item ['value'] ['value'];
+			if ($parentType === FL_TOKEN_HTML_STYLE_TAG) {
+				$result .= $this->beautify_special ( $item ['value'] ['value'], 'css' );
+			} elseif ($parentType === FL_TOKEN_HTML_SCRIPT_TAG) {
+				$result .= $this->beautify_special ( $item ['value'] ['value'], 'js' );
+			} else {
+				$result .= $item ['value'] ['value'];
+			}
 			if ($newline) {
 				$result .= FL_NEWLINE;
 			}
@@ -107,9 +119,24 @@ class Fl_Html_Beautify extends Fl_Base {
 				$this->indent ++;
 			}
 			if (count ( $item ['children'] )) {
-				$result .= $this->beautifyAst ( $item ['children'] );
+				$type = $item ['type'];
+				if ($type === FL_TOKEN_HTML_SCRIPT_TAG) {
+					$tagInfo = Fl_Html_Static::getScriptTagInfo ( $item ['value'] ['value'], $this );
+					//虽然是script标签，但不一定是Js
+					if (! $tagInfo ['script']) {
+						$type = '';
+					}
+				}
+				$result .= $this->beautifyAst ( $item ['children'], $type );
 			}
-			if ($item ['type'] === FL_TOKEN_HTML_TAG) {
+			$types = array (
+				FL_TOKEN_HTML_TAG => 1, 
+				FL_TOKEN_HTML_SCRIPT_TAG => 1, 
+				FL_TOKEN_HTML_PRE_TAG => 1, 
+				FL_TOKEN_HTML_STYLE_TAG => 1, 
+				FL_TOKEN_HTML_TEXTAREA_TAG => 1 
+			);
+			if (isset ( $types [$item ['type']] )) {
 				if ($newline) {
 					$result .= FL_NEWLINE;
 				}
@@ -120,7 +147,34 @@ class Fl_Html_Beautify extends Fl_Base {
 				$result .= '</' . $item ['tag'] . '>';
 			}
 		}
-		return rtrim ( $result, FL_NEWLINE );
+		return $result;
+	}
+
+	/**
+	 * 
+	 * beautify style or script
+	 * @param string $value
+	 */
+	public function beautify_special($value, $type = 'css', $indent = true) {
+		if (! $this->options ['beautify_' . $type]) {
+			return $value;
+		}
+		$options = array (
+			'indent' => $this->options ['indent'] 
+		);
+		$type = ucfirst ( strtolower ( $type ) );
+		$value = $this->getInstance ( "Fl_" . $type . "_beautify", $value )->run ( $options );
+		$this->indent --;
+		$indentString = $this->getIndentString ();
+		if ($indent && strlen ( $indentString )) {
+			$values = explode ( FL_NEWLINE, $value );
+			$value = join ( FL_NEWLINE . $indentString, $values );
+		}
+		$this->indent ++;
+		if (! $indent) {
+			$indentString = '';
+		}
+		return $indentString . $value;
 	}
 
 	/**

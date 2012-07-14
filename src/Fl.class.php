@@ -5,12 +5,6 @@
  * @author welefen
  *
  */
-/**
- * 
- * 基础类
- * @author welefen
- *
- */
 class Fl {
 
 	/**
@@ -25,7 +19,7 @@ class Fl {
 
 	/**
 	 * 
-	 * 加载类文件
+	 * 加载类文件,所有的类都在Fl_下
 	 * @param string $class
 	 */
 	public static function loadClass($class = "", $new = false) {

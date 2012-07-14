@@ -36,11 +36,11 @@ class Fl_Html_Compress extends Fl_Base {
 		"remove_optional_end_tag_list" => array (), 
 		"chars_line_break" => 8000, 
 		"compress_style_value" => true, 
-		"compress_inline_style" => true, 
-		"compress_inline_script" => true, 
+		"compress_inline_css" => true, 
+		"compress_inline_js" => true, 
 		"compress_tag" => true, 
-		"merge_adjacent_style" => true, 
-		"merge_adjacent_script" => true 
+		"merge_adjacent_css" => true, 
+		"merge_adjacent_js" => true 
 	);
 
 	/**
@@ -228,35 +228,20 @@ class Fl_Html_Compress extends Fl_Base {
 		}
 		$info = Fl_Html_Static::splitSpecialValue ( $token ['value'], 'script', $this );
 		$content = trim ( $info ['content'] );
-		$tagInfo = $this->getInstance ( "Fl_Html_TagToken", $info ['tag_start'] )->run ();
-		$isExternal = false;
-		$isScript = true;
-		foreach ( $tagInfo ['attrs'] as $item ) {
-			$nameLower = strtolower ( $item [0] );
-			if (count ( $item ) == 3) {
-				if ($nameLower === 'src') {
-					$isExternal = true;
-					break;
-				} elseif ($nameLower === 'type') {
-					$valueDetail = Fl_Html_Static::getUnquoteText ( $item [2] );
-					if (strtolower ( $valueDetail ['text'] ) != 'text/javascript') {
-						$isScript = false;
-						break;
-					}
-				}
-			}
-		}
+		$tagInfo = Fl_Html_Static::getScriptTagInfo ( $info ['tag_start'], $this );
+		$isExternal = $tagInfo ['external'];
+		$isScript = $tagInfo ['script'];
 		if (! $isExternal && $this->options ['remove_empty_script'] && ! $content) {
 			return '';
 		}
-		if ($this->options ['compress_inline_script'] && $content && ! $isExternal && $isScript) {
+		if ($this->options ['compress_inline_js'] && $content && ! $isExternal && $isScript) {
 			$content = $this->getInstance ( "Fl_Js_Compress", $content )->run ();
 		}
 		if ($this->options ['remove_optional_attrs']) {
 			$tagInfo ['lowerTag'] = strtolower ( $tagInfo ['tag'] );
 			$info ['tag_start'] = $this->compressStartTag ( $tagInfo );
 		}
-		if ($isScript && $this->preIsScript && $this->options ['merge_adjacent_script']) {
+		if ($isScript && $this->preIsScript && $this->options ['merge_adjacent_js']) {
 			$endStyle = '</script>';
 			$outputLen = strlen ( $this->output );
 			$last = substr ( $this->output, $outputLen - 9 );
@@ -283,7 +268,7 @@ class Fl_Html_Compress extends Fl_Base {
 		if ($this->options ['remove_empty_style'] && ! $content) {
 			return '';
 		}
-		if ($this->options ['compress_inline_style'] && $content) {
+		if ($this->options ['compress_inline_css'] && $content) {
 			$content = $this->getInstance ( "Fl_Css_Compress", $content )->run ();
 		}
 		if ($this->options ['remove_optional_attrs']) {
@@ -291,7 +276,7 @@ class Fl_Html_Compress extends Fl_Base {
 			$tagInfo ['lowerTag'] = strtolower ( $tagInfo ['tag'] );
 			$info ['tag_start'] = $this->compressStartTag ( $tagInfo );
 		}
-		if ($this->options ['merge_adjacent_style']) {
+		if ($this->options ['merge_adjacent_css']) {
 			$endStyle = '</style>';
 			$outputLen = strlen ( $this->output );
 			$last = substr ( $this->output, $outputLen - 8 );

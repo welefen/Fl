@@ -3,7 +3,6 @@
  * 
  * Fl基础类,其他类由该类继承
  * @author welefen
- * @version 1.0
  *
  */
 class Fl_Base {
@@ -70,14 +69,20 @@ class Fl_Base {
 	 * 初始化
 	 */
 	public function init() {
-	}
-
-	public function run() {
+		//
 	}
 
 	/**
 	 * 
-	 * 初始化
+	 * 统一的执行方法
+	 */
+	public function run() {
+		//
+	}
+
+	/**
+	 * 
+	 * 设置要分析的文本
 	 * @param string $text
 	 */
 	public function setText($text = '') {
@@ -103,12 +108,12 @@ class Fl_Base {
 	 * 异常处理
 	 */
 	public function throwException($msg = '') {
-		throw new Fl_Exception ( $msg, $code );
+		throw new Fl_Exception ( $msg, - 1 );
 	}
 
 	/**
 	 * 
-	 * 检测是否含有模板语法的TOKEN
+	 * 检测文本里是否含有模版语法
 	 */
 	public function checkHasTplToken() {
 		if ($this->tplTokenHasChecked) {
@@ -126,7 +131,7 @@ class Fl_Base {
 
 	/**
 	 * 
-	 * 获取对应token类的实例
+	 * 获取对应class的实例
 	 */
 	public function getInstance($class = '', $text = '') {
 		Fl::loadClass ( $class );
@@ -139,7 +144,7 @@ class Fl_Base {
 
 	/**
 	 * 
-	 * 检测是否是模版语法
+	 * 检测传递的文本是否是个模版语法
 	 */
 	public function isTpl($text = '') {
 		if (! $text || ! $this->tpl || ! $this->ld || ! $this->rd) {
@@ -182,7 +187,7 @@ class Fl_Base {
 
 	/**
 	 * 
-	 * check tpl has output
+	 * 检测传递的模版语法是否会输出
 	 */
 	public function checkTplHasOutput($tpl) {
 		return Fl_Tpl::factory ( $this )->checkHasOutput ( $tpl, $this );

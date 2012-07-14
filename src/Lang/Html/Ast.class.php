@@ -193,6 +193,7 @@ class Fl_Html_Ast extends Fl_Base {
 		$this->currentToken ['value'] = $special ['tag_start'];
 		return array (
 			"type" => $this->currentToken ['type'], 
+			"tag" => $tag, 
 			"value" => $this->getValue ( $this->currentToken ), 
 			"children" => array (
 				array (

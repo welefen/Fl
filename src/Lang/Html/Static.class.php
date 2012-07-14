@@ -215,7 +215,8 @@ class Fl_Html_Static {
 			"NORMAL" 
 		), 
 		"thead" => array (
-			"NORMAL" 
+			"NORMAL", 
+			"tr" 
 		), 
 		"tr" => array (
 			"NORMAL" 
@@ -224,7 +225,9 @@ class Fl_Html_Static {
 			"NORMAL" 
 		), 
 		"td" => array (
-			"NORMAL" 
+			"NORMAL", 
+			"tr", 
+			"th" 
 		), 
 		"th" => array (
 			"NORMAL" 
@@ -240,7 +243,9 @@ class Fl_Html_Static {
 			"NORMAL" 
 		), 
 		"li" => array (
-			"NORMAL" 
+			"NORMAL", 
+			"ol", 
+			"ul" 
 		), 
 		"option" => array (
 			"NORMAL" 
@@ -594,28 +599,61 @@ class Fl_Html_Static {
 					if ($tag === $nextTag) {
 						return true;
 					}
-				} else {
-					if (isset ( Fl_Html_Static::$optionalEndTagUntil [$tag] )) {
-						$nextUtilTags = Fl_Html_Static::$optionalEndTagUntil [$tag];
-						foreach ( $nextUtilTags as $item ) {
-							if ($nextTag === $item) {
-								return true;
-							}
-							if ($item === "BLOCK") {
-								$item = Fl_Html_Static::$blockTag;
-							} elseif ($item === "NORMAL") {
-								$item = Fl_Html_Static::$optionalEndTagNormalUntil;
-							}
-							if (is_array ( $item ) && isset ( $item [$nextTag] )) {
-								return true;
-							}
-						}
-					}
 				}
+		}
+		if (isset ( Fl_Html_Static::$optionalEndTagUntil [$tag] )) {
+			$nextUtilTags = Fl_Html_Static::$optionalEndTagUntil [$tag];
+			foreach ( $nextUtilTags as $item ) {
+				if ($nextTag === $item) {
+					return true;
+				}
+				if ($item === "BLOCK") {
+					$item = Fl_Html_Static::$blockTag;
+				} elseif ($item === "NORMAL") {
+					$item = Fl_Html_Static::$optionalEndTagNormalUntil;
+				}
+				if (is_array ( $item ) && isset ( $item [$nextTag] )) {
+					return true;
+				}
+			}
 		}
 		return false;
 	}
 
+	/**
+	 * 
+	 * get info in script tag,is external & js
+	 * @param string $tag
+	 */
+	public static function getScriptTagInfo($tag = '', Fl_Base $instance) {
+		$tagInfo = $instance->getInstance ( "Fl_Html_TagToken", $tag )->run ();
+		$isExternal = false;
+		$isScript = true;
+		foreach ( $tagInfo ['attrs'] as $item ) {
+			$nameLower = strtolower ( $item [0] );
+			if (count ( $item ) == 3) {
+				if ($nameLower === 'src') {
+					$isExternal = true;
+					break;
+				} elseif ($nameLower === 'type') {
+					$valueDetail = Fl_Html_Static::getUnquoteText ( $item [2] );
+					if (strtolower ( $valueDetail ['text'] ) != 'text/javascript') {
+						$isScript = false;
+						break;
+					}
+				}
+			}
+		}
+		$tagInfo ['external'] = $isExternal;
+		$tagInfo ['script'] = $isScript;
+		return $tagInfo;
+	}
+
+	/**
+	 * 
+	 * is no newline token
+	 * @param string $type
+	 */
 	public static function isNoNewlineToken($type) {
 		return isset ( self::$noNewlineTokens [$type] );
 	}

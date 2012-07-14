@@ -27,7 +27,8 @@ function get_test_cate_list() {
 		'HtmlTagToken' => 'Fl_Html_TagToken', 
 		'HtmlCompress' => 'Fl_Html_Compress', 
 		'HtmlAst' => 'Fl_Html_Ast', 
-		'HtmlDomQuery' => 'Fl_Html_Dom', 
+		'HtmlDom' => 'Fl_Html_Dom', 
+		'HtmlJson' => 'Fl_Html_Json', 
 		'HtmlValidate' => 'Fl_Html_Validate', 
 		'HtmlXss' => 'Fl_Html_Xss', 
 		'HtmlBeautify' => 'Fl_Html_Beautify', 
@@ -114,11 +115,11 @@ function get_cls_options($cate = '') {
 				"remove_optional_end_tag_list" => array (), 
 				"chars_line_break" => 8000, 
 				"compress_style_value" => true, 
-				"compress_inline_style" => true, 
-				"compress_inline_script" => true, 
+				"compress_inline_css" => true, 
+				"compress_inline_js" => true, 
 				"compress_tag" => true, 
-				"merge_adjacent_style" => true, 
-				"merge_adjacent_script" => true 
+				"merge_adjacent_css" => true, 
+				"merge_adjacent_js" => true 
 			) 
 		), 
 		"HtmlAst" => array (

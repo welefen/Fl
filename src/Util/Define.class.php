@@ -9,8 +9,11 @@
  */
 //换行符
 define ( 'FL_NEWLINE', "\n" );
+//空格
 define ( 'FL_SPACE', " " );
+//是否含有空白字符的正则
 define ( "FL_SPACE_PATTERN", "/\s+/" );
+define ( "FL_SPACE_ALL_PATTERN", "/^\s+$/" );
 //结束符
 define ( 'FL_TOKEN_EOF', 'eof' );
 //模版
@@ -50,7 +53,6 @@ define ( 'FL_TOKEN_HTML_DOCTYPE', 'doc type' );
 define ( 'FL_TOKEN_XML_HEAD', 'xml head' );
 //xml cdata
 define ( 'FL_TOKEN_XML_CDATA', 'xml cdata' );
-
 define ( 'FL_TOKEN_HTML_SINGLE_TAG', 'single tag' );
 define ( 'FL_TOKEN_HTML_TAG', 'tag' );
 /**

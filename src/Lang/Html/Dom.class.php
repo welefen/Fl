@@ -17,5 +17,6 @@ class Fl_Html_Dom extends Fl_Base {
 		if ($this->checkHasTplToken ()) {
 			$this->throwException ( "Dom can't not support tpl syntax in html" );
 		}
+		$ast = $this->getInstance ( "Fl_Html_Ast" )->run ();
 	}
 }
