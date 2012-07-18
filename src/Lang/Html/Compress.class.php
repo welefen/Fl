@@ -269,7 +269,9 @@ class Fl_Html_Compress extends Fl_Base {
 			return '';
 		}
 		if ($this->options ['compress_inline_css'] && $content) {
-			$content = $this->getInstance ( "Fl_Css_Compress", $content )->run ();
+			Fl::loadClass ( "Fl_Css_Static" );
+			$value = Fl_Css_Static::getStyleDetail ( $content );
+			$content = $this->getInstance ( "Fl_Css_Compress", $value ['value'] )->run ();
 		}
 		if ($this->options ['remove_optional_attrs']) {
 			$tagInfo = $this->getInstance ( "Fl_Html_TagToken", $info ['tag_start'] )->run ();

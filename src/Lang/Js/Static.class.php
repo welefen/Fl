@@ -22,6 +22,22 @@ class Fl_Js_Static {
 
 	/**
 	 * 
+	 * prefix and suffix in inline style
+	 * @var array
+	 */
+	public static $scriptPrefixAndSuffix = array (
+		array (
+			"/*<![CDATA[*/", 
+			"/*<![CDATA[*/" 
+		), 
+		array (
+			"<!--", 
+			"//-->" 
+		) 
+	);
+
+	/**
+	 * 
 	 * 关键字
 	 * @var array
 	 */
@@ -589,5 +605,31 @@ class Fl_Js_Static {
 
 	public static function isAtomStartType($type) {
 		return isset ( self::$atomStartType [$type] );
+	}
+
+	/**
+	 * 
+	 * get prefix and suffix in script
+	 * @param string $value
+	 */
+	public static function getScriptDetail($value = '') {
+		$value = trim ( $value );
+		$prefix = $suffix = $text = '';
+		foreach ( self::$scriptPrefixAndSuffix as $item ) {
+			if (strpos ( $value, $item [0] ) === 0) {
+				$pos = strrpos ( $value, $item [1] );
+				if ($pos == (strlen ( $value ) - strlen ( $item [1] ))) {
+					$prefix = $item [0];
+					$suffix = $item [1];
+					$value = trim ( substr ( $value, strlen ( $item [0] ), (strlen ( $value ) - strlen ( $item [0] ) - strlen ( $item [1] )) ) );
+					break;
+				}
+			}
+		}
+		return array (
+			"prefix" => $prefix, 
+			"suffix" => $suffix, 
+			"value" => $value 
+		);
 	}
 }

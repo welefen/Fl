@@ -38,6 +38,18 @@ class Fl_Css_Static {
 
 	/**
 	 * 
+	 * prefix and suffix in inline style
+	 * @var array
+	 */
+	public static $stylePrefixAndSuffix = array (
+		array (
+			"<!--", 
+			"-->" 
+		) 
+	);
+
+	/**
+	 * 
 	 * css comment pattern
 	 * @var RegexIterator
 	 */
@@ -989,5 +1001,31 @@ class Fl_Css_Static {
 			$preLongSelector = $longSelector;
 		}
 		return $result;
+	}
+
+	/**
+	 * 
+	 * get prefix and suffix in style
+	 * @param string $value
+	 */
+	public static function getStyleDetail($value = '') {
+		$value = trim ( $value );
+		$prefix = $suffix = $text = '';
+		foreach ( self::$stylePrefixAndSuffix as $item ) {
+			if (strpos ( $value, $item [0] ) === 0) {
+				$pos = strrpos ( $value, $item [1] );
+				if ($pos == (strlen ( $value ) - strlen ( $item [1] ))) {
+					$prefix = $item [0];
+					$suffix = $item [1];
+					$value = trim ( substr ( $value, strlen ( $item [0] ), (strlen ( $value ) - strlen ( $item [0] ) - strlen ( $item [1] )) ) );
+					break;
+				}
+			}
+		}
+		return array (
+			"prefix" => $prefix, 
+			"suffix" => $suffix, 
+			"value" => $value 
+		);
 	}
 }

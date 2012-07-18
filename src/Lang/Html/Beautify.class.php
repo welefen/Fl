@@ -52,7 +52,8 @@ class Fl_Html_Beautify extends Fl_Base {
 		$instance = $this->getInstance ( "Fl_Html_Ast" );
 		$ast = $instance->run ( array (
 			"embed_token" => true, 
-			"remove_blank_text" => true 
+			"remove_blank_text" => true, 
+			"reserve_comments_before_end_tag" => true 
 		) );
 		return rtrim ( $this->beautifyAst ( $ast ), FL_NEWLINE );
 	}
@@ -69,10 +70,22 @@ class Fl_Html_Beautify extends Fl_Base {
 			if (! $first) {
 				$result = rtrim ( $result, FL_NEWLINE ) . FL_NEWLINE;
 			}
+			$hasComment = false;
+			if (count ( $item ['value'] ['commentBefore'] )) {
+				$hasComment = true;
+			}
+			$comment = $this->beautifyComment ( $item ['value'] );
+			if ($comment ['remove']) {
+				$result = rtrim ( $result, FL_NEWLINE );
+			}
+			$result .= $comment ['value'];
+			//
+			if ($item ['type'] === FL_TOKEN_HTML_TAG_END) {
+				continue;
+			}
 			if ($first) {
 				$first = false;
 			}
-			$result .= $this->beautifyComment ( $item ['value'] );
 			$indent = $newline = false;
 			if ($item ['type'] === FL_TOKEN_HTML_TAG) {
 				$count = count ( $item ['children'] );
@@ -106,7 +119,15 @@ class Fl_Html_Beautify extends Fl_Base {
 				}
 			}
 			if ($parentType === FL_TOKEN_HTML_STYLE_TAG) {
-				$result .= $this->beautify_special ( $item ['value'] ['value'], 'css' );
+				Fl::loadClass ( "Fl_Css_Static" );
+				$value = Fl_Css_Static::getStyleDetail ( $item ['value'] ['value'] );
+				if ($value ['prefix']) {
+					$result .= $value ['prefix'] . FL_NEWLINE;
+				}
+				$result .= $this->beautify_special ( $value ['value'], 'css' );
+				if ($value ['suffix']) {
+					$result .= FL_NEWLINE . $value ['suffix'] . FL_NEWLINE;
+				}
 			} elseif ($parentType === FL_TOKEN_HTML_SCRIPT_TAG) {
 				$result .= $this->beautify_special ( $item ['value'] ['value'], 'js' );
 			} else {
@@ -123,11 +144,18 @@ class Fl_Html_Beautify extends Fl_Base {
 				if ($type === FL_TOKEN_HTML_SCRIPT_TAG) {
 					$tagInfo = Fl_Html_Static::getScriptTagInfo ( $item ['value'] ['value'], $this );
 					//虽然是script标签，但不一定是Js
-					if (! $tagInfo ['script']) {
+					if (! $tagInfo ['script'] || $tagInfo ['external']) {
 						$type = '';
 					}
 				}
-				$result .= $this->beautifyAst ( $item ['children'], $type );
+				$children = $this->beautifyAst ( $item ['children'], $type );
+				if ($tagInfo ['external'] && ! strlen ( trim ( $children ) )) {
+					$result = rtrim ( $result, FL_NEWLINE );
+					$newline = false;
+					$indent = 2;
+				} else {
+					$result .= $children;
+				}
 			}
 			$types = array (
 				FL_TOKEN_HTML_TAG => 1, 
@@ -136,13 +164,22 @@ class Fl_Html_Beautify extends Fl_Base {
 				FL_TOKEN_HTML_STYLE_TAG => 1, 
 				FL_TOKEN_HTML_TEXTAREA_TAG => 1 
 			);
+			$this->preToken = $item ['value'];
 			if (isset ( $types [$item ['type']] )) {
 				if ($newline) {
+					$result = rtrim ( $result, FL_NEWLINE );
 					$result .= FL_NEWLINE;
 				}
 				if ($indent) {
 					$this->indent --;
-					$result .= $this->getIndentString ();
+					if ($indent === true) {
+						$result .= $this->getIndentString ();
+					}
+				}
+				if (! empty ( $item ['end'] )) {
+					$this->preToken = $item ['end'];
+					$comment = $this->beautifyComment ( $item ['end'] );
+					$result .= rtrim ( $comment ['value'], FL_NEWLINE );
 				}
 				$result .= '</' . $item ['tag'] . '>';
 			}
@@ -183,14 +220,33 @@ class Fl_Html_Beautify extends Fl_Base {
 	 * @param array $token
 	 */
 	public function beautifyComment($token) {
-		if (count ( $token ['commentBefore'] ) == 0) {
-			return '';
+		if (empty ( $token ['commentBefore'] )) {
+			return array (
+				"remove" => false, 
+				"value" => "" 
+			);
 		}
 		$comments = $token ['commentBefore'];
+		$preLine = intval ( $this->preToken ['line'] );
+		$result = '';
+		$indent = $this->getIndentString ();
+		$first = ! isset ( $this->preToken ['value'] );
 		foreach ( $comments as $comment ) {
-			$result .= $comment ['text'];
+			if ($comment ['line'] > $preLine) {
+				$result .= FL_NEWLINE . $indent;
+				$result .= join ( FL_NEWLINE . $indent, explode ( FL_NEWLINE, $comment ['text'] ) );
+			} else if ($first) {
+				$result .= $comment ['text'] . FL_NEWLINE;
+			} else {
+				$result .= $comment ['text'];
+			}
+			$preLine = $comment ['line'];
+			$first = false;
 		}
-		return $result;
+		return array (
+			"remove" => true, 
+			"value" => $result . FL_NEWLINE 
+		);
 	}
 
 	/**

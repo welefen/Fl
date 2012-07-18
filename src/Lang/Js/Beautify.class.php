@@ -13,6 +13,6 @@ class Fl_Js_Beautify extends Fl_Base {
 	 * @see Fl_Base::run()
 	 */
 	public function run() {
-		return $this->text;
+		return trim ( $this->text );
 	}
 }

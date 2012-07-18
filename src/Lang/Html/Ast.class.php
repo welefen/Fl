@@ -92,8 +92,9 @@ class Fl_Html_Ast extends Fl_Base {
 	 * statement
 	 */
 	public function statement() {
-		if (empty ( $this->currentToken ))
+		if (empty ( $this->currentToken )) {
 			return false;
+		}
 		switch ($this->currentToken ['type']) {
 			case FL_TOKEN_HTML_TAG_START :
 				return $this->tagStartStatement ();
@@ -105,8 +106,7 @@ class Fl_Html_Ast extends Fl_Base {
 			case FL_TOKEN_HTML_TEXTAREA_TAG :
 				return $this->specialStatement ();
 			case FL_TOKEN_HTML_TEXT :
-				//blank text will be ignored
-				if (preg_match ( "/^\s+$/", $this->currentToken ['value'] )) {
+				if (preg_match ( FL_SPACE_ALL_PATTERN, $this->currentToken ['value'] )) {
 					if ($this->options ['remove_blank_text']) {
 						return false;
 					}
@@ -163,7 +163,10 @@ class Fl_Html_Ast extends Fl_Base {
 				if (Fl_Html_Static::optionalTagUntil ( $tag, $this->currentToken, $this )) {
 					$this->peekToken = $this->currentToken;
 					if ($this->currentToken ['type'] === FL_TOKEN_HTML_TAG_END) {
-						$comment = $this->currentToken ['commentBefore'];
+						$tagEnd = $this->currentToken;
+						if ($tag === Fl_Html_Static::getTagName ( $this->currentToken ['value'], $this )) {
+							$this->getNextToken ();
+						}
 					}
 					break;
 				}
@@ -179,7 +182,7 @@ class Fl_Html_Ast extends Fl_Base {
 			"tag" => $tag, 
 			"value" => $this->getValue ( $token ), 
 			"children" => $result, 
-			"comment" => $comment 
+			"end" => $this->getValue ( $tagEnd ) 
 		);
 	}
 

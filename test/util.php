@@ -124,7 +124,9 @@ function get_cls_options($cate = '') {
 		), 
 		"HtmlAst" => array (
 			"options" => array (
-				"embed_token" => false 
+				"embed_token" => false, 
+				"remove_blank_text" => false, 
+				"remove_blank_text_in_block_tag" => true 
 			) 
 		), 
 		"HtmlXss" => array (
