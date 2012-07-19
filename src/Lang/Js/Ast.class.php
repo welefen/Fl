@@ -640,7 +640,7 @@ class Fl_Js_Ast extends Fl_Base {
 			return $this->makeUnary ( "unary-prefix", $this->execEach ( $this->currentToken ['value'], 'getNextToken' ), $this->maybeUnary ( $allowCalls ) );
 		}
 		//$val = $this->maybeEmbedTokens ( 'exprAtomAst', $allowCalls );
-		$val = $this->exprAtomAst($allowCalls);
+		$val = $this->exprAtomAst ( $allowCalls );
 		while ( $this->isToken ( FL_TOKEN_JS_OPERATOR ) && Fl_Js_Static::isUnarySuffix ( $this->currentToken ['value'] ) && ! $this->currentToken ['newlineBefore'] ) {
 			$val = $this->makeUnary ( "unary-postfix", $this->currentToken ['value'], $val );
 			$this->getNextToken ();
@@ -1032,18 +1032,21 @@ class Fl_Js_Ast extends Fl_Base {
 			case "name" :
 				return $expr [1] != "true";
 		}
+		return false;
 	}
 
-	function asPropName() {
+	public function asPropName() {
 		switch ($this->currentToken ['type']) {
 			case FL_TOKEN_JS_NUMBER :
 			case FL_TOKEN_JS_STRING :
-				return $this->execEach ( $this->currentToken ['value'], 'getNextToken' );
+				$value = $this->currentToken ['value'];
+				$this->getNextToken ();
+				return $value;
 		}
 		return $this->asName ();
 	}
 
-	function asName() {
+	public function asName() {
 		switch ($this->currentToken ['type']) {
 			case FL_TOKEN_JS_NAME :
 			case FL_TOKEN_JS_OPERATOR :

@@ -32,7 +32,7 @@ class Fl_Html_TagToken extends Fl_Token {
 	protected function _init() {
 		$text = $this->text;
 		if ($this->validate && ($text {0} != Fl_Html_Static::LEFT || $text {strlen ( $text ) - 1} != Fl_Html_Static::RIGHT)) {
-			$this->throwException ( 'getAttrs must be for a tag' );
+			$this->throwException ( 'getAttrs must be for a tag `' . $this->text . '`' );
 		}
 		//去除开始的<和最后的>
 		$text = trim ( substr ( $text, 1, strlen ( $text ) - 2 ) );

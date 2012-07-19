@@ -11,10 +11,12 @@
 	margin: 0;
 	outline: 0;
 }
-body{
-	font-size:14px;
+
+body {
+	font-size: 14px;
 	font-family: arial;
 }
+
 *::-webkit-scrollbar {
 	width: 5px;
 }
@@ -72,7 +74,7 @@ a {
 a:hover {
 	text-decoration: underline;
 }
-
+h1 a{color:#ccc}
 .wrapper {
 	position: absolute;
 	top: 60px;
@@ -291,7 +293,7 @@ button {
 require 'util.php';
 ?>
 <header>
-<h1>Fl测试平台v1.0</h1>
+<h1><a href="/">Fl测试平台</a></h1>
 </header>
 <div class="wrapper">
 <nav class="cate">
@@ -337,6 +339,7 @@ require 'util.php';
 <button class="testBtn" data-add="1" id="addToTestCase"
 	style="margin-top: 10px;">测试结果正确，添加到测试用例</button>
 	
+				
 				<?php endif;
 				?>
 				<button class="preview">预览</button>

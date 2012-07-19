@@ -139,7 +139,7 @@ class Fl_Js_Token extends Fl_Token {
 		if (Fl_Js_Static::isIdentifierStart ( $char )) {
 			$mods = $this->readWhile ( 'getWordToken' );
 			//check modifier is valid
-			if (! Fl_Js_Static::checkRegexpModifiers ( $mods )) {
+			if ($this->validate && ! Fl_Js_Static::checkRegexpModifiers ( $mods )) {
 				$this->throwException ( 'Invalid flags supplied to RegExp constructor "' . $mods . '"' );
 			}
 		}
