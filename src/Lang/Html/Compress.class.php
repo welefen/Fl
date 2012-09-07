@@ -49,6 +49,17 @@ class Fl_Html_Compress extends Fl_Base {
 	 * @var boolean
 	 */
 	public $isXML = false;
+	
+	/**
+	 * 自定义内联JS压缩方法
+	 * @var string
+	 */
+	public $jsCompressMethod = '';
+	/**
+	 * 自定义内联CSS压缩方法
+	 * @var string
+	 */
+	public $cssCompressMethod = '';
 
 	/**
 	 * prev token
@@ -235,7 +246,12 @@ class Fl_Html_Compress extends Fl_Base {
 			return '';
 		}
 		if ($this->options ['compress_inline_js'] && $content && ! $isExternal && $isScript) {
-			$content = $this->getInstance ( "Fl_Js_Compress", $content )->run ();
+			//自定义内联JS压缩方法
+			if($this->jsCompressMethod){
+				$content = call_user_func($this->jsCompressMethod, $content, $this);
+			}else{
+				$content = $this->getInstance ( "Fl_Js_Compress", $content )->run ();
+			}
 		}
 		if ($this->options ['remove_optional_attrs']) {
 			$tagInfo ['lowerTag'] = strtolower ( $tagInfo ['tag'] );
@@ -271,7 +287,12 @@ class Fl_Html_Compress extends Fl_Base {
 		if ($this->options ['compress_inline_css'] && $content) {
 			Fl::loadClass ( "Fl_Css_Static" );
 			$value = Fl_Css_Static::getStyleDetail ( $content );
-			$content = $this->getInstance ( "Fl_Css_Compress", $value ['value'] )->run ();
+			//自定义内联CSS压缩方法
+			if($this->cssCompressMethod){
+				$content = call_user_func($this->cssCompressMethod, $value['value'], $this);
+			}else{
+				$content = $this->getInstance ( "Fl_Css_Compress", $value ['value'] )->run ();
+			}
 		}
 		if ($this->options ['remove_optional_attrs']) {
 			$tagInfo = $this->getInstance ( "Fl_Html_TagToken", $info ['tag_start'] )->run ();
