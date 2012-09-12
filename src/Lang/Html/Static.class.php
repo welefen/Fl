@@ -306,6 +306,13 @@ class Fl_Html_Static {
 		'pre' => 2, 
 		'table' => 2, 
 		'ul' => 2, 
+        'table' => 2,
+        'tr' => 2,
+        'td' => 2,
+        'th' => 2,
+        'thead' => 2,
+        'tfoot' => 2,
+        'tbody' => 2,
 		//html5 block tags
 		'section' => 2, 
 		'header' => 2, 
