@@ -12,4 +12,6 @@ interface Fl_Tpl_Interface {
 	public function checkHasOutput($tpl, Fl_Base &$instance);
 
 	public function compress($tpl, Fl_Base &$instance);
+
+	public function xss($token, $type, Fl_Base &$instance);
 }

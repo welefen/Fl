@@ -1,5 +1,6 @@
 <?php
 Fl::loadClass ( 'Fl_Base' );
+Fl::loadClass ( 'Fl_Define' );
 Fl::loadClass ( 'Fl_Html_Static' );
 Fl::loadClass ( 'Fl_Tpl' );
 /**
