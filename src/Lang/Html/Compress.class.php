@@ -1,7 +1,7 @@
 <?php
 Fl::loadClass ( 'Fl_Base' );
-Fl::loadClass ( 'Fl_Define' );
 Fl::loadClass ( 'Fl_Html_Static' );
+Fl::loadClass ( 'Fl_Define' );
 Fl::loadClass ( 'Fl_Tpl' );
 /**
  * 
@@ -41,7 +41,7 @@ class Fl_Html_Compress extends Fl_Base {
 		"compress_inline_js" => true, 
 		"compress_tag" => true, 
 		"merge_adjacent_css" => true, 
-		"merge_adjacent_js" => true 
+		"merge_adjacent_js" => false 
 	);
 
 	/**
@@ -50,12 +50,13 @@ class Fl_Html_Compress extends Fl_Base {
 	 * @var boolean
 	 */
 	public $isXML = false;
-	
+
 	/**
 	 * 自定义内联JS压缩方法
 	 * @var string
 	 */
 	public $jsCompressMethod = '';
+
 	/**
 	 * 自定义内联CSS压缩方法
 	 * @var string
@@ -247,10 +248,11 @@ class Fl_Html_Compress extends Fl_Base {
 			return '';
 		}
 		if ($this->options ['compress_inline_js'] && $content && ! $isExternal && $isScript) {
+			$containTpl = $this->containTpl ( $content );
 			//自定义内联JS压缩方法
-			if($this->jsCompressMethod){
-				$content = call_user_func($this->jsCompressMethod, $content, $this);
-			}else{
+			if (! $containTpl && $this->jsCompressMethod) {
+				$content = call_user_func ( $this->jsCompressMethod, $content, $this );
+			} else {
 				$content = $this->getInstance ( "Fl_Js_Compress", $content )->run ();
 			}
 		}
@@ -258,7 +260,7 @@ class Fl_Html_Compress extends Fl_Base {
 			$tagInfo ['lowerTag'] = strtolower ( $tagInfo ['tag'] );
 			$info ['tag_start'] = $this->compressStartTag ( $tagInfo );
 		}
-		if ($isScript && $this->preIsScript && $this->options ['merge_adjacent_js']) {
+		if ($isScript && ! $isExternal && $this->preIsScript && $this->preIsScript ['script'] && ! $this->preIsScript ['external'] && $this->options ['merge_adjacent_js']) {
 			$endStyle = '</script>';
 			$outputLen = strlen ( $this->output );
 			$last = substr ( $this->output, $outputLen - 9 );
@@ -267,7 +269,7 @@ class Fl_Html_Compress extends Fl_Base {
 				return ';' . $content . $info ['tag_end'];
 			}
 		}
-		$this->preIsScript = $isScript;
+		$this->preIsScript = $tagInfo;
 		return $info ['tag_start'] . $content . $info ['tag_end'];
 	}
 
@@ -288,10 +290,11 @@ class Fl_Html_Compress extends Fl_Base {
 		if ($this->options ['compress_inline_css'] && $content) {
 			Fl::loadClass ( "Fl_Css_Static" );
 			$value = Fl_Css_Static::getStyleDetail ( $content );
+			$containTpl = $this->containTpl ( $value ['value'] );
 			//自定义内联CSS压缩方法
-			if($this->cssCompressMethod){
-				$content = call_user_func($this->cssCompressMethod, $value['value'], $this);
-			}else{
+			if (! $containTpl && $this->cssCompressMethod) {
+				$content = call_user_func ( $this->cssCompressMethod, $value ['value'], $this );
+			} else {
 				$content = $this->getInstance ( "Fl_Css_Compress", $value ['value'] )->run ();
 			}
 		}
@@ -494,9 +497,9 @@ class Fl_Html_Compress extends Fl_Base {
 					$value = preg_split ( FL_SPACE_PATTERN, $value );
 					$item [2] = $valueDetail ['quote'] . join ( FL_SPACE, $value ) . $valueDetail ['quote'];
 				} else if ($this->options ['compress_style_value'] && $nameLower === 'style') {
-					if ($this->cssCompressMethod){
-						$value = call_user_func($this->cssCompressMethod, "*{" . $valueDetail ["text"] . "}", $this);
-					}else{
+					if ($this->cssCompressMethod) {
+						$value = call_user_func ( $this->cssCompressMethod, "*{" . $valueDetail ["text"] . "}", $this );
+					} else {
 						$value = $this->getInstance ( "Fl_Css_Compress", "*{" . $valueDetail ["text"] . "}" )->run ();
 					}
 					$item [2] = $valueDetail ['quote'] . substr ( $value, 2, strlen ( $value ) - 3 ) . $valueDetail ['quote'];

@@ -306,13 +306,13 @@ class Fl_Html_Static {
 		'pre' => 2, 
 		'table' => 2, 
 		'ul' => 2, 
-        'table' => 2,
-        'tr' => 2,
-        'td' => 2,
-        'th' => 2,
-        'thead' => 2,
-        'tfoot' => 2,
-        'tbody' => 2,
+		'table' => 2, 
+		'tr' => 2, 
+		'td' => 2, 
+		'th' => 2, 
+		'thead' => 2, 
+		'tbody' => 2, 
+		'tfoot' => 2, 
 		//html5 block tags
 		'section' => 2, 
 		'header' => 2, 
@@ -464,7 +464,10 @@ class Fl_Html_Static {
 	 * @param array $blackList
 	 */
 	public static function isOptionalEndTag($tag, $blackList = array()) {
-		return isset ( self::$optionalEndTag [$tag] ) && ! empty ( $blackList ) && ! in_array ( $tag, $blackList );
+		if (! empty ( $blackList ) && in_array ( $tag, $blackList )) {
+			return false;
+		}
+		return isset ( self::$optionalEndTag [$tag] );
 	}
 
 	/**
@@ -565,7 +568,7 @@ class Fl_Html_Static {
 		$i = 0;
 		$v = '';
 		while ( true ) {
-			$pos = strpos ( $value, ">", $pos );
+			$pos = strpos ( $value, ">", $pos ? $pos + 1 : $pos );
 			$v = substr ( $value, 0, $pos + 1 );
 			try {
 				$instance->getInstance ( "Fl_Html_TagToken", $v )->run ();
@@ -573,7 +576,7 @@ class Fl_Html_Static {
 			} catch ( Fl_Exception $e ) {
 				$i ++;
 				if ($i > 5) {
-					throw new Fl_Exception ( "split special value error `" . $value . "`", $code );
+					throw new Fl_Exception ( "split special value error `" . $value . "`", 100 );
 				}
 			}
 		}

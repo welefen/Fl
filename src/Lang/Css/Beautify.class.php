@@ -206,7 +206,8 @@ class Fl_Css_Beautify extends Fl_Base {
 		if (! $this->options ['beautify_selector']) {
 			return $result . $this->getIndentString () . $token ['value'];
 		}
-		$output = $this->getInstance ( "Fl_Css_SelectorToken", $token ['value'] )->run ();
+		$output = $this->getInstance ( "Fl_Css_SelectorToken", $token ['value'] )
+			->run ();
 		$return = array ();
 		$result .= $this->getIndentString ();
 		$items = array ();

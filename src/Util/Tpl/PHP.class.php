@@ -8,24 +8,32 @@
  * @version 1.0 - 2012.02.25
  *
  */
-Fl::loadClass ( 'Fl_Tpl_Interface' );
+//Fl::loadClass ( 'Fl_Tpl_Interface' );
+class Fl_Tpl_PHP {
 
-class Fl_Tpl_PHP implements Fl_Tpl_Interface {
-
-	public static function compress($tpl, Fl_Base &$instance){
-		return $tpl;
-	}
-
-	public static function xss(){
-
-	}
-
-	public static function getToken(Fl_Token &$instance){
+	/**
+	 * 
+	 * 获取模版语法的Token
+	 * @param object $instance
+	 */
+	public function getToken(Fl_Token &$instance) {
 		return $instance->getMatched ( $instance->ld, $instance->rd, true );
 	}
 
-	public static function checkHasOutput($tpl, Fl_Base &$instance){
-		
+	/**
+	 * 
+	 * 检测当前的tpl是否会输出
+	 * @param string $tpl
+	 */
+	public function checkHasOutput($tpl, Fl_Base &$instance) {
+		return true;
 	}
-	
+
+	/**
+	 * 
+	 * 压缩当前的模板Token
+	 */
+	public function compress($tpl, Fl_Base &$instance) {
+		return $tpl;
+	}
 }

@@ -5,6 +5,7 @@
  * @author welefen
  *
  */
+Fl::loadClass ( "Fl_Define" );
 class Fl_Tpl {
 
 	/**
@@ -20,7 +21,15 @@ class Fl_Tpl {
 	 * @param Fl_Token $instance
 	 */
 	public static function factory(Fl_Base $instance, $new = false) {
-		$class = 'Fl_Tpl_' . $instance->tpl;
+		$tpl = strtolower ( $instance->tpl );
+		$list = array (
+			'php' => "PHP", 
+			'smarty' => "Smarty" 
+		);
+		if (isset ( $list [$tpl] )) {
+			$tpl = $list [$tpl];
+		}
+		$class = 'Fl_Tpl_' . $tpl;
 		if (! $new && array_key_exists ( $class, self::$register )) {
 			return self::$register [$class];
 		}

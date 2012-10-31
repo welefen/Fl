@@ -14,6 +14,7 @@ class Fl_Js_Compress extends Fl_Base {
 	 * @var array
 	 */
 	public $options = array ();
+
 	/**
 	 * run
 	 * @see Fl_Base::run()

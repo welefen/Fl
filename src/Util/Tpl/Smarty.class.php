@@ -188,7 +188,11 @@ class Fl_Tpl_Smarty implements Fl_Tpl_Interface {
 	 * 压缩当前的模板Token
 	 */
 	public function compress($tpl, Fl_Base &$instance) {
-		$tplText = $instance->getTplText ( $tpl );
+		$tplText = strtolower ( $instance->getTplText ( $tpl ) );
+		//去除strip
+		if ($tplText == 'strip' || $tplText == '/strip') {
+			return '';
+		}
 		//smarty的extends后必须有个空白字符
 		if (strpos ( $tplText, 'extends ' ) === 0) {
 			$tpl .= ' ';

@@ -70,7 +70,8 @@ class Fl_Css_Validate extends Fl_Base {
 	 * @param array $token
 	 */
 	public function validateSelector($token) {
-		$tokens = $this->getInstance ( "Fl_Css_SelectorToken", $token ['value'] )->run ();
+		$tokens = $this->getInstance ( "Fl_Css_SelectorToken", $token ['value'] )
+			->run ();
 		$maxSelectorLevel = intval ( $this->options ['selector_max_level'] );
 		foreach ( $tokens as $selectorItem ) {
 			if ($maxSelectorLevel && count ( $selectorItem ) > $maxSelectorLevel) {

@@ -200,7 +200,8 @@ class Fl_Html_Beautify extends Fl_Base {
 			'indent' => $this->options ['indent'] 
 		);
 		$type = ucfirst ( strtolower ( $type ) );
-		$value = $this->getInstance ( "Fl_" . $type . "_beautify", $value )->run ( $options );
+		$value = $this->getInstance ( "Fl_" . $type . "_beautify", $value )
+			->run ( $options );
 		$this->indent --;
 		$indentString = $this->getIndentString ();
 		if ($indent && strlen ( $indentString )) {

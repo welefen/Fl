@@ -243,7 +243,8 @@ class Fl_Css_Compress extends Fl_Base {
 			'equal' => array (), 
 			'pos' => $selectorPos ++ 
 		);
-		$result = $this->getInstance ( 'Fl_Css_SelectorToken', $token ['value'] )->run ();
+		$result = $this->getInstance ( 'Fl_Css_SelectorToken', $token ['value'] )
+			->run ();
 		if ($this->removeUnusedClass) {
 			$removeResult = array ();
 			foreach ( $result as $item ) {

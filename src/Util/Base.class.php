@@ -35,6 +35,13 @@ class Fl_Base {
 
 	/**
 	 * 
+	 * 内容编码
+	 * @var string
+	 */
+	public $encoding = 'utf-8';
+
+	/**
+	 * 
 	 * 文本的长度
 	 * @var int
 	 */
@@ -59,7 +66,10 @@ class Fl_Base {
 	 * 构造函数
 	 * @param string $text
 	 */
-	public function __construct($text) {
+	public function __construct($text, $encoding = '') {
+		if ($encoding) {
+			$this->encoding = $encoding;
+		}
 		$this->setText ( $text );
 		$this->init ();
 	}
@@ -98,8 +108,12 @@ class Fl_Base {
 	 * @param string $text
 	 */
 	public function trim($text = '') {
-		$text = preg_replace ( '/\r\n?|[\n\x{2028}\x{2029}]/u', "\n", $text );
-		$text = preg_replace ( '/^\x{FEFF}/u', '', $text );
+		if ($this->encoding == 'utf-8') {
+			$text = preg_replace ( '/\r\n?|[\n\x{2028}\x{2029}]/u', "\n", $text );
+			$text = preg_replace ( '/^\x{FEFF}/u', '', $text );
+		} else {
+			$text = preg_replace ( '/\r\n?/', "\n", $text );
+		}
 		return $text;
 	}
 
@@ -135,7 +149,7 @@ class Fl_Base {
 	 */
 	public function getInstance($class = '', $text = '') {
 		Fl::loadClass ( $class );
-		$instance = new $class ( $text ? $text : $this->text );
+		$instance = new $class ( $text ? $text : $this->text, $this->encoding );
 		$instance->tpl = $this->tpl;
 		$instance->ld = $this->ld;
 		$instance->rd = $this->rd;

@@ -31,7 +31,8 @@ class Fl_Html_Json extends Fl_Base {
 			return false;
 		}
 		$this->options = array_merge ( $this->options, $options );
-		$ast = $this->getInstance ( 'Fl_Html_Ast' )->run ();
+		$ast = $this->getInstance ( 'Fl_Html_Ast' )
+			->run ();
 		if (! is_array ( $ast )) {
 			return false;
 		}
@@ -84,7 +85,8 @@ class Fl_Html_Json extends Fl_Base {
 	 * @param string $value
 	 */
 	public function getTagData($value) {
-		$mixed = $this->getInstance ( "Fl_Html_TagToken", $value )->run ();
+		$mixed = $this->getInstance ( "Fl_Html_TagToken", $value )
+			->run ();
 		$attrs = $mixed ['attrs'];
 		$data = array (
 			$this->options ['tag'] => $mixed ['tag'] 

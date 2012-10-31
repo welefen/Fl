@@ -146,7 +146,8 @@ class Fl_Html_Xss extends Fl_Base {
 		$tokens = $this->getTokens ( 'html' );
 		foreach ( $tokens as $item ) {
 			if ($item ['type'] === FL_TOKEN_HTML_TAG_START) {
-				$attrTokens = $this->getInstance ( "Fl_Html_TagToken", $item ['value'] )->run ();
+				$attrTokens = $this->getInstance ( "Fl_Html_TagToken", $item ['value'] )
+					->run ();
 				$tagName = strtolower ( $attrTokens ['tag'] );
 				$tag = '<' . $attrTokens ['tag'] . FL_SPACE;
 				$attrTokens = $attrTokens ['attrs'];
