@@ -1,7 +1,7 @@
 <?php
 
 function isLocal() {
-	return $_SERVER ['HTTP_HOST'] === 'www';
+	return $_SERVER ['HTTP_HOST'] != 'www.flkit.org';
 }
 
 function get_par($name) {

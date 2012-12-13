@@ -191,7 +191,7 @@ class Fl_Html_Static {
 		"tbody" => 1, 
 		"td" => 1, 
 		"th" => 1, 
-		"p" => 1, 
+		//"p" => 1, 
 		"dt" => 1, 
 		"dd" => 1, 
 		"li" => 1, 
@@ -642,14 +642,14 @@ class Fl_Html_Static {
 		foreach ( $tagInfo ['attrs'] as $item ) {
 			$nameLower = strtolower ( $item [0] );
 			if (count ( $item ) == 3) {
+				$valueDetail = Fl_Html_Static::getUnquoteText ( $item [2] );
+				$value = $valueDetail ['text'];
+				$tagInfo [$nameLower] = $value;
 				if ($nameLower === 'src') {
 					$isExternal = true;
-					break;
 				} elseif ($nameLower === 'type') {
-					$valueDetail = Fl_Html_Static::getUnquoteText ( $item [2] );
-					if (strtolower ( $valueDetail ['text'] ) != 'text/javascript') {
+					if ($value && strtolower ( $value ) != 'text/javascript') {
 						$isScript = false;
-						break;
 					}
 				}
 			}
@@ -674,5 +674,44 @@ class Fl_Html_Static {
 	 * @param array $tokens
 	 */
 	public static function tokens2Text($tokens = array()) {
+		$text = '';
+		foreach ( $tokens as $token ) {
+			if (! empty ( $token ['commentBefore'] )) {
+				foreach ( $token ['commentBefore'] as $cToken ) {
+					$text .= $cToken ['text'];
+				}
+			}
+			if ($token ['newlineBefore']) {
+				$text .= str_repeat ( "\n", $token ['newlineBefore'] );
+			}
+			$text .= $token ['value'];
+		}
+		return $text;
+	}
+
+	/**
+	 * 
+	 * 获取特定属性的值
+	 * @param array $attrs
+	 * @param string $name
+	 */
+	public static function getAttrValue($attrs, $name = '') {
+		foreach ( $attrs as $item ) {
+			if (count ( $item ) === 3) {
+				if (strtolower ( $item [0] ) === $name) {
+					$value = $item [2];
+					$valueInfo = Fl_Html_Static::getUnquoteText ( $value );
+					return $valueInfo ['text'];
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 
+	 * 是否含有某个属性
+	 */
+	public static function hasAttr() {
 	}
 }
