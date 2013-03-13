@@ -516,8 +516,7 @@ class Fl_Css_Compress extends Fl_Base {
 			if (empty ( $item ['equal'] )) {
 				$selector = $item ['selector'];
 			} else {
-				$item ['equal'] [] = $item ['selector'];
-				$selector = join ( ",", $item ['equal'] );
+				$selector = $item ['selector'] . ',' . join ( ",", $item ['equal'] );
 			}
 			$attrsText = $this->propertiesToText ( $item ['attrs'] );
 			if ($attrsText) {
