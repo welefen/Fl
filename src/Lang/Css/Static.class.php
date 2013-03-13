@@ -175,6 +175,21 @@ class Fl_Css_Static {
 
 	/**
 	 * 
+	 * 属性名包含这些则不进行排序
+	 * @var array
+	 */
+	public static $unSortNames = array (
+		'padding', 
+		'margin', 
+		'font', 
+		'back', 
+		'border', 
+		'list', 
+		'outline' 
+	);
+
+	/**
+	 * 
 	 * multi same property in a selector
 	 * @var array
 	 */
@@ -673,14 +688,10 @@ class Fl_Css_Static {
 			if ($ap === $bp || $ap === 'filter' || $bp === 'filter') {
 				return $attrs ['pos'] > $b ['pos'] ? 1 : - 1;
 			} else {
-				/**
-				 * 对于
-				 * background/backgroud-image 
-				 * font/font-family
-				 * 这些要维持原来的顺序
-				 */
-				if (strpos ( $ap, $bp . '-' ) === 0 || strpos ( $bp, $ap . '-' ) === 0) {
-					return $attrs ['pos'] > $b ['pos'] ? 1 : - 1;
+				foreach ( self::$unSortNames as $name ) {
+					if ((strpos ( $ap, $name . '-' ) === 0 || $name === $ap) && (strpos ( $bp, $name . '-' ) === 0 || $name === $bp)) {
+						return $attrs ['pos'] > $b ['pos'] ? 1 : - 1;
+					}
 				}
 				return strcmp ( $ap, $bp ) > 0 ? 1 : - 1;
 			}
