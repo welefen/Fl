@@ -26,13 +26,13 @@ class Fl_Html_Compress extends Fl_Base {
 		"remove_inter_tag_space" => false,  //not safe
 		"remove_inter_block_tag_space" => true,  //safe
 		"replace_multi_space" => FL_SPACE, 
-		"remove_empty_script" => true, 
-		"remove_empty_style" => true, 
+		"remove_empty_script" => false, 
+		"remove_empty_style" => false, 
 		"remove_optional_attrs" => true, 
 		"remove_attrs_quote" => true, 
 		"remove_attrs_optional_value" => true, 
-		"remove_http_protocal" => true, 
-		"remove_https_protocal" => true, 
+		"remove_http_protocal" => false, 
+		"remove_https_protocal" => false, 
 		"remove_optional_end_tag" => true, 
 		"remove_optional_end_tag_list" => array (), 
 		"chars_line_break" => 8000, 
@@ -251,9 +251,12 @@ class Fl_Html_Compress extends Fl_Base {
 			$containTpl = $this->containTpl ( $content );
 			//自定义内联JS压缩方法
 			if (! $containTpl && $this->jsCompressMethod) {
-				$content = call_user_func ( $this->jsCompressMethod, $content, $this );
+				$compressContent = call_user_func ( $this->jsCompressMethod, $content, $this );
 			} else {
-				$content = $this->getInstance ( "Fl_Js_Compress", $content )->run ();
+				$compressContent = $this->getInstance ( "Fl_Js_Compress", $content )->run ();
+			}
+			if (! empty ( $compressContent ) && ! is_array ( $compressContent )) {
+				$content = $compressContent;
 			}
 		}
 		if ($this->options ['remove_optional_attrs']) {
@@ -460,6 +463,7 @@ class Fl_Html_Compress extends Fl_Base {
 		foreach ( $attrs as $item ) {
 			if ($item [1] === '=') {
 				$valueDetail = Fl_Html_Static::getUnquoteText ( $item [2] );
+				$nameLower = strtolower ( $item [0] );
 				if ($this->options ['remove_optional_attrs'] && Fl_Html_Static::isTagAttrDefaultValue ( $item [0], $valueDetail ['text'], $lowerTag )) {
 					continue;
 				}
@@ -469,10 +473,12 @@ class Fl_Html_Compress extends Fl_Base {
 					);
 					continue;
 				} else if ($this->options ['remove_attrs_quote'] && Fl_Html_Static::isAttrValueNoQuote ( $valueDetail ['text'], $this )) {
-					$item [2] = $valueDetail ['text'];
-					$valueDetail ['quote'] = '';
+					if ($nameLower != 'style') {
+						$item [2] = $valueDetail ['text'];
+						$valueDetail ['quote'] = '';
+					}
 				}
-				$nameLower = strtolower ( $item [0] );
+				//$nameLower = strtolower ( $item [0] );
 				//remove html xmlns attr
 				if ($lowerTag === 'html' && $nameLower === 'xmlns' && $this->options ['remove_html_xmlns']) {
 					continue;

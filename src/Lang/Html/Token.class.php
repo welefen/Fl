@@ -170,8 +170,19 @@ class Fl_Html_Token extends Fl_Token {
 			//对]>和]>-->的特殊处理, IE Hack的时候
 			if (count ( $item ) === 4) {
 				$pos = $this->find ( $item [1] );
-				if ($pos !== false && $pos === $this->find ( $item [3] )) {
-					$item [1] = $item [3];
+				if ($pos !== false) {
+					if (is_array ( $item [3] )) {
+						foreach ( $item [3] as $it ) {
+							if ($pos === $this->find ( $it )) {
+								$item [1] = $it;
+								break;
+							}
+						}
+					} else {
+						if ($pos === $this->find ( $item [3] )) {
+							$item [1] = $item [3];
+						}
+					}
 				}
 			}
 			$result = $this->getMatched ( $item [0], $item [1], false, false, false );

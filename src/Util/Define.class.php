@@ -12,7 +12,7 @@ define ( 'FL_NEWLINE', "\n" );
 //空格
 define ( 'FL_SPACE', " " );
 //是否含有空白字符的正则
-define ( "FL_SPACE_PATTERN", "/\s+/" );
+define ( "FL_SPACE_PATTERN", "/ +/" );
 define ( "FL_SPACE_ALL_PATTERN", "/^\s+$/" );
 //结束符
 define ( 'FL_TOKEN_EOF', 'eof' );

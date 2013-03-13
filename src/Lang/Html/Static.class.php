@@ -84,7 +84,10 @@ class Fl_Html_Static {
 			'<!--[if', 
 			']>', 
 			FL_TOKEN_HTML_IE_HACK, 
-			']>-->' 
+			array (
+				']><!-->', 
+				']>-->' 
+			) 
 		), 
 		array (
 			'<![endif', 
@@ -183,8 +186,8 @@ class Fl_Html_Static {
 	 * @var array
 	 */
 	public static $optionalEndTag = array (
-		"html" => 1, 
-		"body" => 1, 
+		//"html" => 1, 
+		//"body" => 1, 
 		"colgroup" => 1, 
 		"thead" => 1, 
 		"tr" => 1, 
@@ -639,6 +642,9 @@ class Fl_Html_Static {
 		$tagInfo = $instance->getInstance ( "Fl_Html_TagToken", $tag )->run ();
 		$isExternal = false;
 		$isScript = true;
+		$isTpl = false;
+		$isInline = false;
+		$src = '';
 		foreach ( $tagInfo ['attrs'] as $item ) {
 			$nameLower = strtolower ( $item [0] );
 			if (count ( $item ) == 3) {
@@ -647,15 +653,25 @@ class Fl_Html_Static {
 				$tagInfo [$nameLower] = $value;
 				if ($nameLower === 'src') {
 					$isExternal = true;
+					$src = $item [2];
 				} elseif ($nameLower === 'type') {
 					if ($value && strtolower ( $value ) != 'text/javascript') {
 						$isScript = false;
 					}
+					if ($value && strtolower ( $value ) == 'text/html') {
+						$isTpl = true;
+					}
 				}
+			}
+			if ($nameLower == 'inline') {
+				$isInline = true;
 			}
 		}
 		$tagInfo ['external'] = $isExternal;
 		$tagInfo ['script'] = $isScript;
+		$tagInfo ['tpl'] = $isTpl;
+		$tagInfo ['inline'] = $isInline;
+		$tagInfo ['src'] = $src;
 		return $tagInfo;
 	}
 

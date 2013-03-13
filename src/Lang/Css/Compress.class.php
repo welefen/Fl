@@ -203,6 +203,8 @@ class Fl_Css_Compress extends Fl_Base {
 					$result [] = array (
 						"attrs" => $assoc, 
 						"selector" => $selectors [$i] ['selector'], 
+						"score" => $selectors [$i] ['score'], 
+						"same_score" => $selectors [$i] ['score'] == $selectors [$i + 1] ['score'] ? true : false, 
 						'equal' => $equal, 
 						'pos' => $pos ++ 
 					);
@@ -243,8 +245,7 @@ class Fl_Css_Compress extends Fl_Base {
 			'equal' => array (), 
 			'pos' => $selectorPos ++ 
 		);
-		$result = $this->getInstance ( 'Fl_Css_SelectorToken', $token ['value'] )
-			->run ();
+		$result = $this->getInstance ( 'Fl_Css_SelectorToken', $token ['value'] )->run ();
 		if ($this->removeUnusedClass) {
 			$removeResult = array ();
 			foreach ( $result as $item ) {
@@ -276,9 +277,10 @@ class Fl_Css_Compress extends Fl_Base {
 						$attrs = Fl_Css_Static::mergeProperties ( $this->selectors [$value] ['attrs'], $attrs );
 						$this->selectors [$value] ['attrs'] = $attrs;
 					} else {
-						$this->selectors = array_merge ( array (
+						/*$this->selectors = array_merge ( array (
 							$value => $se 
-						), $this->selectors );
+						), $this->selectors );*/
+						$this->selectors [$value] = $se;
 					}
 				} else {
 					$this->selectors [$value . "%" . ($selectorPos ++)] = $se;
@@ -322,9 +324,10 @@ class Fl_Css_Compress extends Fl_Base {
 					$detail ['score'] = 1;
 					$detail ['same_score'] = true;
 					$detail ['equal'] = $selectors;
-					$this->selectors = array_merge ( array (
+					/*$this->selectors = array_merge ( array (
 						$selector => $detail 
-					), $this->selectors );
+					), $this->selectors );*/
+					$this->selectors [$selector] = $detail;
 				}
 			} else {
 				$this->tagMultis = array_merge ( $this->tagMultis, $sts );

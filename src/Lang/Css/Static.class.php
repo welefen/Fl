@@ -673,6 +673,15 @@ class Fl_Css_Static {
 			if ($ap === $bp || $ap === 'filter' || $bp === 'filter') {
 				return $attrs ['pos'] > $b ['pos'] ? 1 : - 1;
 			} else {
+				/**
+				 * 对于
+				 * background/backgroud-image 
+				 * font/font-family
+				 * 这些要维持原来的顺序
+				 */
+				if (strpos ( $ap, $bp . '-' ) === 0 || strpos ( $bp, $ap . '-' ) === 0) {
+					return $attrs ['pos'] > $b ['pos'] ? 1 : - 1;
+				}
 				return strcmp ( $ap, $bp ) > 0 ? 1 : - 1;
 			}
 		} else {
@@ -763,7 +772,9 @@ class Fl_Css_Static {
 	 * @param string $value
 	 */
 	public static function short4NumValue($value = '', $append = array(), $returnArray = false) {
-		$value = preg_split ( FL_SPACE_PATTERN, $value );
+		if (! is_array ( $value )) {
+			$value = preg_split ( FL_SPACE_PATTERN, $value );
+		}
 		$count = count ( $value );
 		$v = array (
 			"1" => array (
