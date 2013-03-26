@@ -469,9 +469,12 @@ abstract class Fl_Token extends Fl_Base {
 	 * 
 	 * 异常处理
 	 */
-	public function throwException($msg = '') {
+	public function throwException($msg = '', $detail = true) {
 		$ext = ' at line:' . ($this->line + 1) . ', col:' . ($this->col + 1) . ', pos:' . $this->pos;
-		parent::throwException ( $msg . $ext, $code );
+		if ($detail) {
+			$msg .= $ext;
+		}
+		parent::throwException ( $msg, - 1 );
 	}
 
 	/**

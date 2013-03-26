@@ -15,11 +15,11 @@ class Fl_Css_Static {
 	public static $atType = array (
 		'@import ' => FL_TOKEN_CSS_AT_IMPORT, 
 		'@charset ' => FL_TOKEN_CSS_AT_CHARSET, 
-		'@media ' => FL_TOKEN_CSS_AT_MEDIA, 
+		'/^\@media[^\w]/i' => FL_TOKEN_CSS_AT_MEDIA, 
 		'@namespace ' => FL_TOKEN_CSS_AT_NAMESPACE, 
 		'@font-face' => FL_TOKEN_CSS_AT_FONTFACE, 
 		'@page' => FL_TOKEN_CSS_AT_PAGE, 
-		'/^\@(?:\-(?:webkit|moz|o|ms)\-)?keyframes/' => FL_TOKEN_CSS_AT_KEYFRAMES, 
+		'/^\@(?:\-(?:webkit|moz|o|ms)\-)?keyframes/i' => FL_TOKEN_CSS_AT_KEYFRAMES, 
 		'@-moz' => FL_TOKEN_CSS_AT_MOZILLA 
 	);
 

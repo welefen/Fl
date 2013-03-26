@@ -354,7 +354,7 @@ class Fl_Css_Token extends Fl_Token {
 	 */
 	public function getLastToken() {
 		if ($this->validate && $this->bracesNum [0] != $this->bracesNum [1]) {
-			$this->throwException ( '{ & } num not equal.' );
+			$this->throwException ( '`{` & `}` count not equal. please check.', false );
 		}
 		return parent::getLastToken ();
 	}
