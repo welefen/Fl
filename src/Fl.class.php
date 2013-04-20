@@ -9,6 +9,14 @@ class Fl {
 
 	/**
 	 * 
+	 * Fl版本号
+	 * @var string
+	 */
+	
+	public static $version = '2.0.0';
+
+	/**
+	 * 
 	 * class find path
 	 * @var array
 	 */
