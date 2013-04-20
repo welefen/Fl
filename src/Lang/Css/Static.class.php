@@ -182,7 +182,7 @@ class Fl_Css_Static {
 		'padding', 
 		'margin', 
 		'font', 
-		'back', 
+		'background', 
 		'border', 
 		'list', 
 		'outline' 

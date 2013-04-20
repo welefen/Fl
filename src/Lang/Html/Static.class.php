@@ -585,10 +585,36 @@ class Fl_Html_Static {
 		}
 		$prefix = $v;
 		$suffix = "</" . $type . ">";
-		$content = substr ( $value, $pos + 1, strlen ( $value ) - $pos - 1 - strlen ( $suffix ) );
+		$content = trim ( substr ( $value, $pos + 1, strlen ( $value ) - $pos - 1 - strlen ( $suffix ) ) );
+		$cprefix = $csuffix = '';
+		if ($type === 'script') {
+			$list = array (
+				array (
+					"<!--", 
+					"//-->" 
+				), 
+				array (
+					"<![CDATA[", 
+					"]]>" 
+				) 
+			);
+			$contentLength = strlen ( $content );
+			foreach ( $list as $item ) {
+				$l0 = strlen ( $item [0] );
+				$l1 = strlen ( $item [1] );
+				if (strpos ( $content, $item [0] ) === 0 && strpos ( $content, $item [1] ) === ($contentLength - $l1)) {
+					$cprefix = $item [0];
+					$csuffix = $item [1];
+					$content = trim ( substr ( $content, $l0, $contentLength - $l0 - $l1 ) );
+					break;
+				}
+			}
+		}
 		return array (
 			"tag_start" => $prefix, 
 			"content" => $content, 
+			'cprefix' => $cprefix, 
+			'csuffix' => $csuffix, 
 			"tag_end" => $suffix 
 		);
 	}

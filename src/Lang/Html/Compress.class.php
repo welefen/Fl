@@ -17,31 +17,33 @@ class Fl_Html_Compress extends Fl_Base {
 	 * @var array
 	 */
 	public $options = array (
-		"remove_comment" => true, 
-		"simple_doctype" => true, 
-		"simple_charset" => true, 
-		"newline_to_space" => true, 
-		"tag_to_lower" => true, 
-		"remove_html_xmlns" => true, 
-		"remove_inter_tag_space" => false,  //not safe
-		"remove_inter_block_tag_space" => true,  //safe
-		"replace_multi_space" => FL_SPACE, 
-		"remove_empty_script" => false, 
-		"remove_empty_style" => false, 
-		"remove_optional_attrs" => true, 
-		"remove_attrs_quote" => true, 
-		"remove_attrs_optional_value" => true, 
-		"remove_http_protocal" => false, 
-		"remove_https_protocal" => false, 
-		"remove_optional_end_tag" => true, 
-		"remove_optional_end_tag_list" => array (), 
-		"chars_line_break" => 8000, 
-		"compress_style_value" => true, 
-		"compress_inline_css" => true, 
-		"compress_inline_js" => true, 
-		"compress_tag" => true, 
-		"merge_adjacent_css" => true, 
-		"merge_adjacent_js" => false 
+		"remove_comment" => true,  //移除注释
+		"simple_doctype" => true,  //简化doctype
+		"simple_charset" => true,  //简化charset
+		"newline_to_space" => true,  //换行符转为空格
+		"tag_to_lower" => true,  //小写标签名
+		"remove_html_xmlns" => true,  //移除html的命名空间
+		"remove_inter_tag_space" => false,  //移除标签之间的空格，非安全
+		"remove_inter_block_tag_space" => false,  //移除块级元素之间的空格，非安全
+		"replace_multi_space" => " ",  //将多个空格替换为一个 
+		"remove_empty_script" => false,  //移除空的script标签
+		"remove_empty_style" => false,  //移除空的style标签
+		"remove_optional_attrs" => true,  //移除可选的属性
+		"remove_attrs_quote" => true,  //移除属性值的引号
+		"remove_attrs_optional_value" => true,  //移除可选属性的值
+		"remove_http_protocal" => false,  //移除http协议
+		"remove_https_protocal" => false,  //移除https协议
+		"remove_optional_end_tag" => true,  //移除可选的结束标签
+		"remove_optional_end_tag_list" => array (),  //结束标签列表
+		"chars_line_break" => 8000,  //
+		"compress_style_value" => true,  //压缩标签的style值 
+		"compress_inline_css" => true,  //压缩内联的CSS
+		"compress_inline_js" => true,  //压缩内联的JS
+		'remove_inline_js_cdata' => true,  //
+		"compress_tpl_script" => false,  //压缩前端模版
+		"compress_tag" => true,  //压缩标签
+		"merge_adjacent_css" => true,  //合并相邻的css
+		"merge_adjacent_js" => false  //合并相邻的js
 	);
 
 	/**
@@ -203,7 +205,7 @@ class Fl_Html_Compress extends Fl_Base {
 				break;
 			case FL_TOKEN_HTML_TEXT :
 				$result .= $this->compressText ( $token );
-				$result = preg_replace ( "/ +/", FL_SPACE, $result );
+				$result = preg_replace ( "/ +/", " ", $result );
 				if ($result == FL_SPACE && (Fl_Html_Static::isTag ( $this->nextToken ) || Fl_Html_Static::isTag ( $this->preToken ))) {
 					if ($this->options ['remove_inter_tag_space']) {
 						$result = '';
@@ -240,36 +242,60 @@ class Fl_Html_Compress extends Fl_Base {
 			return $token ['value'];
 		}
 		$info = Fl_Html_Static::splitSpecialValue ( $token ['value'], 'script', $this );
-		$content = trim ( $info ['content'] );
+		$content = $info ['content'];
 		$tagInfo = Fl_Html_Static::getScriptTagInfo ( $info ['tag_start'], $this );
 		$isExternal = $tagInfo ['external'];
 		$isScript = $tagInfo ['script'];
-		if (! $isExternal && $this->options ['remove_empty_script'] && ! $content) {
-			return '';
-		}
-		if ($this->options ['compress_inline_js'] && $content && ! $isExternal && $isScript) {
-			$containTpl = $this->containTpl ( $content );
-			//自定义内联JS压缩方法
-			if (! $containTpl && $this->jsCompressMethod) {
-				$compressContent = call_user_func ( $this->jsCompressMethod, $content, $this );
-			} else {
-				$compressContent = $this->getInstance ( "Fl_Js_Compress", $content )->run ();
-			}
-			if (! empty ( $compressContent ) && ! is_array ( $compressContent )) {
-				$content = $compressContent;
+		//移除空的script标签
+		if ($this->options ['remove_empty_script']) {
+			if (! $isExternal && empty ( $content )) {
+				return '';
 			}
 		}
+		//压缩内联的JS
+		if ($this->options ['compress_inline_js']) {
+			if ($content && ! $isExternal && $isScript) {
+				$containTpl = $this->containTpl ( $content );
+				//自定义内联JS压缩方法
+				if (! $containTpl && $this->jsCompressMethod) {
+					$compressContent = call_user_func ( $this->jsCompressMethod, $content, $this );
+				} else {
+					$compressContent = $this->getInstance ( "Fl_Js_Compress", $content )->run ();
+				}
+				if (! empty ( $compressContent ) && ! is_array ( $compressContent )) {
+					$content = $compressContent;
+				}
+			}
+		}
+		//移除可选的属性
 		if ($this->options ['remove_optional_attrs']) {
 			$tagInfo ['lowerTag'] = strtolower ( $tagInfo ['tag'] );
 			$info ['tag_start'] = $this->compressStartTag ( $tagInfo );
 		}
-		if ($isScript && ! $isExternal && $this->preIsScript && $this->preIsScript ['script'] && ! $this->preIsScript ['external'] && $this->options ['merge_adjacent_js']) {
-			$endStyle = '</script>';
-			$outputLen = strlen ( $this->output );
-			$last = substr ( $this->output, $outputLen - 9 );
-			if (strtolower ( $last ) === $endStyle) {
-				$this->output = substr ( $this->output, 0, $outputLen - 9 );
-				return ';' . $content . $info ['tag_end'];
+		//合并相邻的script标签
+		if ($this->options ['merge_adjacent_js']) {
+			if ($isScript && ! $isExternal && $this->preIsScript && $this->preIsScript ['script'] && ! $this->preIsScript ['external']) {
+				$endStyle = '</script>';
+				$outputLen = strlen ( $this->output );
+				$last = substr ( $this->output, $outputLen - 9 );
+				if (strtolower ( $last ) === $endStyle) {
+					$this->output = substr ( $this->output, 0, $outputLen - 9 );
+					return ';' . $content . $info ['tag_end'];
+				}
+			}
+		}
+		//不移除CDATA
+		if (! $this->options ['remove_inline_js_cdata'] || $this->isXML) {
+			$content = $info ['cprefix'] . $content . $info ['csuffix'];
+		}
+		//压缩前端模版
+		if ($this->options ['compress_tpl_script']) {
+			if ($tagInfo ['tpl'] && ! $tagInfo ['external']) {
+				$instance = get_fl_instance ( "Fl_Html_Compress", $content );
+				$c = $instance->run ();
+				if (! empty ( $c )) {
+					$content = $c;
+				}
 			}
 		}
 		$this->preIsScript = $tagInfo;
@@ -395,6 +421,7 @@ class Fl_Html_Compress extends Fl_Base {
 		if ($this->options ['newline_to_space']) {
 			$value = str_replace ( FL_NEWLINE, FL_SPACE, $value );
 		}
+		$value = str_replace ( "\t", " ", $value );
 		if ($this->options ['replace_multi_space'] !== false) {
 			$value = preg_replace ( FL_SPACE_PATTERN, $this->options ['replace_multi_space'], $value );
 		}
