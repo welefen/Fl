@@ -262,8 +262,9 @@ class Fl_Css_Token extends Fl_Token {
 			//expression or background（dataURI）value may be have `:` or `;`
 			if ($char === '(') {
 				//@TODO:this condition check it not safe
-				//if (preg_match ( "/expression\s*/is", $return ) || stripos ( $this->text, "javascript" ) === $this->pos || stripos ( $this->text, "vbscript" ) === $this->pos) {
-				if (preg_match ( "/expression\s*/is", $return ) || strtolower ( substr ( $this->text, $this->pos, 10 ) ) === "javascript" || strtolower ( substr ( $this->text, $this->pos, 8 ) ) === "vbscript") {
+				$re = stripslashes ( $return ); //去除转义符号\
+				$re = preg_replace ( "/\/\*(.*?)\*\//", "", $re ); //移除注释
+				if (preg_match ( "/expression\s*/is", $re ) || strtolower ( substr ( $this->text, $this->pos, 10 ) ) === "javascript" || strtolower ( substr ( $this->text, $this->pos, 8 ) ) === "vbscript") {
 					$value = $this->getJsText ();
 					$return .= $value;
 				} else {
