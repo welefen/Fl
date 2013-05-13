@@ -71,6 +71,8 @@ class Fl_Css_SelectorToken extends Fl_Token {
 			$comment = $this->getComment ( 'multi', true );
 			if ($comment) {
 				$this->commentBefore [] = $comment;
+			} else {
+				break;
 			}
 		}
 	}

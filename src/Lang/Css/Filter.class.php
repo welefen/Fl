@@ -179,9 +179,10 @@ class Fl_Css_Filter extends Fl_Base {
 	 * @param string $url
 	 */
 	public function replaceImg($url, $quote = '') {
+		$quote = stripslashes ( $quote );
 		$url = trim ( $url );
-		if (strpos ( $url, 'data:' ) === 0) {
-			return $url;
+		if (strpos ( strtolower ( $url ), 'data:' ) === 0) {
+			return 'url(' . $url . ')';
 		}
 		$url = Fl_Static::getFixedUrl ( $url, $this->url );
 		if (empty ( $url )) {

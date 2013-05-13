@@ -16,7 +16,8 @@ class Fl_Css_DataUri extends Fl_Base {
 	 * @var array
 	 */
 	public $options = array (
-		'maxlength' => 3000 
+		'maxlength' => 3000, 
+		'check_times' => true 
 	);
 
 	/**
@@ -118,6 +119,7 @@ class Fl_Css_DataUri extends Fl_Base {
 					$this->addOutput ( $token ['value'] );
 			}
 		}
+		$this->css3_output = preg_replace ( $this->backgroundImgPattern, "self::replaceImgToDataUri('\\2')", $this->css3_output );
 		return array (
 			'ie6' => $this->ie6_output, 
 			'css3' => $this->css3_output 
@@ -205,7 +207,8 @@ class Fl_Css_DataUri extends Fl_Base {
 				$ie6Attrs [] = $this->attrItemToText ( $ie6Item );
 			}
 			if (! $this->isCss3IgnoreProperty ( $item )) {
-				$item ['value'] = preg_replace ( $this->backgroundImgPattern, "self::replaceImgToDataUri('\\2')", $item ['value'] );
+				//$item ['value'] = preg_replace ( $this->backgroundImgPattern, "self::replaceImgToDataUri('\\2')", $item ['value'] );
+				preg_replace ( $this->backgroundImgPattern, "self::genereateImgTimes('\\2')", $item ['value'] );
 				$css3Attrs [] = $this->attrItemToText ( $item );
 			}
 		}
@@ -217,7 +220,7 @@ class Fl_Css_DataUri extends Fl_Base {
 
 	/**
 	 * 
-	 * Enter description here ...
+	 * 
 	 * @param array $item
 	 */
 	public function attrItemToText($item) {
@@ -226,6 +229,29 @@ class Fl_Css_DataUri extends Fl_Base {
 			$str .= '!important';
 		}
 		return $str;
+	}
+
+	/**
+	 * 
+	 * 生成图片被引用的次数
+	 * @param string $url
+	 */
+	public function genereateImgTimes($url = '') {
+		if (! $this->getImgRealPath) {
+			return false;
+		}
+		$realPath = call_user_func ( $this->getImgRealPath, $url, $this );
+		if (empty ( $realPath ) || ! file_exists ( $realPath )) {
+			return false;
+		}
+		$imgContent = file_get_contents ( $realPath );
+		if (strlen ( $imgContent ) > $this->options ['maxlength']) {
+			return false;
+		}
+		if (! isset ( $this->imgNums [$realPath] )) {
+			$this->imgNums [$realPath] = 0;
+		}
+		$this->imgNums [$realPath] ++;
 	}
 
 	/**
@@ -246,10 +272,9 @@ class Fl_Css_DataUri extends Fl_Base {
 		if (strlen ( $imgContent ) > $this->options ['maxlength']) {
 			return $defaultValue;
 		}
-		if (! isset ( $this->imgNums [$realPath] )) {
-			$this->imgNums [$realPath] = 0;
+		if ($this->options ['check_times'] && ($this->imgNums [$realPath] > 1)) {
+			return $defaultValue;
 		}
-		$this->imgNums [$realPath] ++;
 		$imgInfo = getimagesize ( $realPath );
 		$value = 'data:' . $imgInfo ['mime'] . ';base64,' . base64_encode ( $imgContent );
 		return 'url("' . $value . '")';

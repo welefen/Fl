@@ -50,9 +50,7 @@ class Fl_Html_Filter extends Fl_Base {
 		'th', 
 		'style', 
 		'link', 
-		'title', 
-		'input', 
-		'button' 
+		'title' 
 	);
 
 	/**
@@ -248,7 +246,11 @@ class Fl_Html_Filter extends Fl_Base {
 				$instance = $this->getInstance ( "Fl_Css_Filter", $content );
 				$instance->url = $hrefValue;
 				$instance->getResourceContentFn = $this->getResourceContentFn;
-				$content = $instance->run ( $this->options );
+				try {
+					$content = $instance->run ( $this->options );
+				} catch ( Fl_Exception $e ) {
+					$this->throwException ( $e->message . ' in `' . $hrefValue . '`' );
+				}
 				return '<style type="text/css">' . $content . '</style>';
 			}
 		}

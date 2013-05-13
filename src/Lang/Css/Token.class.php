@@ -170,6 +170,8 @@ class Fl_Css_Token extends Fl_Token {
 			$comment = $this->getComment ( 'multi', true, true );
 			if ($comment) {
 				$this->commentBefore [] = $comment;
+			} else {
+				break;
 			}
 		}
 	}
