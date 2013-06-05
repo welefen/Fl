@@ -54,6 +54,7 @@ class Fl_Html_Static {
 	 * @var array
 	 */
 	public static $specialCommentPrefix = array (
+		'<!--#', 
 		'<!--[if', 
 		'<!--status', 
 		'<!--<![endif' 
@@ -97,6 +98,11 @@ class Fl_Html_Static {
 		array (
 			'<!--<![endif', 
 			']-->', 
+			FL_TOKEN_HTML_IE_HACK 
+		), 
+		array (
+			'<!--#', 
+			'-->', 
 			FL_TOKEN_HTML_IE_HACK 
 		), 
 		array (

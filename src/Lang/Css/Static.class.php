@@ -1141,20 +1141,55 @@ class Fl_Css_Static {
 				unset ( $assoc [$name] );
 				continue;
 			}
+			$flag = false;
+			foreach ( self::$unSortNames as $itemName ) {
+				if ($itemName == $name || strpos ( $itemName . '-', $name ) !== false) {
+					$flag = true;
+					break;
+				}
+			}
 			foreach ( $attrs1 as $n1 => $i1 ) {
 				if ($i1 ['property'] == $item ['property'] && ($i1 ['prefix'] || $i1 ['suffix'])) {
 					unset ( $assoc [$name] );
+					break;
 				}
 				if ($i1 ['type'] === FL_TOKEN_CSS_HACK) {
 					return false;
+				}
+				if ($flag) {
+					if (strpos ( $name, '-' ) !== false) {
+						if (strpos ( $name, $i1 ['property'] . '-' ) !== false) {
+							unset ( $assoc [$name] );
+							break;
+						}
+					} else {
+						if (strpos ( $i1 ['property'], $name . '-' ) !== false) {
+							unset ( $assoc [$name] );
+							break;
+						}
+					}
 				}
 			}
 			foreach ( $attrs2 as $n1 => $i1 ) {
 				if ($i1 ['property'] == $item ['property'] && ($i1 ['prefix'] || $i1 ['suffix'])) {
 					unset ( $assoc [$name] );
+					break;
 				}
 				if ($i1 ['type'] === FL_TOKEN_CSS_HACK) {
 					return false;
+				}
+				if ($flag) {
+					if (strpos ( $name, '-' ) !== false) {
+						if (strpos ( $name, $i1 ['property'] . '-' ) !== false) {
+							unset ( $assoc [$name] );
+							break;
+						}
+					} else {
+						if (strpos ( $i1 ['property'], $name . '-' ) !== false) {
+							unset ( $assoc [$name] );
+							break;
+						}
+					}
 				}
 			}
 		}

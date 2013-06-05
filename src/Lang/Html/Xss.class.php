@@ -116,7 +116,9 @@ class Fl_Html_Xss extends Fl_Base {
 				$result .= FL_NEWLINE;
 			}
 			if (! empty ( $item ['commentBefore'] )) {
-				$result .= join ( '', $item ['commentBefore'] );
+				foreach ( $item ['commentBefore'] as $comment ) {
+					$result .= $comment ['text'];
+				}
 			}
 			$result .= $item ['value'];
 		}
@@ -146,8 +148,7 @@ class Fl_Html_Xss extends Fl_Base {
 		$tokens = $this->getTokens ( 'html' );
 		foreach ( $tokens as $item ) {
 			if ($item ['type'] === FL_TOKEN_HTML_TAG_START) {
-				$attrTokens = $this->getInstance ( "Fl_Html_TagToken", $item ['value'] )
-					->run ();
+				$attrTokens = $this->getInstance ( "Fl_Html_TagToken", $item ['value'] )->run ();
 				$tagName = strtolower ( $attrTokens ['tag'] );
 				$tag = '<' . $attrTokens ['tag'] . FL_SPACE;
 				$attrTokens = $attrTokens ['attrs'];
@@ -175,7 +176,15 @@ class Fl_Html_Xss extends Fl_Base {
 				$tag = trim ( $tag ) . ">";
 				$item ['value'] = $tag;
 			} else if ($item ['type'] === FL_TOKEN_HTML_SCRIPT_TAG) {
-				$item ['value'] = $this->checkIt ( $item, 'js' );
+				//这里要判断是否是前端模版
+				$detail = Fl_Html_Static::splitSpecialValue ( $item ['value'], 'script', $this );
+				$tagInfo = Fl_Html_Static::getScriptTagInfo ( $detail ['tag_start'], $this );
+				//前端模版用HTML转义
+				if ($tagInfo ['tpl']) {
+					$item ['value'] = $this->checkIt ( $item, 'html' );
+				} else {
+					$item ['value'] = $this->checkIt ( $item, 'js' );
+				}
 			} else {
 				$item ['value'] = $this->checkIt ( $item, 'html' );
 			}
