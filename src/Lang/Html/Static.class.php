@@ -135,7 +135,7 @@ class Fl_Html_Static {
 	 * tag名的正则
 	 * @var RegexIterator
 	 */
-	public static $tagNamePattern = '/^([A-Za-z\!][A-Za-z0-9\!]*)/';
+	public static $tagNamePattern = '/^([A-Za-z\!][A-Za-z0-9\!\-\:\_]*)/';
 
 	/**
 	 * 
