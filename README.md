@@ -19,6 +19,7 @@ Fl是一个支持模版语法（如：Smarty）的Js/Html/Css处理工具，处�
 * HTML美化
 * HTML压缩
 * HTML安全过滤
+* XSS自动修复
 
 ### JS
 * JS词法分析（支持模版语法）
