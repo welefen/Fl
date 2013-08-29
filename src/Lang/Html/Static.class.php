@@ -356,9 +356,10 @@ class Fl_Html_Static {
 			'media' => 'screen', 
 			'type' => 'text/css' 
 		), 
-		'input' => array (
+		//use input[type="text"] in css
+		/*'input' => array (
 			'type' => 'text' 
-		), 
+		),*/
 		'form' => array (
 			'method' => 'get' 
 		), 

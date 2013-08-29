@@ -32,6 +32,7 @@ class Fl_Tpl_Smarty implements Fl_Tpl_Interface {
 		"=" 
 	); //"-" 
 
+	
 	/**
 	 * 
 	 * xss temp
@@ -107,6 +108,7 @@ class Fl_Tpl_Smarty implements Fl_Tpl_Interface {
 				'log' => array () 
 			);
 			$value = $token ['value'];
+			$value = str_replace ( "\\", "\\\\", $value );
 			$tplPattern = "/(" . preg_quote ( $instance->ld, "/" ) . "(.*?)" . preg_quote ( $instance->rd, "/" ) . ")/e";
 			$value = preg_replace ( $tplPattern, "self::xss(true, '\\1', '\\2')", $value );
 			$log = $this->xssTmp ['log'];

@@ -271,7 +271,7 @@ abstract class Fl_Token extends Fl_Base {
 			$col = $this->col;
 		}
 		$value = $this->commentType [$type];
-		$result = $this->getMatched ( $value ['prefix'], $value ['suffix'] );
+		$result = $this->getMatched ( $value ['prefix'], $value ['suffix'], false );
 		if ($result) {
 			$skipWhitespace && $this->skipWhiteSpace ();
 			if ($returnArray) {
