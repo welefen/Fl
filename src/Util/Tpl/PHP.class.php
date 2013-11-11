@@ -8,8 +8,9 @@
  * @version 1.0 - 2012.02.25
  *
  */
-//Fl::loadClass ( 'Fl_Tpl_Interface' );
-class Fl_Tpl_PHP {
+Fl::loadClass ( 'Fl_Tpl_Interface' );
+Fl::loadClass ( 'Fl_Static' );
+class Fl_Tpl_PHP implements Fl_Tpl_Interface {
 
 	/**
 	 * 
@@ -24,9 +25,6 @@ class Fl_Tpl_PHP {
 	 * @var array
 	 */
 	public static $defaultSafeVars = array ();
-
-	//"-" 
-	
 
 	/**
 	 * 
@@ -56,8 +54,8 @@ class Fl_Tpl_PHP {
 
 	public function xss($token, $type, $instance = null) {
 		if ($token === true) {
-			$value = stripslashes ( trim ( $instance ) );
-			$type = stripslashes ( $type );
+			$value = Fl_Static::fixPregReplaceQuote ( trim ( $instance ) );
+			$type = Fl_Static::fixPregReplaceQuote ( $type );
 			$tokens = token_get_all ( $type );
 			$result = array ();
 			$tmp = array ();
@@ -126,7 +124,6 @@ class Fl_Tpl_PHP {
 				'log' => array () 
 			);
 			$value = $token ['value'];
-			$value = str_replace ( "\\", "\\\\", $value );
 			$tplPattern = "/(" . preg_quote ( $instance->ld, "/" ) . "(.*?)" . preg_quote ( $instance->rd, "/" ) . ")/ise";
 			$value = preg_replace ( $tplPattern, "self::xss(true, '\\1', '\\2')", $value );
 			$log = $this->xssTmp ['log'];

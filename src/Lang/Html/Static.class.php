@@ -150,7 +150,7 @@ class Fl_Html_Static {
 	 * 详情见：http://www.w3.org/TR/html5/syntax.html#attributes-0
 	 * @var string
 	 */
-	public static $attrValueNoQuotePattern = '/^[^\s\"\'\=\<\>\`]+$/';
+	public static $attrValueNoQuotePattern = '/^\w+$/';
 
 	/**
 	 * 
@@ -183,7 +183,8 @@ class Fl_Html_Static {
 		"img", 
 		"isindex", 
 		"?xml", 
-		"embed" 
+		"embed", 
+		"col" 
 	);
 
 	/**
@@ -736,6 +737,19 @@ class Fl_Html_Static {
 			$text .= $token ['value'];
 		}
 		return $text;
+	}
+
+	/**
+	 * 
+	 * 将attrs转为json格式
+	 * @param array $attrs
+	 */
+	public static function attrsToJson($attrs = array()) {
+		$result = array ();
+		foreach ( $attrs as $item ) {
+			$result [$item [0]] = $item [2];
+		}
+		return $result;
 	}
 
 	/**

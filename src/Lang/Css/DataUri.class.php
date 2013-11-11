@@ -16,6 +16,7 @@ class Fl_Css_DataUri extends Fl_Base {
 	 * @var array
 	 */
 	public $options = array (
+		'file' => '',  //css文件路径名
 		'maxlength' => 3000, 
 		'check_times' => true 
 	);

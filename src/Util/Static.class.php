@@ -23,6 +23,10 @@ class Fl_Static {
 		return false;
 	}
 
+	public static function fixPregReplaceQuote($string = '') {
+		return str_replace ( '\"', '"', $string );
+	}
+
 	/**
 	 * 
 	 * 获取修复后的url

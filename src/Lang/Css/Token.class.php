@@ -116,6 +116,9 @@ class Fl_Css_Token extends Fl_Token {
 			case FL_TOKEN_CSS_SEMICOLON :
 				$result = $this->getPropertyToken ( $char );
 				$this->preTokenType = FL_TOKEN_CSS_PROPERTY;
+				if (! $this->checkProperty ( $result )) {
+					$this->throwException ( "property `" . str_replace ( "\n", " ", $result ) . "` is not valid." );
+				}
 				return $this->getTokenInfo ( FL_TOKEN_CSS_PROPERTY, $result );
 			case FL_TOKEN_CSS_COLON :
 				#case FL_TOKEN_CSS_PROPERTY :
@@ -132,6 +135,16 @@ class Fl_Css_Token extends Fl_Token {
 				return $this->getTokenInfo ( FL_TOKEN_CSS_SELECTOR, $result );
 		}
 		$this->throwException ( 'uncaught char ' . $char );
+	}
+
+	/**
+	 * 
+	 * 检测属性名是否合法
+	 * @param string $property
+	 */
+	public function checkProperty($property = "") {
+		$pattern = "/\w/"; //如果属性名没有字母或者数字，则不合法
+		return preg_match ( $pattern, $property );
 	}
 
 	/**

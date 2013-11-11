@@ -1,5 +1,0 @@
-<div 
-<&if $name=="welefen"&>
-class="welefen <&$name&>"<&/if&> 
-value="<&if $test==""&>11<&else&>22<&/if&>"
->

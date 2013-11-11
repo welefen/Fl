@@ -20,7 +20,7 @@ class Fl_Css_AutoComplete extends Fl_Base {
 	 * 匹配keyframes的正则
 	 * @var RegExp
 	 */
-	protected $keyFramesPattern = '/@(?:\-(webkit|moz|ms|o)\-)?keyframes\s+(\w+)/ies';
+	protected $keyFramesPattern = '/@(?:\-(webkit|moz|ms|o)\-)?keyframes\s+([\w\-]+)/ies';
 
 	/**
 	 * 
@@ -29,61 +29,59 @@ class Fl_Css_AutoComplete extends Fl_Base {
 	 */
 	protected $completeAttrs = array (
 		'radius' => array (
-			'webkit', 
-			'moz' 
+			'w3c' 
 		), 
 		'box-shadow' => array (
-			'webkit' 
+			'w3c' 
 		), 
 		'background' => array (
 			'webkit', 
-			'moz', 
 			'o', 
-			'ms' 
+			'w3c' 
 		), 
 		'opacity' => array (
 			'filter' 
 		), 
 		'transform' => array (
 			'webkit', 
-			'moz', 
-			'o', 
-			'ms' 
+			'ms', 
+			'w3c' 
 		), 
 		'perspective' => array (
 			'webkit', 
 			'moz', 
-			'o', 
-			'ms' 
+			'ms', 
+			'w3c' 
 		), 
 		'transition' => array (
 			'webkit', 
-			'moz', 
-			'o' 
+			'w3c' 
 		), 
 		'box-sizing' => array (
-			'webkit', 
-			'moz' 
+			'w3c' 
 		), 
 		'background-size' => array (
-			'webkit' 
+			'w3c' 
 		), 
 		'background-clip' => array (
-			'webkit' 
+			'w3c' 
 		), 
 		'column' => array (
 			'webkit', 
-			'moz' 
+			'moz', 
+			'w3c' 
 		), 
 		'animation' => array (
-			'webkit', 
-			'moz', 
-			'o', 
-			'ms' 
+			'w3c' 
 		), 
 		'tab-size' => array (
 			'moz', 
-			'o' 
+			'o', 
+			'w3c' 
+		), 
+		'keyframes' => array (
+			'webkit', 
+			'w3c' 
 		) 
 	);
 
@@ -191,12 +189,15 @@ class Fl_Css_AutoComplete extends Fl_Base {
 				case FL_TOKEN_CSS_AT_MOZILLA :
 					$this->output [] = $this->getMozHack ( $token );
 					break;
+				case FL_TOKEN_CSS_AT_MEDIA :
 				case FL_TOKEN_CSS_BRACES_TWO_END :
 					$this->output [] = $this->selectorToText ();
 					$this->output [] = $this->getRadiusBackgroundClip ();
 					$this->output [] = $token ['value'];
 					break;
 				case FL_TOKEN_CSS_AT_KEYFRAMES :
+					$this->output [] = $this->selectorToText ();
+					$this->output [] = $this->getRadiusBackgroundClip ();
 					$this->output [] = $this->getKeyFrames ( $token );
 					break;
 				default :
@@ -206,8 +207,6 @@ class Fl_Css_AutoComplete extends Fl_Base {
 		$this->output [] = $this->selectorToText ();
 		$this->output [] = $this->getRadiusBackgroundClip ();
 		$result = join ( '', $this->output );
-		//$instance = $this->getInstance ( "Fl_Css_Beautify", $result );
-		//$result = $instance->run();
 		return $result;
 	}
 
@@ -259,11 +258,14 @@ class Fl_Css_AutoComplete extends Fl_Base {
 		if (isset ( $this->keyframesList [$name] )) {
 			return $token ['value'] . '{' . $text . '}';
 		}
-		$output = $token ['value'] . '{' . $text . '}';
+		$output = '';
+		if (in_array ( $type, $this->completeAttrs ['keyframes'] )) {
+			$output = $token ['value'] . '{' . $text . '}';
+		}
 		$this->keyframesList [$name] = true;
 		$extTypes = array ();
 		$searchText = substr ( $this->text, $token ['pos'] );
-		foreach ( $this->typeList as $item ) {
+		foreach ( $this->completeAttrs ['keyframes'] as $item ) {
 			if (! $this->options [$item] || $item == $type) {
 				continue;
 			}
@@ -340,7 +342,7 @@ class Fl_Css_AutoComplete extends Fl_Base {
 		if (empty ( $this->radiusSelector ) || $this->options ['keyframes']) {
 			return '';
 		}
-		$result = join ( ',', $this->radiusSelector ) . '{-webkit-background-clip:padding-box;background-clip:padding-box}';
+		$result = join ( ',', $this->radiusSelector ) . '{background-clip:padding-box}';
 		$this->radiusSelector = array ();
 		return $result;
 	}
@@ -358,11 +360,12 @@ class Fl_Css_AutoComplete extends Fl_Base {
 		$zname = '';
 		if (isset ( $this->completeAttrs [$property] )) {
 			$zname = $property;
-		}
-		foreach ( $this->completeAttrs as $name => $value ) {
-			if (strpos ( $property, $name ) !== false) {
-				$zname = $name;
-				break;
+		} else {
+			foreach ( $this->completeAttrs as $name => $value ) {
+				if (strpos ( $property, $name ) !== false) {
+					$zname = $name;
+					break;
+				}
 			}
 		}
 		if ($zname) {
@@ -379,12 +382,16 @@ class Fl_Css_AutoComplete extends Fl_Base {
 	 * 
 	 * 获取原始的item
 	 */
-	public function getOriginItem($item) {
+	public function getOriginItem($zname, $item) {
 		$type = str_replace ( "-", '', $item ['prefix'] );
 		if (empty ( $type )) {
 			$type = 'w3c';
 		}
 		if (! $this->options [$type] && $this->options ['keyframes']) {
+			return array ();
+		}
+		$types = $this->completeAttrs [$zname];
+		if (! in_array ( $type, $types )) {
 			return array ();
 		}
 		return array (
@@ -399,9 +406,10 @@ class Fl_Css_AutoComplete extends Fl_Base {
 	 */
 	public function _common_($zname = '', $property = '', $item = array()) {
 		$existType = $this->getExistType ( $property );
-		$type = str_replace ( "-", '', $item ['prefix'] );
-		$additionalTypes = $this->getAdditionalType ( $zname, $type, $existType );
-		$result = $this->getOriginItem ( $item );
+		$oldtype = str_replace ( "-", '', $item ['prefix'] );
+		$additionalTypes = $this->getAdditionalType ( $zname, $oldtype, $existType );
+		$types = $this->completeAttrs [$zname];
+		$result = $this->getOriginItem ( $zname, $item );
 		foreach ( $additionalTypes as $type ) {
 			$result [] = array_merge ( $item, array (
 				'prefix' => $this->getPushPrefix ( $zname, $type ), 
@@ -453,7 +461,7 @@ class Fl_Css_AutoComplete extends Fl_Base {
 	 * 
 	 */
 	public function _background_($zname = '', $property = '', $item = array()) {
-		$result = $this->getOriginItem ( $item );
+		$result = $this->getOriginItem ( $zname, $item );
 		//背景渐变
 		if (strpos ( $item ['value'], '-gradient' ) !== false) {
 			$item ['value'] = trim ( $item ['value'] );
@@ -578,7 +586,6 @@ class Fl_Css_AutoComplete extends Fl_Base {
 		}
 		$types = $this->completeAttrs [$zname];
 		$result = array ();
-		$types [] = 'w3c';
 		foreach ( $types as $item ) {
 			if ($type != $item && ! in_array ( $item, $existType ) && $this->options [$item]) {
 				$result [] = $item;

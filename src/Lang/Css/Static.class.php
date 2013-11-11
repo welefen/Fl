@@ -196,7 +196,8 @@ class Fl_Css_Static {
 	public static $multiSameProperty = array (
 		"background" => 1, 
 		"background-image" => 1, 
-		"background-color" => 1 
+		"background-color" => 1, 
+		"display" => 1 
 	);
 
 	/**
@@ -470,106 +471,365 @@ class Fl_Css_Static {
 
 	/**
 	 * 
+	 * http://www.w3.org/TR/CSS2/propidx.html
 	 * regular property list
 	 * @var array
 	 */
 	public static $propertyList = array (
-		"background-attachment" => 1, 
-		"background-color" => 1, 
-		"background-image" => 1, 
-		"background-position" => 1, 
-		"background-repeat" => 1, 
-		"background", 
-		"border-collapse", 
-		"border-color", 
-		"border-spacing", 
-		"border-style", 
-		"border-top", 
-		"border-right", 
-		"border-bottom", 
-		"border-left", 
-		"border-top-color", 
-		"border-right-color", 
-		"border-bottom-color", 
-		"border-left-color", 
-		"border-top-style", 
-		"border-right-style", 
-		"border-bottom-style", 
-		"border-left-style", 
-		"border-top-width", 
-		"border-right-width", 
-		"border-bottom-width", 
-		"border-left-width", 
-		"border-width", 
-		"border", 
-		"bottom", 
-		"caption-side", 
-		"clear", 
-		"clip", 
-		"color", 
-		"content", 
-		"counter-increment", 
-		"counter-reset", 
-		"cursor", 
-		"direction", 
-		"display", 
-		"empty-cells", 
-		"flot", 
-		"font-family", 
-		"font-size", 
-		"font-style", 
-		"font-variant", 
-		"font-weight", 
-		"font", 
-		"height", 
-		"left", 
-		"letter-spacing", 
-		"line-height", 
-		"list-style-image", 
-		"list-style-position", 
-		"list-style-type", 
-		"list-style", 
-		"margin-right", 
-		"margin-left", 
-		"margin-top", 
-		"margin-bottom", 
-		"margin", 
-		"max-height", 
-		"max-width", 
-		"min-height", 
-		"min-width", 
-		"opacity", 
-		"orphans", 
-		"outline-color", 
-		"outline-style", 
-		"outline-width", 
-		"outline", 
-		"overflow", 
-		"padding-top", 
-		"padding-right", 
-		"padding-bottom", 
-		"padding-left", 
-		"padding", 
-		"page-break-after", 
-		"page-break-before", 
-		"page-break-inside", 
-		"position", 
-		"quotes", 
-		"right", 
-		"table-layout", 
-		"text-align", 
-		"text-decoration", 
-		"text-indent", 
-		"text-transform", 
-		"top", 
-		"unicode-bidi", 
-		"vertical-align", 
-		"visibility", 
-		"white-space", 
-		"windows", 
-		"width", 
-		"word-spacing", 
-		"z-index" 
+		'azimuth' => true, 
+		'background-attachment' => array (
+			'scroll', 
+			'fixed', 
+			'inherit' 
+		), 
+		'background-color' => array (
+			'color', 
+			'transparent', 
+			'inherit' 
+		), 
+		'background-image' => array (
+			'uri', 
+			'none', 
+			'inherit' 
+		), 
+		'background-position' => true, 
+		'background-repeat' => array (
+			'repeat', 
+			'repeat-x', 
+			'repeat-y', 
+			'no-repeat', 
+			'inherit' 
+		), 
+		'background' => true, 
+		'border-collapse' => array (
+			'collapse', 
+			'separate', 
+			'inherit' 
+		), 
+		'border-color' => true, 
+		'border-spacing' => true, 
+		'border-style' => true, 
+		'border-top' => true, 
+		'border-left' => true, 
+		'border-right' => true, 
+		'border-bottom' => true, 
+		'border-top-color' => array (
+			'color', 
+			'transparent', 
+			'inherit' 
+		), 
+		'border-left-color' => array (
+			'color', 
+			'transparent', 
+			'inherit' 
+		), 
+		'border-right-color' => array (
+			'color', 
+			'transparent', 
+			'inherit' 
+		), 
+		'border-bottom-color' => array (
+			'color', 
+			'transparent', 
+			'inherit' 
+		), 
+		'border-top-style' => true, 
+		'border-left-style' => true, 
+		'border-right-style' => true, 
+		'border-bottom-style' => true, 
+		'border-top-width' => true, 
+		'border-left-width' => true, 
+		'border-right-width' => true, 
+		'border-bottom-width' => true, 
+		'border-width' => true, 
+		'border' => true, 
+		'bottom' => true, 
+		'caption-side' => array (
+			'top', 
+			'bottom', 
+			'inherit' 
+		), 
+		'clear' => array (
+			'none', 
+			'left', 
+			'right', 
+			'both', 
+			'inherit' 
+		), 
+		'clip' => true, 
+		'color' => array (
+			'color', 
+			'inherit' 
+		), 
+		'content' => true, 
+		'counter-increment' => true, 
+		'counter-reset' => true, 
+		'cue-after' => array (
+			'uri', 
+			'none', 
+			'inherit' 
+		), 
+		'cue-before' => array (
+			'uri', 
+			'none', 
+			'inherit' 
+		), 
+		'cue' => true, 
+		'cursor' => true, 
+		'direction' => array (
+			'ltr', 
+			'rtl', 
+			'inherit' 
+		), 
+		'display' => array (
+			'inline', 
+			'block', 
+			'list-item', 
+			'inline-block', 
+			'table', 
+			'inline-table', 
+			'table-row-group', 
+			'table-header-group', 
+			'table-footer-group', 
+			'table-row', 
+			'table-column-group', 
+			'table-column', 
+			'table-cell', 
+			'table-caption', 
+			'none', 
+			'inherit' 
+		), 
+		'elevation' => true, 
+		'empty-cells' => array (
+			'show', 
+			'hide', 
+			'inherit' 
+		), 
+		'float' => array (
+			'left', 
+			'right', 
+			'none', 
+			'inherit' 
+		), 
+		'font-family' => true, 
+		'font-size' => true, 
+		'font-style' => array (
+			'normal', 
+			'italic', 
+			'oblique', 
+			'inherit' 
+		), 
+		'font-variant' => array (
+			'normal', 
+			'small-caps', 
+			'inherit' 
+		), 
+		'font-weight' => array (
+			'normal', 
+			'bold', 
+			'bolder', 
+			'lighter', 
+			100, 
+			200, 
+			300, 
+			400, 
+			500, 
+			600, 
+			700, 
+			800, 
+			900, 
+			'inherit' 
+		), 
+		'font' => true, 
+		'height' => true, 
+		'left' => true, 
+		'letter-spacing' => true, 
+		'line-height' => true, 
+		'list-style-image' => array (
+			'uri', 
+			'none', 
+			'inherit' 
+		), 
+		'list-style-position' => array (
+			'inside', 
+			'outside', 
+			'inherit' 
+		), 
+		'list-style-type' => array (
+			"disc", 
+			"circle", 
+			"square", 
+			"decimal", 
+			"decimal-leading-zero", 
+			"lower-roman", 
+			"upper-roman", 
+			"lower-greek", 
+			"lower-latin", 
+			"upper-latin", 
+			"armenian", 
+			"georgian", 
+			"lower-alpha", 
+			"upper-alpha", 
+			"none", 
+			"inherit" 
+		), 
+		'list-style' => true, 
+		'margin-right' => true, 
+		'margin-left' => true, 
+		'margin-top' => true, 
+		'margin-bottom' => true, 
+		'margin' => true, 
+		'max-height' => true, 
+		'max-width' => true, 
+		'min-width' => true, 
+		'min-height' => true, 
+		'orphans' => true, 
+		'outline-color' => array (
+			'color', 
+			'invert', 
+			'inherit' 
+		), 
+		'outline-style' => true, 
+		'outline-width' => true, 
+		'outline' => true, 
+		'overflow' => array (
+			"visible", 
+			"hidden", 
+			"scroll", 
+			"auto", 
+			"inherit" 
+		), 
+		'padding-top' => true, 
+		'padding-left' => true, 
+		'padding-right' => true, 
+		'padding-bottom' => true, 
+		'padding' => true, 
+		'page-break-after' => array (
+			"auto", 
+			"always", 
+			"avoid", 
+			"left", 
+			"right", 
+			"inherit" 
+		), 
+		'page-break-before' => array (
+			"auto", 
+			"always", 
+			"avoid", 
+			"left", 
+			"right", 
+			"inherit" 
+		), 
+		'page-break-inside' => array (
+			"avoid", 
+			"auto", 
+			"inherit" 
+		), 
+		'pause-after' => true, 
+		'pause-before' => true, 
+		'pause' => true, 
+		'pitch-range' => true, 
+		'pitch' => true, 
+		'play-during' => true, 
+		"position" => array (
+			"static", 
+			"relative", 
+			"absolute", 
+			"fixed", 
+			"inherit" 
+		), 
+		'quotes' => true, 
+		'richness' => true, 
+		'right' => true, 
+		'speak-header' => array (
+			"once", 
+			"always", 
+			"inherit" 
+		), 
+		'speak-numeral' => array (
+			"digits", 
+			"continuous", 
+			"inherit" 
+		), 
+		'speak-punctuation' => array (
+			"code", 
+			"none", 
+			"inherit" 
+		), 
+		'speak' => array (
+			"normal", 
+			"none", 
+			"spell-out", 
+			"inherit" 
+		), 
+		'speech-rate' => true, 
+		'stress' => true, 
+		'table-layout' => array (
+			"auto", 
+			"fixed", 
+			"inherit" 
+		), 
+		'text-align' => array (
+			"left", 
+			"right", 
+			"center", 
+			"justify", 
+			"inherit" 
+		), 
+		'text-decoration' => array (
+			"none", 
+			"underline", 
+			"overline", 
+			"line-through", 
+			"blink", 
+			"inherit" 
+		), 
+		'text-indent' => true, 
+		'text-transform' => array (
+			"capitalize", 
+			"uppercase", 
+			"lowercase", 
+			"none", 
+			"inherit" 
+		), 
+		'top' => true, 
+		'unicode-bidi' => array (
+			"normal", 
+			"embed", 
+			"bidi-override", 
+			"inherit" 
+		), 
+		'vertical-align' => true, 
+		'visibility' => array (
+			"visible", 
+			"hidden", 
+			"collapse", 
+			"inherit" 
+		), 
+		'voice-family' => true, 
+		'volume' => true, 
+		'white-space' => array (
+			"normal", 
+			"pre", 
+			"nowrap", 
+			"pre-wrap", 
+			"pre-line", 
+			"inherit" 
+		), 
+		'widows' => true, 
+		'width' => true, 
+		'word-spacing' => true, 
+		'z-index' => array (
+			"auto", 
+			"integer", 
+			"inherit" 
+		) 
+	);
+
+	public static $valueKeywords = array (
+		"color" => true, 
+		"uri" => "", 
+		"integer" => "" 
 	);
 
 	/**
@@ -671,7 +931,8 @@ class Fl_Css_Static {
 	/**
 	 * 
 	 * Calculating a selector's specificity
-	 * see more at: http://www.w3.org/TR/selectors/#specificity
+	 * see more at:
+http://www.w3.org/TR/selectors/#specificity
 	 * @param array $selectorTokens
 	 */
 	public static function getSelectorSpecificity($selectorTokens = array(), $number = false) {

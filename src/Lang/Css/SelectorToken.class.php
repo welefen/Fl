@@ -81,7 +81,7 @@ class Fl_Css_SelectorToken extends Fl_Token {
 	 * get token info
 	 * @see Fl_Token::getTokenInfo()
 	 */
-	public function getTokenInfo($type = '', $value = '') {
+	public function getTokenInfo($type = '', $value = '', $isComment = false) {
 		$result = parent::getTokenInfo ( $type, $value );
 		$result ['spaceBefore'] = $this->spaceBefore;
 		$this->spaceBefore = false;

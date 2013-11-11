@@ -300,7 +300,7 @@ require 'util.php';
 		<?php
 		$list = get_test_cate_list ();
 		?>
-		<h2>￥测试分类</h2>
+		<h2>测试分类</h2>
 <ul>
 			<?php
 			foreach ( $list as $name => $class ) :

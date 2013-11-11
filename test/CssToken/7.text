@@ -1,3 +1,0 @@
-* html div a > .cls[href^="http://www.welefen.com"]{
-	color:red;
-}

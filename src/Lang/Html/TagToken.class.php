@@ -152,7 +152,7 @@ class Fl_Html_TagToken extends Fl_Token {
 				$hasEqual = false;
 			} else if ($this->isWhiteSpace ( $char )) {
 				if ($hasEqual) {
-					if ($value) {
+					if ($value != "") {
 						$return [] = array (
 							$name, 
 							'=', 
