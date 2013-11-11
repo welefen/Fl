@@ -372,7 +372,7 @@ $(function(){
 				//console.log(i);
 				if(item['test_result']){
 					correct.push('<li data-md5="'+i+'" class="correct"><span>'+escape_js(item['text'])+'</span><b class="refresh" title="重新检测"></b><b class="del" title="删除">x</b>');
-					correct.push('<div class="info" style="display:none">模版引擎：'+escape_js(item['tpl'])+' 左定界符：'+escape_js(item['ld'])+' 右定界符：'+escape_js(item['rd'])+'<br />测试用例：'+escape_js(item['text'])+'</div>')
+					correct.push('<div class="info" style="display:none">模版引擎：'+escape_js(item['tpl'] || "Smarty")+' 左定界符：'+escape_js(item['ld'])+' 右定界符：'+escape_js(item['rd'])+'<br />测试用例：'+escape_js(item['text'])+'</div>')
 					correct.push('</li>');
 				}else{
 					failure.push('<li data-md5="'+i+'" class="failure"><span>'+escape_js(item['text'])+'</span><b class="refresh" title="重新检测"></b><b class="del" title="删除">x</b>');
