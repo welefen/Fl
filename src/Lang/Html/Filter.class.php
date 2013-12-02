@@ -78,6 +78,19 @@ class Fl_Html_Filter extends Fl_Base {
 
 	/**
 	 * 
+	 * 允许特殊标签的属性
+	 * @var array
+	 */
+	public $allowSpecialTagProperty = array (
+		"meta" => array (
+			"http-equiv" => "Content-Type", 
+			"content" => "/^text\/html;\s*charset=(utf\-?8|gb2312|gbk)$/i", 
+			"charset" => "/^(utf\-?8|gb2312|gbk)$/i" 
+		) 
+	);
+
+	/**
+	 * 
 	 * 当前内容对应的页面地址，需要根据这个替换页面资源的相对地址
 	 * @var string
 	 */
@@ -97,6 +110,7 @@ class Fl_Html_Filter extends Fl_Base {
 		'remove_js' => true,  //移除js
 		'remove_tag_event' => true,  //去除标签的事件
 		'use_blank_tag_filter' => true,  //标签使用白名单
+		'use_special_tag_filter' => true,  //特殊标签的属性过滤
 		'use_blank_tag_property_filter' => true,  //标签属性使用白名单
 		'url_max_length' => 100, 
 		'filter_tag_style_value' => true,  //过滤标签的style值
@@ -320,12 +334,34 @@ class Fl_Html_Filter extends Fl_Base {
 					continue;
 				}
 			}
+			
 			//标签属性白名单
 			if ($this->options ['use_blank_tag_property_filter']) {
 				if (! in_array ( $name, $this->blankTagPropertyList )) {
+					//标签的特殊属性过滤
+					if ($this->options ['use_special_tag_filter']) {
+						if (isset ( $this->allowSpecialTagProperty [$tag] )) {
+							$propList = $this->allowSpecialTagProperty [$tag];
+							if (isset ( $propList [$name] )) {
+								$value = $propList [$name];
+								$values = Fl_Html_Static::getUnquoteText ( $item [2] );
+								//正则
+								if (substr ( $value, 0, 1 ) === '/') {
+									if (preg_match ( $value, $values ['text'] )) {
+										$attrResult [] = $item;
+									}
+								} else {
+									if ($value === $values ['text']) {
+										$attrResult [] = $item;
+									}
+								}
+							}
+						}
+					}
 					continue;
 				}
 			}
+			
 			//a链接修复和过滤
 			if ($tag == 'a' && $this->options ['filter_a_href_value'] && $name == 'href') {
 				if (count ( $item ) == 3 && $item [1] == '=') {

@@ -67,6 +67,7 @@ class Fl_Css_Filter extends Fl_Base {
 		'margin-top' => true, 
 		'margin-right' => true, 
 		'margin-bottom' => true, 
+		'margin' => true, 
 		'padding-left' => true, 
 		'padding-top' => true, 
 		'padding-right' => true, 
