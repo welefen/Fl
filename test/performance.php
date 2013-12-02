@@ -24,4 +24,4 @@ $rate = number_format ( (strlen ( $text ) - strlen ( $output )) * 100 / strlen (
 echo strlen ( $text ) . "/" . strlen ( $output ) . "<br/>" . $rate . "%<br>";
 $run_id = $xhprof_runs->save_run ( $xhprof_data, "sourcejoy" );
 echo '<iframe src="http://www/xhprof_html/?run=' . $run_id . '&source=sourcejoy" frameborder="0" width="100%" height="950px" border="0"></iframe>';
-?>
+

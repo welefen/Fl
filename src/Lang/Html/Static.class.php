@@ -489,7 +489,7 @@ class Fl_Html_Static {
 	public static function getUnquoteText($text = '') {
 		$startQuote = substr ( $text, 0, 1 );
 		$endQuote = substr ( $text, strlen ( $text ) - 1 );
-		if (($startQuote === '"' || $startQuote === "'") && $startQuote === $endQuote) {
+		if (($startQuote === '"' || $startQuote === "'" || $startQuote === '`') && $startQuote === $endQuote) {
 			return array (
 				'quote' => $startQuote, 
 				'text' => substr ( $text, 1, strlen ( $text ) - 2 ) 
@@ -595,6 +595,7 @@ class Fl_Html_Static {
 		$suffix = "</" . $type . ">";
 		$content = trim ( substr ( $value, $pos + 1, strlen ( $value ) - $pos - 1 - strlen ( $suffix ) ) );
 		$cprefix = $csuffix = '';
+		$list = array ();
 		if ($type === 'script') {
 			$list = array (
 				array (
@@ -606,16 +607,23 @@ class Fl_Html_Static {
 					"]]>" 
 				) 
 			);
-			$contentLength = strlen ( $content );
-			foreach ( $list as $item ) {
-				$l0 = strlen ( $item [0] );
-				$l1 = strlen ( $item [1] );
-				if (strpos ( $content, $item [0] ) === 0 && strpos ( $content, $item [1] ) === ($contentLength - $l1)) {
-					$cprefix = $item [0];
-					$csuffix = $item [1];
-					$content = trim ( substr ( $content, $l0, $contentLength - $l0 - $l1 ) );
-					break;
-				}
+		} elseif ($type === 'style') {
+			$list = array (
+				array (
+					"<!--", 
+					"-->" 
+				)
+			);
+		}
+		$contentLength = strlen ( $content );
+		foreach ( $list as $item ) {
+			$l0 = strlen ( $item [0] );
+			$l1 = strlen ( $item [1] );
+			if (strpos ( $content, $item [0] ) === 0 && strpos ( $content, $item [1] ) === ($contentLength - $l1)) {
+				$cprefix = $item [0];
+				$csuffix = $item [1];
+				$content = trim ( substr ( $content, $l0, $contentLength - $l0 - $l1 ) );
+				break;
 			}
 		}
 		return array (

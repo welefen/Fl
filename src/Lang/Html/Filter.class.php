@@ -50,7 +50,8 @@ class Fl_Html_Filter extends Fl_Base {
 		'th', 
 		'style', 
 		'link', 
-		'title' 
+		'title', 
+		'meta' 
 	);
 
 	/**
@@ -240,18 +241,23 @@ class Fl_Html_Filter extends Fl_Base {
 		}
 		$hrefValue = Fl_Html_Static::getAttrValue ( $tagDetail ['attrs'], 'href' );
 		$hrefValue = Fl_Static::getFixedUrl ( $hrefValue, $this->url );
-		if ($this->options ['external_css_to_inline'] && $this->getResourceContentFn) {
-			$content = call_user_func ( $this->getResourceContentFn, $hrefValue, $this );
-			if (! empty ( $content )) {
-				$instance = $this->getInstance ( "Fl_Css_Filter", $content );
-				$instance->url = $hrefValue;
-				$instance->getResourceContentFn = $this->getResourceContentFn;
-				try {
-					$content = $instance->run ( $this->options );
-				} catch ( Fl_Exception $e ) {
-					$this->throwException ( $e->message . ' in `' . $hrefValue . '`' );
+		if ($this->options ['external_css_to_inline']) {
+			//如果没有提供抓取外部资源的方法，则直接过滤掉
+			if ($this->getResourceContentFn) {
+				$content = call_user_func ( $this->getResourceContentFn, $hrefValue, $this );
+				if (! empty ( $content )) {
+					$instance = $this->getInstance ( "Fl_Css_Filter", $content );
+					$instance->url = $hrefValue;
+					$instance->getResourceContentFn = $this->getResourceContentFn;
+					try {
+						$content = $instance->run ( $this->options );
+					} catch ( Fl_Exception $e ) {
+						$this->throwException ( $e->message . ' in `' . $hrefValue . '`' );
+					}
+					return '<style type="text/css">' . $content . '</style>';
 				}
-				return '<style type="text/css">' . $content . '</style>';
+			} else {
+				return '';
 			}
 		}
 		$result = $this->filterTag ( array (

@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ERROR | E_WARNING);
 try {
 	require 'util.php';
 	$type = $_GET ['type'];

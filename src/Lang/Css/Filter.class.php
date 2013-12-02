@@ -14,7 +14,74 @@ class Fl_Css_Filter extends Fl_Base {
 	 * 属性名白名单
 	 * @var array
 	 */
-	public $blankPropertyList = array ();
+	public $blankPropertyList = array (
+		'background-attachment' => true, 
+		'background-color' => true, 
+		'background-image' => true, 
+		'background-position' => true, 
+		'background-repeat' => true, 
+		'background' => true, 
+		'border-collapse' => true, 
+		'border-color' => true, 
+		'border-spacing' => true, 
+		'border-style' => true, 
+		'border-top' => true, 
+		'border-left' => true, 
+		'border-right' => true, 
+		'border-bottom' => true, 
+		'border-top-color' => true, 
+		'border-left-color' => true, 
+		'border-right-color' => true, 
+		'border-bottom-color' => true, 
+		'border-top-style' => true, 
+		'border-left-style' => true, 
+		'border-right-style' => true, 
+		'border-bottom-style' => true, 
+		'border-top-width' => true, 
+		'border-left-width' => true, 
+		'border-right-width' => true, 
+		'border-bottom-width' => true, 
+		'border-width' => true, 
+		'border' => true, 
+		'bottom' => true, 
+		'clear' => true, 
+		'clip' => true, 
+		'color' => true, 
+		'display' => true, 
+		'float' => true, 
+		'font-family' => true, 
+		'font-size' => true, 
+		'font-style' => true, 
+		'font-variant' => true, 
+		'font-weight' => true, 
+		'font' => true, 
+		'height' => true, 
+		'left' => true, 
+		'letter-spacing' => true, 
+		'line-height' => true, 
+		'list-style-image' => true, 
+		'list-style-position' => true, 
+		'list-style-type' => true, 
+		'list-style' => true, 
+		'margin-left' => true, 
+		'margin-top' => true, 
+		'margin-right' => true, 
+		'margin-bottom' => true, 
+		'padding-left' => true, 
+		'padding-top' => true, 
+		'padding-right' => true, 
+		'padding-bottom' => true, 
+		'padding' => true, 
+		'position' => true, 
+		'text-align' => true, 
+		'text-decoration' => true, 
+		'text-indent' => true, 
+		'top' => true, 
+		'white-space' => true, 
+		'width' => true, 
+		'word-spacing' => true, 
+		'z-index' => true 
+	);
 
 	/**
 	 * 
@@ -34,7 +101,7 @@ class Fl_Css_Filter extends Fl_Base {
 	 * @var array
 	 */
 	public $options = array (
-		'css_use_blank' => false, 
+		'css_use_blank' => true, 
 		'css_use_blank_property_filter' => false, 
 		'css_remove_expression' => true, 
 		'css_value_max_length' => 50 
@@ -64,7 +131,7 @@ class Fl_Css_Filter extends Fl_Base {
 	 * 背景图正则
 	 * @var RegExp
 	 */
-	private $backgroundImagePattern = '/url\s*\(\s*([\'\"]?)([^\'\"]+)\\1\s*\)/ies';
+	private $backgroundImagePattern = '/url\s*\(\s*([\'\"]?)(.+)\\1\s*\)/ies';
 
 	/**
 	 * run
@@ -101,9 +168,6 @@ class Fl_Css_Filter extends Fl_Base {
 			}
 		}
 		$text = join ( '', $this->output );
-		//$text = $this->trim ( $text );
-		$instance = $this->getInstance ( 'Fl_Css_Compress', $text );
-		$text = $instance->run ();
 		return $text;
 	}
 
@@ -113,6 +177,11 @@ class Fl_Css_Filter extends Fl_Base {
 	 * @param array $token
 	 */
 	public function filterProperty($token) {
+		$property = strtolower ( $token ['value'] );
+		if ($this->options ['css_use_blank'] && ! $this->blankPropertyList [$property]) {
+			$this->ignoreValue = true;
+			return '';
+		}
 		return $token ['value'];
 	}
 

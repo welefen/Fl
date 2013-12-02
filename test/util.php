@@ -23,6 +23,7 @@ function get_test_cate_list() {
 		'CssCompress' => 'Fl_Css_Compress', 
 		'CssBeautify' => 'Fl_Css_Beautify', 
 		'CssAutoComplete' => 'Fl_Css_AutoComplete', 
+		"CssFilter" => "Fl_Css_Filter",
 		'HtmlToken' => "Fl_Html_Token", 
 		'HtmlTagToken' => 'Fl_Html_TagToken', 
 		'HtmlCompress' => 'Fl_Html_Compress', 
@@ -31,6 +32,7 @@ function get_test_cate_list() {
 		'HtmlJson' => 'Fl_Html_Json', 
 		'HtmlValidate' => 'Fl_Html_Validate', 
 		'HtmlXss' => 'Fl_Html_Xss', 
+		'HtmlFilter' => "Fl_Html_Filter",
 		'HtmlBeautify' => 'Fl_Html_Beautify', 
 		'JsToken' => 'Fl_Js_Token', 
 		'JsAst' => 'Fl_Js_Ast', 
@@ -84,6 +86,11 @@ function get_cls_options($cate = '') {
 				"beautify_selector" => true 
 			) 
 		), 
+		"CSSFilter" => array(
+			"properties" => array (
+				"url" => "http://flkit.org"
+			), 
+		),
 		"JsAst" => array (
 			"properties" => array (
 				"embedToken" => false 
@@ -145,7 +152,12 @@ function get_cls_options($cate = '') {
 				"noescape" => "sp_no_escape", 
 				"xml" => "sp_escape_xml" 
 			) 
-		) 
+		),
+		"HtmlFilter" => array(
+			"properties" => array (
+				"url" => 'http://flkit.org/'
+			), 
+		)
 	);
 	if (isset ( $options [$cate] )) {
 		return $options [$cate];
@@ -185,7 +197,12 @@ function test_file($name, $class) {
 						$instance->$name = $item [$name];
 					}
 				}
-				$output = $instance->run ( $options );
+				try{
+					$output = $instance->run ( $options );	
+				}catch(Fl_Exception $e){
+					$output = $e->message;
+				}
+				
 				$item ['test_result'] = ($result === $output);
 				if ($item ['test_result']) {
 					unset ( $item ['result'] );
@@ -270,7 +287,11 @@ function retest_case($cate, $md5) {
 					$instance->$name = $item [$name];
 				}
 			}
-			$output = $instance->run ( $options );
+			try{
+				$output = $instance->run ( $options );	
+			}catch(Fl_Exception $e){
+				$output = $e->message;
+			}
 			return $output;
 		}
 	}
@@ -284,6 +305,10 @@ function get_test_result($class, $text, $properties = array(), $options = array(
 	foreach ( $properties as $name => $value ) {
 		$instance->$name = $value;
 	}
-	$output = $instance->run ( $options );
+	try{
+		$output = $instance->run ( $options );	
+	}catch(Fl_Exception $e){
+		$output = $e->message;
+	}
 	return $output;
 }

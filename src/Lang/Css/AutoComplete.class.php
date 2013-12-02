@@ -473,7 +473,7 @@ class Fl_Css_AutoComplete extends Fl_Base {
 				'-o-' 
 			), "", $item ['value'] );
 			foreach ( $this->completeAttrs ['background'] as $typeItem ) {
-				if ($typeItem != $type && ! in_array ( $typeItem, $existTypes )) {
+				if ($this->options [$typeItem] && $typeItem != $type && ! in_array ( $typeItem, $existTypes )) {
 					$result [] = array_merge ( $item, array (
 						'value' => $typeItem == 'w3c' ? $cleanValue : '-' . $typeItem . '-' . $cleanValue 
 					) );

@@ -523,8 +523,9 @@ $(function(){
 			md5: $(this).parent().attr('data-md5')
 		},function(data){
 			$('#text').val(data.text);
-			$('#ld').val(data.ld||data.properties.ld);
-			$('#rd').val(data.rd||data.properties.rd);
+			for(var id in data.properties){
+				$('#'+id).val(data.properties[id] || data[id]);
+			}
 		})
 		$.post('test.php?type=retest', {
 			cate: current,
