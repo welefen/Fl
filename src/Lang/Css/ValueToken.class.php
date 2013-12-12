@@ -27,6 +27,6 @@ class Fl_Css_ValueToken extends Fl_Token {
      * @see Fl_Token::getNextToken()
      */
     public function getNextToken () {
-        
+        //do something
     }
 }
