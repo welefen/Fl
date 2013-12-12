@@ -66,7 +66,7 @@ class Fl_Base {
 	 * 构造函数
 	 * @param string $text
 	 */
-	public function __construct($text, $encoding = '') {
+	public function __construct($text = '', $encoding = '') {
 		if ($encoding) {
 			$this->encoding = $encoding;
 		}
