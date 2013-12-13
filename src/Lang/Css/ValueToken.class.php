@@ -5,6 +5,7 @@
  * @author welefen
  *
  */
+Fl::loadClass ( "Fl_Token" );
 class Fl_Css_ValueToken extends Fl_Token {
 	
 	/**
@@ -41,14 +42,22 @@ class Fl_Css_ValueToken extends Fl_Token {
 		}
 		$result = "";
 		while ( $this->pos < $this->length ) {
-			$char = $this->text {$this->pos};
-			if ($this->text {$this->pos + 1} === '(') {
+			if ($this->text {$this->pos} === '(') {
 				$match = $this->getMatched ( "(", ")" );
-				$result .= $char . $match;
+				$result .= $match;
 				continue;
 			}
-		
+			$char = $this->getNextChar ();
+			if ($this->isWhiteSpace ( $char ) && ! preg_match ( "/\s*\(/", substr ( $this->text, $this->pos ) )) {
+				break;
+			} else {
+				$result .= $char;
+			}
 		}
+		if (strlen ( $result )) {
+			return $this->getTokenInfo ( '', $result );
+		}
+		return false;
 	}
 	/**
 	 * 
