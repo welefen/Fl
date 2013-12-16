@@ -87,7 +87,7 @@ class Fl_Css_ValueToken extends Fl_Token {
 
     /**
      * 
-     * background
+     * 背景组合
      * @param array $tokens
      */
     public function updateBackgroundTokenType ($tokens) {
@@ -98,13 +98,30 @@ class Fl_Css_ValueToken extends Fl_Token {
                 $token['type'] = 'background-color';
             } elseif ($urlValue) { //背景图
                 $token['type'] = 'background-image';
-                $token['url_value'] = $urlValue;
+                $token['url_value'] = $urlValue; //解析的url值
             } elseif (Fl_Css_Static::isBackgroundRepeat ( $value )) { //平铺方式
                 $token['type'] = 'background-repeat';
             } elseif (Fl_Css_Static::isBackgroundAttachment ( $value )) { //背景固定方式
                 $token['type'] = 'background-attachment';
             } elseif (Fl_Css_Static::isBackgroundPosition ( $value )) { //背景位置
                 $token['type'] = 'background-position';
+            }
+        }
+        return $tokens;
+    }
+
+    /**
+     * 
+     * 背景图
+     * @param array $tokens
+     */
+    public function updateBackgroundImageTokenType ($tokens) {
+        foreach ($tokens as &$token) {
+            $value = $token['value'];
+            $urlValue = Fl_Css_Static::isUrlValue ( $value );
+            if ($urlValue) { //背景图
+                $token['type'] = 'background-image';
+                $token['url_value'] = $urlValue;
             }
         }
         return $tokens;
