@@ -119,6 +119,8 @@ define ( 'FL_TOKEN_CSS_SELECTOR_NAMESPACE', 'namespace' );
 //comma
 define ( 'FL_TOKEN_CSS_SELECTOR_COMMA', ',' );
 define ( 'FL_TOKEN_CSS_MULTI_PROPERTY', 'multi property' );
+//css值类型
+define ( 'FL_TOKEN_CSS_VALUE_TYPE_COMMON', 'common' );
 /**
  * JS相关的TOKEN
  */
