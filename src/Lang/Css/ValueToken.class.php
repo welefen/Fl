@@ -126,4 +126,16 @@ class Fl_Css_ValueToken extends Fl_Token {
         }
         return $tokens;
     }
+
+    /**
+     * 
+     * 背景位置
+     * @param array $tokens
+     */
+    public function updateBackgroundPositionTokenType ($tokens) {
+        foreach ($tokens as &$token) {
+            $token['type'] = 'background-position';
+        }
+        return $tokens;
+    }
 }
