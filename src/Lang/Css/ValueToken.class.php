@@ -98,7 +98,7 @@ class Fl_Css_ValueToken extends Fl_Token {
                 $token['type'] = 'background-color';
             } elseif ($urlValue) { //背景图
                 $token['type'] = 'background-image';
-                $token['url_value'] = $urlValue; //解析的url值
+                $token['clean_value'] = $urlValue; //解析的url值
             } elseif (Fl_Css_Static::isBackgroundRepeat ( $value )) { //平铺方式
                 $token['type'] = 'background-repeat';
             } elseif (Fl_Css_Static::isBackgroundAttachment ( $value )) { //背景固定方式
