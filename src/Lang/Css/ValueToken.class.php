@@ -121,7 +121,7 @@ class Fl_Css_ValueToken extends Fl_Token {
             $urlValue = Fl_Css_Static::isUrlValue ( $value );
             if ($urlValue) { //背景图
                 $token['type'] = 'background-image';
-                $token['url_value'] = $urlValue;
+                $token['clean_value'] = $urlValue;
             }
         }
         return $tokens;
@@ -135,6 +135,18 @@ class Fl_Css_ValueToken extends Fl_Token {
     public function updateBackgroundPositionTokenType ($tokens) {
         foreach ($tokens as &$token) {
             $token['type'] = 'background-position';
+        }
+        return $tokens;
+    }
+
+    /**
+     * 
+     * 背景大小
+     * @param array $tokens
+     */
+    public function updateBackgroundSizeTokenType ($tokens) {
+        foreach ($tokens as &$token) {
+            $token['type'] = 'background-size';
         }
         return $tokens;
     }

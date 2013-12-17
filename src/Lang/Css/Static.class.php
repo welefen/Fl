@@ -197,7 +197,8 @@ class Fl_Css_Static {
         "background" => 1, 
         "background-image" => 1, 
         "background-color" => 1, 
-        "display" => 1
+        "display" => 1, 
+        "clip" => 1
     );
 
     /**
@@ -1663,7 +1664,7 @@ http://www.w3.org/TR/selectors/#specificity
      */
     public static function isLengthValue ($value = "") {
         $value = strtolower ( $value );
-        $pattern = "/^(\d+\.)?(\d+)(px|em)$/";
+        $pattern = "/^((\-?(\d+\.)?(\d+)(px|em))|0)$/";
         return preg_match ( $pattern, $value );
     }
 
