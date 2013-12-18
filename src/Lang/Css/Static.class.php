@@ -1702,6 +1702,7 @@ http://www.w3.org/TR/selectors/#specificity
      * @param string $value
      */
     public static function isBackgroundPosition ($value = "") {
+        $value = strtolower ( $value );
         $values = array(
             'top', 
             'left', 
