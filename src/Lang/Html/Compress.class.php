@@ -205,7 +205,7 @@ class Fl_Html_Compress extends Fl_Base {
 				break;
 			case FL_TOKEN_HTML_TEXT :
 				$result .= $this->compressText ( $token );
-				$result = preg_replace ( "/ +/", " ", $result );
+				$result = preg_replace ( "/ +/", " ", $result ); //将多个空格替换为一个
 				if ($result == FL_SPACE && (Fl_Html_Static::isTag ( $this->nextToken ) || Fl_Html_Static::isTag ( $this->preToken ))) {
 					if ($this->options ['remove_inter_tag_space']) {
 						$result = '';
@@ -279,8 +279,8 @@ class Fl_Html_Compress extends Fl_Base {
 				$outputLen = strlen ( $this->output );
 				$last = substr ( $this->output, $outputLen - 9 );
 				if (strtolower ( $last ) === $endStyle) {
-					$this->output = substr ( $this->output, 0, $outputLen - 9 );
-					return ';' . $content . $info ['tag_end'];
+					$this->output = rtrim ( substr ( $this->output, 0, $outputLen - 9 ), ";" );
+					return ';' . rtrim ( $content, ";" ) . $info ['tag_end'];
 				}
 			}
 		}
