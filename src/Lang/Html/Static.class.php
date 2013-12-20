@@ -281,6 +281,22 @@ class Fl_Html_Static {
 
 	/**
 	 * 
+	 * 安全标签，可以去除前后的空格
+	 * @var array
+	 */
+	public static $safeTag = array (
+		'html' => 1, 
+		'meta' => 1, 
+		'style' => 1, 
+		'script' => 1, 
+		'head' => 1, 
+		'link' => 1, 
+		'title' => 1, 
+		'body' => 1 
+	);
+
+	/**
+	 * 
 	 * 块级标签
 	 * @var array
 	 */
@@ -460,6 +476,15 @@ class Fl_Html_Static {
 
 	/**
 	 * 
+	 * 是否是安全标签
+	 * @param string $tag
+	 */
+	public static function isSafeTag($tag) {
+		return isset ( self::$safeTag [$tag] );
+	}
+
+	/**
+	 * 
 	 * 是否是块级tag
 	 * @param string $tag
 	 * @param array $blackList
@@ -612,7 +637,7 @@ class Fl_Html_Static {
 				array (
 					"<!--", 
 					"-->" 
-				)
+				) 
 			);
 		}
 		$contentLength = strlen ( $content );

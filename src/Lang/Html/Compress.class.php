@@ -206,11 +206,19 @@ class Fl_Html_Compress extends Fl_Base {
 			case FL_TOKEN_HTML_TEXT :
 				$result .= $this->compressText ( $token );
 				$result = preg_replace ( "/ +/", " ", $result ); //将多个空格替换为一个
-				if ($result == FL_SPACE && (Fl_Html_Static::isTag ( $this->nextToken ) || Fl_Html_Static::isTag ( $this->preToken ))) {
-					if ($this->options ['remove_inter_tag_space']) {
-						$result = '';
-					} else if ($this->options ['remove_inter_block_tag_space'] && (Fl_Html_Static::isBlockTag ( $this->nextToken ['lowerTag'] ) || Fl_Html_Static::isBlockTag ( $this->preToken ['lowerTag'] ))) {
-						$result = '';
+				if ($result == FL_SPACE) {
+					if ($this->preToken ['type'] == FL_TOKEN_HTML_TAG_END && $this->nextToken ['type'] == FL_TOKEN_HTML_TAG_END) {
+						$result = "";
+					} else {
+						if (Fl_Html_Static::isTag ( $this->nextToken ) || Fl_Html_Static::isTag ( $this->preToken )) {
+							if ($this->options ['remove_inter_tag_space']) {
+								$result = '';
+							} else if ($this->options ['remove_inter_block_tag_space'] && (Fl_Html_Static::isBlockTag ( $this->nextToken ['lowerTag'] ) || Fl_Html_Static::isBlockTag ( $this->preToken ['lowerTag'] ))) {
+								$result = '';
+							} elseif (Fl_Html_Static::isSafeTag ( $this->nextToken ['lowerTag'] ) || Fl_Html_Static::isSafeTag ( $this->preToken ['lowerTag'] )) {
+								$result = "";
+							}
+						}
 					}
 				}
 				break;
@@ -377,6 +385,9 @@ class Fl_Html_Compress extends Fl_Base {
 			return $comment;
 		}
 		if (Fl_Html_Static::isTag ( $token )) {
+			if (Fl_Html_Static::isSafeTag ( $token ['tag'] )) {
+				return $comment;
+			}
 			if ($this->options ['remove_inter_tag_space']) {
 				return $comment;
 			}
@@ -427,8 +438,14 @@ class Fl_Html_Compress extends Fl_Base {
 		}
 		if ($this->options ['remove_inter_tag_space']) {
 			$value = rtrim ( $value );
-		} elseif ($this->options ['remove_inter_block_tag_space'] && Fl_Html_Static::isTag ( $this->nextToken ) && Fl_Html_Static::isBlockTag ( $this->nextToken ['lowerTag'] )) {
-			$value = rtrim ( $value );
+		} elseif (Fl_Html_Static::isTag ( $this->nextToken )) {
+			if (Fl_Html_Static::isSafeTag ( $this->nextToken ['lowerTag'] )) {
+				$value = rtrim ( $value );
+			} else {
+				if ($this->options ['remove_inter_block_tag_space'] && Fl_Html_Static::isBlockTag ( $this->nextToken ['lowerTag'] )) {
+					$value = rtrim ( $value );
+				}
+			}
 		}
 		return $value;
 	}
