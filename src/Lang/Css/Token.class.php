@@ -260,7 +260,15 @@ class Fl_Css_Token extends Fl_Token {
 		$return = '';
 		$ldLen = strlen ( $this->ld );
 		while ( ($char = $this->getNextChar ()) !== false ) {
-			$return .= $char;
+			if ($char === '"' || $char === "'") {
+				$matched = $this->getMatched ( $this->text {$this->pos}, $char, false, false, false );
+				$return .= $char;
+				if ($matched) {
+					$return .= $matched;
+				}
+			} else {
+				$return .= $char;
+			}
 			//value may be have comment, such as:
 			//@font-face {
 			//  font-family: 'WebFont';
