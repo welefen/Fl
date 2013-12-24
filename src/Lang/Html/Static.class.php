@@ -57,7 +57,8 @@ class Fl_Html_Static {
 		'<!--#', 
 		'<!--[if', 
 		'<!--status', 
-		'<!--<![endif' 
+		'<!--<![endif', 
+		'<![if ' 
 	);
 
 	/**
@@ -89,6 +90,16 @@ class Fl_Html_Static {
 				']><!-->', 
 				']>-->' 
 			) 
+		), 
+		array (
+			'<![if ', 
+			']>', 
+			FL_TOKEN_HTML_IE_HACK 
+		), 
+		array (
+			'<![endif', 
+			']>', 
+			FL_TOKEN_HTML_IE_HACK 
 		), 
 		array (
 			'<![endif', 

@@ -162,6 +162,8 @@ class Fl_Html_Filter extends Fl_Base {
 				case FL_TOKEN_HTML_TEXTAREA_TAG :
 					$this->output [] = $this->filterTextarea ( $token );
 					break;
+				case FL_TOKEN_HTML_IE_HACK :
+					break;
 				default :
 					$this->output [] = $token ['value'];
 			}
@@ -334,7 +336,6 @@ class Fl_Html_Filter extends Fl_Base {
 					continue;
 				}
 			}
-			
 			//标签属性白名单
 			if ($this->options ['use_blank_tag_property_filter']) {
 				if (! in_array ( $name, $this->blankTagPropertyList )) {
@@ -361,7 +362,6 @@ class Fl_Html_Filter extends Fl_Base {
 					continue;
 				}
 			}
-			
 			//a链接修复和过滤
 			if ($tag == 'a' && $this->options ['filter_a_href_value'] && $name == 'href') {
 				if (count ( $item ) == 3 && $item [1] == '=') {
