@@ -362,9 +362,17 @@ abstract class Fl_Token extends Fl_Base {
 			$nests = explode ( $start, $substr );
 			$count = count ( $nests );
 			if ($count > 1) {
-				while ( $count -- > 1 ) {
+				while ( true ) {
 					$this->pos = $endPos + $endLen;
 					$endPos = $this->find ( $end, $escape, $sensitive );
+					if ($endPos) {
+						$substr = substr ( $this->text, $sp, $endPos - $sp );
+						if (count ( explode ( $start, $substr ) ) === count ( explode ( $end, $substr ) )) {
+							break;
+						}
+					} else {
+						$this->throwException ( "get Mactched " . $start . " " . $end . " error" );
+					}
 				}
 			}
 		}

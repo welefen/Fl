@@ -259,31 +259,29 @@ class Fl_Css_Token extends Fl_Token {
 	public function getValueToken() {
 		$return = '';
 		$ldLen = strlen ( $this->ld );
-		while ( ($char = $this->getNextChar ()) !== false ) {
+		while ( true ) {
+			$char = $this->text {$this->pos};
 			if ($char === '"' || $char === "'") {
-				$matched = $this->getMatched ( $this->text {$this->pos}, $char, false, false, false );
-				$return .= $char;
+				//引号值里有;
+				//a{font-family:"&#718;&#805;"}
+				$matched = $this->getMatched ( $char, $char, true, false, false );
 				if ($matched) {
 					$return .= $matched;
 				}
-			} else {
-				$return .= $char;
-			}
-			//value may be have comment, such as:
-			//@font-face {
-			//  font-family: 'WebFont';
-			//  src: url('myfont.eot?#') format('eot'),  /* IE6–8 */
-			//       url('myfont.woff') format('woff'),  /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
-			//       url('myfont.ttf') format('truetype');  /* Saf3—5, Chrome4+, FF3.5, Opera 10+ */
-			//}
-			if ($this->text {$this->pos} === '/') {
+			} elseif ($char === '/') {
+				//值里有注释
+				//@font-face {
+				//  font-family: 'WebFont';
+				//  src: url('myfont.eot?#') format('eot'),  /* IE6–8 */
+				//       url('myfont.woff') format('woff'),  /* FF3.6+, IE9, Chrome6+, Saf5.1+*/
+				//       url('myfont.ttf') format('truetype');  /* Saf3—5, Chrome4+, FF3.5, Opera 10+ */
+				//}
 				$comment = $this->getComment ( 'multi', false );
 				if ($comment) {
 					$return .= $comment;
 				}
-			}
-			//expression or background（dataURI）value may be have `:` or `;`
-			if ($char === '(') {
+			} elseif ($char === '(') {
+				//expression or background（dataURI）value may be have `:` or `;`
 				//@TODO:this condition check it not safe
 				$re = stripslashes ( $return ); //去除转义符号\
 				$re = preg_replace ( "/\/\*(.*?)\*\//", "", $re ); //移除注释
@@ -291,7 +289,7 @@ class Fl_Css_Token extends Fl_Token {
 					$value = $this->getJsText ();
 					$return .= $value;
 				} else {
-					$matched = $this->getMatched ( $this->text {$this->pos}, ')', false, false, false );
+					$matched = $this->getMatched ( '(', ')' );
 					if ($matched) {
 						$return .= $matched;
 					}
@@ -302,6 +300,11 @@ class Fl_Css_Token extends Fl_Token {
 			if ($nextChar === ';' || $nextChar === '}') {
 				break;
 			}
+			$nextChar = $this->getNextChar ();
+			if ($nextChar === false) {
+				break;
+			}
+			$return .= $nextChar;
 		}
 		return $return;
 	}
@@ -319,7 +322,7 @@ class Fl_Css_Token extends Fl_Token {
 				$instance = new Fl_Js_Token ( $result );
 				$instance->validate = false;
 				$output = $instance->run ();
-				if (($instance->validateData ['('] + 1) === $instance->validateData [')']) {
+				if (($instance->validateData ['(']) === $instance->validateData [')']) {
 					break;
 				}
 			}
