@@ -72,7 +72,8 @@ class Fl_Css_AutoComplete extends Fl_Base {
 			'w3c' 
 		), 
 		'animation' => array (
-			'w3c' 
+			'w3c', 
+			'webkit' 
 		), 
 		'tab-size' => array (
 			'moz', 
