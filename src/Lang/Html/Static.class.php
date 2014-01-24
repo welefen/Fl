@@ -99,12 +99,10 @@ class Fl_Html_Static {
 		array (
 			'<![endif', 
 			']>', 
-			FL_TOKEN_HTML_IE_HACK 
-		), 
-		array (
-			'<![endif', 
-			']-->', 
-			FL_TOKEN_HTML_IE_HACK 
+			FL_TOKEN_HTML_IE_HACK, 
+			array (
+				']-->' 
+			) 
 		), 
 		array (
 			'<!--<![endif', 

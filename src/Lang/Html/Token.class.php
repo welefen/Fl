@@ -171,16 +171,16 @@ class Fl_Html_Token extends Fl_Token {
 			if (count ( $item ) === 4) {
 				$pos = $this->find ( $item [1] );
 				if ($pos !== false) {
-					if (is_array ( $item [3] )) {
-						foreach ( $item [3] as $it ) {
-							if ($pos === $this->find ( $it )) {
-								$item [1] = $it;
-								break;
-							}
-						}
-					} else {
-						if ($pos === $this->find ( $item [3] )) {
-							$item [1] = $item [3];
+					if (! is_array ( $item [3] )) {
+						$item [3] = array (
+							$item [3] 
+						);
+					}
+					foreach ( $item [3] as $it ) {
+						$newPos = $this->find ( $it );
+						if ($newPos !== false && $newPos < $pos) {
+							$item [1] = $it;
+							$pos = $newPos;
 						}
 					}
 				}
