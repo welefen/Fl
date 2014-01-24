@@ -189,7 +189,15 @@ class Fl_Css_Compress extends Fl_Base {
 			$flag = false;
 			$pos = 0;
 			for($i = 0; $i < $length - 1; $i ++) {
-				$assoc = Fl_Css_Static::getPropertiesIntersect ( $selectors [$i], $selectors [$i + 1] );
+				$strs = array (
+					$selectors [$i] ['selector'], 
+					$selectors [$i + 1] ['selector'] 
+				);
+				if ($this->checkSelector ( $strs )) {
+					$assoc = Fl_Css_Static::getPropertiesIntersect ( $selectors [$i], $selectors [$i + 1] );
+				} else {
+					$assoc = null;
+				}
 				if (! empty ( $assoc )) {
 					foreach ( $assoc as $name => $item ) {
 						unset ( $selectors [$i] ['attrs'] [$name] );
@@ -226,6 +234,19 @@ class Fl_Css_Compress extends Fl_Base {
 			}
 		}
 		return $selectors;
+	}
+
+	/**
+	 * 
+	 * 检测selector是否需要合并
+	 */
+	public function checkSelector($selectors = array()) {
+		foreach ( $selectors as $selector ) {
+			if (strpos ( $selector, "-ms-" ) !== false) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
