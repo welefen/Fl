@@ -507,6 +507,7 @@ abstract class Fl_Token extends Fl_Base {
 			$tpl = $this->getTplToken ();
 			if ($tpl) {
 				$return .= $tpl;
+				continue;
 			}
 			$currentChar = $this->getNextChar ();
 			if ($useEscape && $currentChar === "\\") {

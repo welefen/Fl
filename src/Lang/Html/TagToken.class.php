@@ -95,6 +95,7 @@ class Fl_Html_TagToken extends Fl_Token {
 			$char = $this->text {$this->pos};
 			$tpl = $this->getTplToken ();
 			if ($tpl) {
+				//处理这种情况 <a href=<%$name%>/url >
 				if ($this->checkTplHasOutput ( $tpl )) {
 					if ($hasEqual) {
 						$value .= $tpl;
@@ -102,20 +103,36 @@ class Fl_Html_TagToken extends Fl_Token {
 						$name .= $tpl;
 					}
 				} else {
-					if ($name || $value) {
-						$return [] = $hasEqual ? array (
-							$name, 
-							'=', 
-							$value 
-						) : array (
-							$name 
-						);
+					if ($hasEqual) {
+						if (strlen ( $value )) {
+							$return [] = array (
+								$name, 
+								'=', 
+								$value 
+							);
+							$return [] = array (
+								$tpl 
+							);
+						} else {
+							$return [] = array (
+								$name, 
+								'=', 
+								$tpl 
+							);
+						}
 						$name = $value = '';
 						$hasEqual = false;
+					} else {
+						if ($name) {
+							$return [] = array (
+								$name 
+							);
+						}
+						$return [] = array (
+							$tpl 
+						);
+						$name = $value = "";
 					}
-					$return [] = array (
-						$tpl 
-					);
 				}
 				$preSpace = false;
 				continue;
