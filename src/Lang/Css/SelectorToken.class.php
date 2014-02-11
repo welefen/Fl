@@ -16,7 +16,7 @@ class Fl_Css_SelectorToken extends Fl_Token {
 	 * check value is valid ?
 	 * @var boolean
 	 */
-	public $validate = true;
+	public $validate = false;
 
 	/**
 	 * 
