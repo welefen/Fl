@@ -60,6 +60,13 @@ class Fl_Html_Compress extends Fl_Base {
 	public $jsCompressMethod = '';
 
 	/**
+	 * 
+	 * 前端模版压缩方法
+	 * @var string
+	 */
+	public $jsTplCompressMethod = '';
+
+	/**
 	 * 自定义内联CSS压缩方法
 	 * @var string
 	 */
@@ -298,9 +305,8 @@ class Fl_Html_Compress extends Fl_Base {
 		}
 		//压缩前端模版
 		if ($this->options ['compress_tpl_script']) {
-			if ($tagInfo ['tpl'] && ! $tagInfo ['external']) {
-				$instance = get_fl_instance ( "Fl_Html_Compress", $content );
-				$c = $instance->run ();
+			if ($tagInfo ['tpl'] && ! $tagInfo ['external'] && $this->jsTplCompressMethod) {
+				$c = call_user_func ( $this->jsTplCompressMethod, $content, $this );
 				if (! empty ( $c )) {
 					$content = $c;
 				}
