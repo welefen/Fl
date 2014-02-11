@@ -85,9 +85,9 @@ class Fl_Html_Static {
 		array (
 			'<!--[if', 
 			array (
-				']>', 
 				']><!-->', 
-				']>-->' 
+				']>-->', 
+				']>' 
 			), 
 			FL_TOKEN_HTML_IE_HACK 
 		), 
