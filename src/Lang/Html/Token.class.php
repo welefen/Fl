@@ -167,23 +167,28 @@ class Fl_Html_Token extends Fl_Token {
 	 */
 	public function getSpecialToken() {
 		foreach ( Fl_Html_Static::$specialTokens as $item ) {
-			//对]>和]>-->的特殊处理, IE Hack的时候
-			if (count ( $item ) === 4) {
-				$pos = $this->find ( $item [1] );
-				if ($pos !== false) {
-					if (! is_array ( $item [3] )) {
-						$item [3] = array (
-							$item [3] 
-						);
-					}
-					foreach ( $item [3] as $it ) {
-						$newPos = $this->find ( $it );
-						if ($newPos !== false && $newPos < $pos) {
-							$item [1] = $it;
+			//对]>和]>-->之类的特殊处理, IE Hack的时候
+			if (is_array ( $item [1] )) {
+				$pos = false;
+				$newItem = '';
+				foreach ( $item [1] as $it ) {
+					$newPos = $this->find ( $it );
+					if ($newPos !== false) {
+						if ($pos === false) {
 							$pos = $newPos;
+							$newItem = $it;
+						} else {
+							if ($newPos < $pos) {
+								$pos = $newPos;
+								$newItem = $it;
+							}
 						}
 					}
 				}
+				if (! $newItem) {
+					continue;
+				}
+				$item [1] = $newItem;
 			}
 			$result = $this->getMatched ( $item [0], $item [1], false, false, false );
 			if ($result) {

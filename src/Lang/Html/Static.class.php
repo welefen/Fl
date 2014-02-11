@@ -84,12 +84,12 @@ class Fl_Html_Static {
 		), 
 		array (
 			'<!--[if', 
-			']>', 
-			FL_TOKEN_HTML_IE_HACK, 
 			array (
+				']>', 
 				']><!-->', 
 				']>-->' 
-			) 
+			), 
+			FL_TOKEN_HTML_IE_HACK 
 		), 
 		array (
 			'<![if ', 
@@ -98,11 +98,11 @@ class Fl_Html_Static {
 		), 
 		array (
 			'<![endif', 
-			']>', 
-			FL_TOKEN_HTML_IE_HACK, 
 			array (
+				']>', 
 				']-->' 
-			) 
+			), 
+			FL_TOKEN_HTML_IE_HACK 
 		), 
 		array (
 			'<!--<![endif', 
