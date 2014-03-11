@@ -552,7 +552,7 @@ class Fl_Html_Compress extends Fl_Base {
 					$value = preg_split ( FL_SPACE_PATTERN, $value );
 					$item [2] = $valueDetail ['quote'] . join ( FL_SPACE, $value ) . $valueDetail ['quote'];
 				} else if ($this->options ['compress_style_value'] && $nameLower === 'style' && ! $this->containTpl ( $valueDetail ["text"] )) {
-					//如果压缩失败，则直接使用源代码，CSS可能出现前端模版定界符
+					//如果压缩失败，则直接使用源代码
 					try {
 						if ($this->cssCompressMethod) {
 							$value = call_user_func ( $this->cssCompressMethod, "*{" . $valueDetail ["text"] . "}", $this );
