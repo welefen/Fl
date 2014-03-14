@@ -151,7 +151,7 @@ class Fl_Html_Static {
 	 * 结束标签的正则
 	 * @var RegexIterator
 	 */
-	public static $getTagNamePattern = '/^\<\/?([A-Za-z][A-Za-z0-9\:]*)/';
+	public static $getTagNamePattern = '/^\<\/?([A-Za-z][A-Za-z0-9\:\-]*)/';
 
 	/**
 	 * 
