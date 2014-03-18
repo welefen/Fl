@@ -100,6 +100,7 @@ class Fl_Css_Compress extends Fl_Base {
 		$this->tokenInstance = $this->getInstance ( "Fl_Css_Token" );
 		$selectorPos = 0;
 		$sortSelector = $this->options ['sort_selector'];
+		//是否已经含有charset
 		$hasCharset = false;
 		while ( $token = $this->tokenInstance->getNextToken () ) {
 			switch ($token ['type']) {
