@@ -471,7 +471,7 @@ class Fl_Html_Static {
 		if (is_array ( $matches ) && $matches [1]) {
 			return $matches [1];
 		}
-		$instance->throwException ( 'tag tag error' );
+		$instance->throwException ( 'get tagName error at ' . $tag );
 	}
 
 	/**
