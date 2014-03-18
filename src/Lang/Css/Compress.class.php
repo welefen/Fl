@@ -92,6 +92,13 @@ class Fl_Css_Compress extends Fl_Base {
 	protected $inKeyframes = false;
 
 	/**
+	 * 
+	 * 是否含有charset
+	 * @var boolean
+	 */
+	protected $hasCharset = false;
+
+	/**
 	 * run
 	 * @see Fl_Base::run()
 	 */
@@ -118,7 +125,15 @@ class Fl_Css_Compress extends Fl_Base {
 					if (Fl_Css_Static::isAtType ( $token ['type'] )) {
 						$this->compressSelector ( false, false );
 					}
-					$this->output [] = trim ( $token ['value'] );
+					//只允许含有一个charset
+					if ($token ['type'] === FL_TOKEN_CSS_AT_CHARSET) {
+						if (! $this->hasCharset) {
+							$this->output [] = trim ( $token ['value'] );
+							$this->hasCharset = true;
+						}
+					} else {
+						$this->output [] = trim ( $token ['value'] );
+					}
 			}
 		}
 		$this->compressSelector ();
