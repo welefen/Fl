@@ -294,6 +294,9 @@ class Fl_Css_Token extends Fl_Token {
 						$return .= $matched;
 					}
 				}
+				if ($this->text {$this->pos} === '/') {
+					continue;
+				}
 			}
 			$nextChar = $this->text {$this->pos};
 			//value may be has `/`, such as font: 13px/28px; 
