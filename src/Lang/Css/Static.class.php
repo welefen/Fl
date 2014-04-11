@@ -198,7 +198,8 @@ class Fl_Css_Static {
         "background-image" => 1, 
         "background-color" => 1, 
         "display" => 1, 
-        "clip" => 1
+        "clip" => 1,
+    	"-webkit-transition" => 1
     );
 
     /**
