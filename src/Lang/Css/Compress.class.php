@@ -100,6 +100,7 @@ class Fl_Css_Compress extends Fl_Base {
 		$this->tokenInstance = $this->getInstance ( "Fl_Css_Token" );
 		$selectorPos = 0;
 		$sortSelector = $this->options ['sort_selector'];
+		$mergeSelector = $this->options ['merge_selector'];
 		//是否已经含有charset
 		$hasCharset = false;
 		while ( $token = $this->tokenInstance->getNextToken () ) {
@@ -110,11 +111,13 @@ class Fl_Css_Compress extends Fl_Base {
 				case FL_TOKEN_CSS_BRACES_TWO_END :
 					$this->compressSelector ();
 					$this->options ['sort_selector'] = $sortSelector;
+					$this->options ['merge_selector'] = $mergeSelector;
 					$this->output [] = trim ( $token ['value'] );
 					$this->inKeyframes = false;
 					break;
 				case FL_TOKEN_CSS_AT_KEYFRAMES :
 					$this->options ['sort_selector'] = false;
+					$this->options ['merge_selector'] = false;
 					$this->inKeyframes = true;
 				default :
 					if (Fl_Css_Static::isAtType ( $token ['type'] )) {
