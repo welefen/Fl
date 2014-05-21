@@ -255,7 +255,7 @@ class Fl_Css_Compress extends Fl_Base {
 	 */
 	public function checkSelector($selectors = array()) {
 		foreach ( $selectors as $selector ) {
-			if (strpos ( $selector, "-ms-" ) !== false) {
+			if (strpos ( $selector, "-ms-" ) !== false || strpos ( $selector, ":root" ) !== false) {
 				return false;
 			}
 		}
