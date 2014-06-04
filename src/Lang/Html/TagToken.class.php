@@ -60,7 +60,7 @@ class Fl_Html_TagToken extends Fl_Token {
 		}
 		preg_match ( Fl_Html_Static::$tagNamePattern, $this->text, $matches );
 		if (! is_array ( $matches ) || ! count ( $matches ) || ! $matches [1]) {
-			$this->throwException ( 'get tagName error' );
+			$this->throwException ( 'get tagName error. `' . $this->text . '`' );
 		}
 		$this->tagName = $matches [1];
 		$this->pos = strlen ( $this->tagName );
