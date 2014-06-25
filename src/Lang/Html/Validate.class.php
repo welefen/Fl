@@ -1,4 +1,5 @@
 <?php
+Fl::loadClass ( "Fl_Base" );
 /**
  * 
  * HTML编码规范验证类
