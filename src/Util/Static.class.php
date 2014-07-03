@@ -37,14 +37,14 @@ class Fl_Static {
 		if (self::isRemoteUrl ( $url )) {
 			return $url;
 		}
+		if (strpos ( strtolower ( $url ), 'javascript' ) === 0) {
+			return '';
+		}
 		if (empty ( $parentUrl )) {
 			return $url;
 		}
 		if (strpos ( $url, '/' ) === 0) {
 			return self::getDomain ( $parentUrl ) . $url;
-		}
-		if (strpos ( strtolower ( $url ), 'javascript' ) === 0) {
-			return '';
 		}
 		$result = self::getPath ( $parentUrl ) . $url;
 		$pattern = '/\/[\w\-]+\/\.\./ies';
@@ -87,5 +87,4 @@ class Fl_Static {
 		}
 		return $return;
 	}
-
 }
