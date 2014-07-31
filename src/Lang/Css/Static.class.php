@@ -999,7 +999,10 @@ http://www.w3.org/TR/selectors/#specificity
 	 * multi same property in a selector
 	 * @param string $property
 	 */
-	public static function isMultiSameProperty($property = '') {
+	public static function isMultiSameProperty($property = '', $value = '') {
+		if (strpos ( $value, 'clac' ) !== false) {
+			return true;
+		}
 		return isset ( self::$multiSameProperty [$property] );
 	}
 

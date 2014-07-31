@@ -443,7 +443,7 @@ class Fl_Css_Compress extends Fl_Base {
 					$attr .= $valueDetail ['suffix'];
 					//multi same property
 					//background:red;background:url(xx.png)
-					if (Fl_Css_Static::isMultiSameProperty ( $attr )) {
+					if (Fl_Css_Static::isMultiSameProperty ( $attr, $valueDetail ['value'] )) {
 						$attr .= "%" . $pos;
 						$detail ['type'] = FL_TOKEN_CSS_MULTI_PROPERTY;
 					}
