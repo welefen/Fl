@@ -1000,7 +1000,7 @@ http://www.w3.org/TR/selectors/#specificity
 	 * @param string $property
 	 */
 	public static function isMultiSameProperty($property = '', $value = '') {
-		if (strpos ( $value, 'clac' ) !== false) {
+		if (strpos ( $value, 'calc' ) !== false) {
 			return true;
 		}
 		return isset ( self::$multiSameProperty [$property] );
