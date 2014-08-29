@@ -349,12 +349,18 @@ class Fl_Css_Token extends Fl_Token {
 					continue;
 				}
 			}
+			$token = $this->getTplToken ();
+			if (! empty ( $token )) {
+				$result .= $token;
+				continue;
+			}
 			//for "div.red/***\/{}"
 			if ($this->text {$this->pos} === "{") {
 				break;
 			}
 			$result .= $char;
-			if ($this->text {$this->pos + 1} === '{') {
+			// .result-folding-8 .r-results>div:nth-of-type(-n+{%$viewFlag.keepfolding%})  selector里含有模版语法，且定界符里含有{
+			if ($this->text {$this->pos + 1} === '{' && $this->ld !== substr ( $this->text, $this->pos + 1, strlen ( $this->ld ) )) {
 				$this->getNextChar ();
 				break;
 			} else {
