@@ -817,6 +817,12 @@ class Fl_Html_Static {
 	 * 
 	 * 是否含有某个属性
 	 */
-	public static function hasAttr() {
+	public static function hasAttr($attrs, $name = '') {
+		foreach ( $attrs as $item ) {
+			if ($item [0] === $name) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
