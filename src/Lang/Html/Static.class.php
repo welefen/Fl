@@ -783,7 +783,7 @@ class Fl_Html_Static {
 
 	/**
 	 * 
-	 * 将属性还原为text
+	 * 将html属性转为text
 	 * @param array $attrs
 	 */
 	public static function attrs2Text($attrs = array()) {
