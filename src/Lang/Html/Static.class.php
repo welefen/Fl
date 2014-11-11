@@ -783,6 +783,19 @@ class Fl_Html_Static {
 
 	/**
 	 * 
+	 * 将属性还原为text
+	 * @param array $attrs
+	 */
+	public static function attrs2Text($attrs = array()) {
+		$result = array ();
+		foreach ( $attrs as $item ) {
+			$result [] = join ( "", $item );
+		}
+		return join ( " ", $result );
+	}
+
+	/**
+	 * 
 	 * 将attrs转为json格式
 	 * @param array $attrs
 	 */
