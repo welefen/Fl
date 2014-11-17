@@ -734,7 +734,8 @@ class Fl_Html_Static {
 					if ($value && strtolower ( $value ) != 'text/javascript') {
 						$isScript = false;
 					}
-					if ($value && strtolower ( $value ) == 'text/html') {
+					//前端模版
+					if (strtolower ( $value ) == 'text/html' || strtolower ( $value ) == 'text/template') {
 						$isTpl = true;
 					}
 				}
