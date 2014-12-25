@@ -342,6 +342,10 @@ class Fl_Css_Token extends Fl_Token {
 					$result .= $comment;
 					continue;
 				}
+				// 如果当前是/* 且没有找到 */ 则报错
+				if ($this->text {$this->pos + 1} === '*') {
+					$this->throwException ( "missing */ for /*" );
+				}
 			}
 			if ($char === "'" || $char === '"') {
 				if ($quote = $this->getQuoteText ( $char, true )) {
