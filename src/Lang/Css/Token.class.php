@@ -268,6 +268,7 @@ class Fl_Css_Token extends Fl_Token {
 				if ($matched) {
 					$return .= $matched;
 				}
+				continue;
 			} elseif ($char === '/') {
 				//值里有注释
 				//@font-face {
@@ -279,6 +280,7 @@ class Fl_Css_Token extends Fl_Token {
 				$comment = $this->getComment ( 'multi', false );
 				if ($comment) {
 					$return .= $comment;
+					continue;
 				}
 			} elseif ($char === '(') {
 				//expression or background（dataURI）value may be have `:` or `;`
@@ -294,9 +296,7 @@ class Fl_Css_Token extends Fl_Token {
 						$return .= $matched;
 					}
 				}
-				if ($this->text {$this->pos} === '/') {
-					continue;
-				}
+				continue;
 			}
 			$nextChar = $this->text {$this->pos};
 			//value may be has `/`, such as font: 13px/28px; 
