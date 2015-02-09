@@ -159,7 +159,12 @@ class Fl_Css_Token extends Fl_Token {
 			return $comment;
 		}
 		if ($return = $this->getQuoteText ( $char, true )) {
+			$this->pendingNextChar = true;
 			return $return;
+		}
+		if ($this->text {$this->pos} === '{') {
+			$this->pendingNextChar = true;
+			return true;
 		}
 		if ($char === ';' || $this->text {$this->pos + 1} === '{') {
 			return false;
