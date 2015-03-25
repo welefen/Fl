@@ -73,6 +73,7 @@ define ( 'FL_TOKEN_CSS_AT_FONTFACE', 'font-face' );
 define ( 'FL_TOKEN_CSS_AT_PAGE', 'page' );
 //keyframes
 define ( 'FL_TOKEN_CSS_AT_KEYFRAMES', 'keyframes' );
+define ( 'FL_TOKEN_CSS_AT_SUPPORT', 'supports' );
 //@ other
 define ( 'FL_TOKEN_CSS_AT_OTHER', 'other' );
 //一级{

@@ -203,6 +203,7 @@ class Fl_Css_Token extends Fl_Token {
 			case FL_TOKEN_CSS_AT_MEDIA :
 			case FL_TOKEN_CSS_AT_KEYFRAMES :
 			case FL_TOKEN_CSS_AT_MOZILLA :
+			case FL_TOKEN_CSS_AT_SUPPORT :
 				$type = FL_TOKEN_CSS_BRACES_TWO_START;
 				break;
 			case FL_TOKEN_CSS_AT_FONTFACE :
