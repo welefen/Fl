@@ -20,7 +20,7 @@ class Fl_Css_Static {
 		'@font-face' => FL_TOKEN_CSS_AT_FONTFACE, 
 		'@page' => FL_TOKEN_CSS_AT_PAGE, 
 		'/^\@(?:\-(?:webkit|moz|o|ms)\-)?keyframes/i' => FL_TOKEN_CSS_AT_KEYFRAMES, 
-		'@-moz' => FL_TOKEN_CSS_AT_MOZILLA,
+		'@-moz' => FL_TOKEN_CSS_AT_MOZILLA, 
 		'@supports' => FL_TOKEN_CSS_AT_SUPPORT 
 	);
 
@@ -1201,11 +1201,26 @@ http://www.w3.org/TR/selectors/#specificity
 			}
 		}
 		if ($properties [$primary]) {
+			/**
+			 * 避免出现这种情况
+			 * 
+			.manage-content {
+			    padding-top: 20px;
+			    background: #fff;
+			    padding: 0 26px 20px;
+			}
+			 * @var 
+			 */
+			$attrsIndex = array_keys ( $attrs );
 			$value = $attrs [$primary] ['value'];
+			$mainIndex = array_search ( $primary, $attrsIndex );
 			$append = array ();
 			foreach ( $list as $k => $item ) {
 				if ($properties [$item]) {
-					$append [$k] = $attrs [$item] ['value'];
+					$index = array_search ( $item, $attrsIndex );
+					if ($index > $mainIndex) {
+						$append [$k] = $attrs [$item] ['value'];
+					}
 					unset ( $attrs [$item] );
 				}
 			}

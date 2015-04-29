@@ -45,7 +45,7 @@ class Fl_Css_Token extends Fl_Token {
 		//replace \0069 to ascii
 		//$text = preg_replace ( "/\\\\(\d{4,})/e", "self::hex2asc('\\1')", $text );
 		//remove `\0` in css. but can't remove like `color\0:red`
-		$text = preg_replace ( "/\\\\0+(?=[^\d\s\;\:\}])/", "", $text );
+		//$text = preg_replace ( "/\\\\0+(?=[^\d\s\;\:\}])/", "", $text );
 		return $text;
 	}
 
