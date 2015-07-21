@@ -36,6 +36,13 @@ class Fl_Html_Token extends Fl_Token {
 	 * @see Fl_Token::getNextToken()
 	 */
 	public function getNextToken() {
+		//左右定界符可能包含html注释
+		$this->skipWhiteSpace ();
+		$this->startToken ();
+		$tplToken = $this->getTplToken ();
+		if ($tplToken !== false) {
+			return $this->getTokenInfo ( FL_TOKEN_TPL, $tplToken );
+		}
 		$token = parent::getNextToken ();
 		if ($token || $token === false) {
 			return $token;

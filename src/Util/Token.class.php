@@ -434,12 +434,6 @@ abstract class Fl_Token extends Fl_Base {
 	 */
 	public function getNextToken() {
 		$this->skipWhiteSpace ();
-		$this->startToken ();
-		$tplToken = $this->getTplToken ();
-		if ($tplToken !== false) {
-			return $this->getTokenInfo ( FL_TOKEN_TPL, $tplToken );
-		}
-		$this->skipWhiteSpace ();
 		$this->skipComment ();
 		$this->startToken ();
 		$tplToken = $this->getTplToken ();
