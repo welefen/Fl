@@ -254,9 +254,16 @@ class Fl_Css_Compress extends Fl_Base {
 	 * 检测selector是否需要合并
 	 */
 	public function checkSelector($selectors = array()) {
+		$list = array (
+			'-ms-', 
+			':root', 
+			'-placeholder' 
+		);
 		foreach ( $selectors as $selector ) {
-			if (strpos ( $selector, "-ms-" ) !== false || strpos ( $selector, ":root" ) !== false) {
-				return false;
+			foreach ( $list as $item ) {
+				if (strpos ( $selector, $item ) !== false) {
+					return false;
+				}
 			}
 		}
 		return true;
