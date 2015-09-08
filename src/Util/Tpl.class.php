@@ -28,6 +28,8 @@ class Fl_Tpl {
 		);
 		if (isset ( $list [$tpl] )) {
 			$tpl = $list [$tpl];
+		} else {
+			$tpl = 'Base';
 		}
 		$class = 'Fl_Tpl_' . $tpl;
 		if (! $new && array_key_exists ( $class, self::$register )) {
