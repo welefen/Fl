@@ -83,6 +83,12 @@ class Fl_Css_AutoComplete extends Fl_Base {
 		'keyframes' => array (
 			'webkit', 
 			'w3c' 
+		), 
+		'user-select' => array (
+			'webkit', 
+			'w3c', 
+			'moz', 
+			'ms' 
 		) 
 	);
 
