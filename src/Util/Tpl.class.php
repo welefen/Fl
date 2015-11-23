@@ -23,8 +23,9 @@ class Fl_Tpl {
 	public static function factory(Fl_Base $instance, $new = false) {
 		$tpl = strtolower ( $instance->tpl );
 		$list = array (
-			'php' => "PHP", 
-			'smarty' => "Smarty" 
+			'php' => 'PHP', 
+			'smarty' => 'Smarty', 
+			'xtemplate' => 'XTemplate' 
 		);
 		if (isset ( $list [$tpl] )) {
 			$tpl = $list [$tpl];
