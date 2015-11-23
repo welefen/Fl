@@ -324,6 +324,8 @@ require 'util.php';
 <textarea name="text" id="text" style="height: 40px"></textarea>
 <div style="line-height: 30px;">模版语言：<select name="tpl" id="tpl">
 	<option value="Smarty">Smarty</option>
+	<option value="PHP">PHP</option>
+	<option value="XTemplate">XTemplate</option>
 </select> 左定界符:<input type="text" name="ld" id="ld" value="<&" /> 右定界符：<input
 	name="rd" id="rd" type="text" value="&>" /> <span id="otherOptions"></span>
 <button class="testBtn" style="margin-left: 20px; font-weight: bold;">测试</button>
