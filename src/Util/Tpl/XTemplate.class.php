@@ -60,16 +60,21 @@ class Fl_Tpl_XTemplate implements Fl_Tpl_Interface {
 	 */
 	public function checkHasOutput($tpl, Fl_Base &$instance) {
 		$tplText = $instance->getTplText ( $tpl, true );
-		$reg = "/^[A-Za-z\.]+/";
-		if (! preg_match ( $reg, $tplText )) {
-			return false;
+		//目前只处理 {{{ a }}} 的情况
+		if ($tplText [0] === '{') {
+			return true;
 		}
-		foreach ( $this->keywords as $keyword ) {
-			if (strpos ( $tplText, $keyword ) === 0) {
-				return false;
-			}
-		}
-		return true;
+		return false;
+	//		$reg = "/^[A-Za-z\.]+/";
+	//		if (! preg_match ( $reg, $tplText )) {
+	//			return false;
+	//		}
+	//		foreach ( $this->keywords as $keyword ) {
+	//			if (strpos ( $tplText, $keyword ) === 0) {
+	//				return false;
+	//			}
+	//		}
+	//		return true;
 	}
 
 	/**
@@ -104,6 +109,9 @@ class Fl_Tpl_XTemplate implements Fl_Tpl_Interface {
 			$token = $this->xssTmp ['token'];
 			$message = '`' . $type . '` must be use ' . $typeModifier . ' to escape at line:' . $token ['line'] . ', col:' . $token ['col'];
 			$this->xssTmp ['log'] [] = $message;
+			if ($value [0] === '{') {
+				return $this->xssTmp ['instance']->ld . '{' . $typeModifier . '(' . substr ( $value, 1 ) . ')' . $this->xssTmp ['instance']->rd;
+			}
 			return $this->xssTmp ['instance']->ld . $typeModifier . '(' . $value . ')' . $this->xssTmp ['instance']->rd;
 		} else {
 			$this->xssTmp = array (
@@ -131,6 +139,9 @@ class Fl_Tpl_XTemplate implements Fl_Tpl_Interface {
 	 */
 	private function isSafeVar($value) {
 		$value = trim ( $value );
+		if ($value [0] === '{') {
+			$value = trim ( substr ( $value, 1 ) );
+		}
 		$noescape = $this->xssTmp ['instance']->options ['noescape'];
 		if ($noescape && strpos ( $value, $noescape ) !== false) {
 			return true;
@@ -178,7 +189,7 @@ class Fl_Tpl_XTemplate implements Fl_Tpl_Interface {
 
 	/**
 	 * 
-	 * is callback type
+	 * 是 callback 值的变量名
 	 * @param string $value
 	 */
 	public static function isCallbackType($value) {

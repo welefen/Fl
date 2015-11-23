@@ -1,7 +1,7 @@
 <?php
 include_once '../src/Fl.class.php';
 Fl::loadClass ( 'fl_html_xss' );
-$content = '<div>html content {{a}} ddd {{safe_a}}</div>';
+$content = '<div>html content {{a}} ddd {{{safe_a}}} {{{unsafe_var}}}</div>';
 $instance = new Fl_Html_Xss ( $content, 'utf8' );
 $instance->tpl = 'XTemplate';
 $instance->ld = '{{';
