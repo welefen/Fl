@@ -182,7 +182,7 @@ class Fl_Tpl_XTemplate implements Fl_Tpl_Interface {
 	 * @param string $value
 	 */
 	public static function isCallbackType($value) {
-		return $value === '$smarty.get.callback' || $value === '$smarty.post.callback';
+		return $value === 'callback';
 	}
 
 	/**
