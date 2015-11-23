@@ -25,5 +25,4 @@ Fl是一个支持模版语法（如：Smarty）的Js/Html/Css处理工具，处�
 * JS词法分析（支持模版语法）
 * JS语法分析
 
-更多说明请见 http://www.flkit.org
 
