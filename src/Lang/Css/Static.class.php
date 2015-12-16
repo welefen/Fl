@@ -176,6 +176,16 @@ class Fl_Css_Static {
 
 	/**
 	 * 
+	 * unmerge property
+	 * @var array
+	 */
+	public static $unMergeProperty = array (
+		//'background' => true, 
+		'display' => '/box|flex/' 
+	);
+
+	/**
+	 * 
 	 * 属性名包含这些则不进行排序
 	 * @var array
 	 */
@@ -186,7 +196,8 @@ class Fl_Css_Static {
 		'background', 
 		'border', 
 		'list', 
-		'outline' 
+		'outline', 
+		'display' 
 	);
 
 	/**
@@ -1419,6 +1430,27 @@ http://www.w3.org/TR/selectors/#specificity
 		//if intersect attrs has hack attr, remove it
 		foreach ( $assoc as $name => $item ) {
 			if (preg_match ( self::$multiSamePropertyPattern, $name )) {
+				unset ( $assoc [$name] );
+				continue;
+			}
+			$flag = false;
+			foreach ( self::$unMergeProperty as $key => $value ) {
+				if ($value === true) {
+					if ($name === $key) {
+						$flag = true;
+						break;
+					}
+				} else {
+					//regexp
+					if ($value [0] === '/') {
+						if (preg_match ( $value, $item ['value'] )) {
+							$flag = true;
+							break;
+						}
+					}
+				}
+			}
+			if ($flag) {
 				unset ( $assoc [$name] );
 				continue;
 			}
