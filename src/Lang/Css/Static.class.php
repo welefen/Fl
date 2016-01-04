@@ -181,7 +181,8 @@ class Fl_Css_Static {
 	 */
 	public static $unMergeProperty = array (
 		//'background' => true, 
-		'display' => '/box|flex/' 
+		'display' => '/box|flex/', 
+		'border-color' => true 
 	);
 
 	/**
