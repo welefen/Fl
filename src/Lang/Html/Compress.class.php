@@ -17,6 +17,7 @@ class Fl_Html_Compress extends Fl_Base {
 	 * @var array
 	 */
 	public $options = array (
+		"trim" => false,  //去除首尾空白字符 
 		"remove_comment" => true,  //移除注释
 		"simple_doctype" => true,  //简化doctype
 		"simple_charset" => true,  //简化charset
@@ -161,6 +162,10 @@ class Fl_Html_Compress extends Fl_Base {
 			if ($end) {
 				break;
 			}
+		}
+		//去除首尾空白字符
+		if ($this->options ['trim']) {
+			return trim ( $this->output );
 		}
 		return $this->output;
 	}
