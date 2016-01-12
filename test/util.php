@@ -106,6 +106,7 @@ function get_cls_options($cate = '') {
 			"options" => array (
 				"remove_comment" => true, 
 				"simple_doctype" => true, 
+				"remove_newline" => false,
 				"newline_to_space" => true, 
 				"tag_to_lower" => true, 
 				"remove_inter_tag_space" => false,  //not safe

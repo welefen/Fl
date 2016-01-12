@@ -439,7 +439,7 @@ class Fl_Html_Compress extends Fl_Base {
 			return $value;
 		}
 		if ($this->options ['remove_newline']) {
-			$value = str_replace ( FL_NEWLINE, FL_SPACE, '' );
+			$value = str_replace ( FL_NEWLINE, '', $value );
 		} else if ($this->options ['newline_to_space']) {
 			$value = str_replace ( FL_NEWLINE, FL_SPACE, $value );
 		}
