@@ -20,6 +20,7 @@ class Fl_Html_Compress extends Fl_Base {
 		"remove_comment" => true,  //移除注释
 		"simple_doctype" => true,  //简化doctype
 		"simple_charset" => true,  //简化charset
+		"remove_newline" => false,  //删除换行符，一般情况下不要启用
 		"newline_to_space" => true,  //换行符转为空格
 		"tag_to_lower" => true,  //小写标签名
 		"remove_html_xmlns" => true,  //移除html的命名空间
@@ -381,14 +382,16 @@ class Fl_Html_Compress extends Fl_Base {
 		if ($token ['type'] === FL_TOKEN_TPL && ! $this->checkTplHasOutput ( $token ['value'] )) {
 			return $comment;
 		}
-		if ($this->options ['newline_to_space']) {
-			$newline = FL_SPACE;
-		} else {
-			$newline = FL_NEWLINE;
-		}
-		$preText = $this->preOutputText;
-		if (! $this->isXML && $preText && substr ( $preText, strlen ( $preText ) - 1, 1 ) == $newline) {
-			return $comment;
+		if (! $this->options ['remove_newline']) {
+			if ($this->options ['newline_to_space']) {
+				$newline = FL_SPACE;
+			} else {
+				$newline = FL_NEWLINE;
+			}
+			$preText = $this->preOutputText;
+			if (! $this->isXML && $preText && substr ( $preText, strlen ( $preText ) - 1, 1 ) == $newline) {
+				return $comment;
+			}
 		}
 		if (Fl_Html_Static::isTag ( $token )) {
 			if (Fl_Html_Static::isSafeTag ( $token ['tag'] )) {
@@ -435,7 +438,9 @@ class Fl_Html_Compress extends Fl_Base {
 		if (strpos ( $value, '//' ) !== false) {
 			return $value;
 		}
-		if ($this->options ['newline_to_space']) {
+		if ($this->options ['remove_newline']) {
+			$value = str_replace ( FL_NEWLINE, FL_SPACE, '' );
+		} else if ($this->options ['newline_to_space']) {
 			$value = str_replace ( FL_NEWLINE, FL_SPACE, $value );
 		}
 		$value = str_replace ( "\t", " ", $value );
