@@ -257,7 +257,9 @@ class Fl_Css_Compress extends Fl_Base {
 		$list = array (
 			'-ms-', 
 			':root', 
-			'-placeholder' 
+			'-placeholder', 
+			':last-child', 
+			':first-child' 
 		);
 		foreach ( $selectors as $selector ) {
 			foreach ( $list as $item ) {
