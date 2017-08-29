@@ -26,6 +26,13 @@ class Fl_Html_TagToken extends Fl_Token {
 
 	/**
 	 * 
+	 * last slash
+	 * @var boolean
+	 */
+	protected $slash = false;
+
+	/**
+	 * 
 	 * tag分析初始化
 	 * @param string $text
 	 */
@@ -38,6 +45,7 @@ class Fl_Html_TagToken extends Fl_Token {
 		$text = trim ( substr ( $text, 1, strlen ( $text ) - 2 ) );
 		//去除最后一个/，但/有可能是模版语法的定界符，这里要加判断
 		if ($text {strlen ( $text ) - 1} === '/') {
+			$this->slash = true;
 			if ($this->tpl && $this->rd) {
 				$lastChars = substr ( $text, strlen ( $text ) - strlen ( $this->rd ) - 1 );
 				if ($lastChars !== $this->rd) {
@@ -77,7 +85,8 @@ class Fl_Html_TagToken extends Fl_Token {
 		$attrs = $this->getAttrs ();
 		return array (
 			'tag' => $tagName, 
-			'attrs' => $attrs 
+			'attrs' => $attrs, 
+			'slash' => $this->slash 
 		);
 	}
 
