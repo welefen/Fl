@@ -958,7 +958,7 @@ http://www.w3.org/TR/selectors/#specificity
 			0, 
 			0 
 		);
-		$notPattern = '/^\:not\(/ies';
+		$notPattern = '/^\:not\(/i';
 		foreach ( $selectorTokens as $item ) {
 			$type = $item ['type'];
 			switch ($type) {
