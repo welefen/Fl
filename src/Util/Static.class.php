@@ -47,7 +47,7 @@ class Fl_Static {
 			return self::getDomain ( $parentUrl ) . $url;
 		}
 		$result = self::getPath ( $parentUrl ) . $url;
-		$pattern = '/\/[\w\-]+\/\.\./ies';
+		$pattern = '/\/[\w\-]+\/\.\./i';
 		while ( true ) {
 			$r = preg_replace ( $pattern, "", $result );
 			if ($r == $result) {

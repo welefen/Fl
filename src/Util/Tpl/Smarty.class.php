@@ -33,7 +33,6 @@ class Fl_Tpl_Smarty implements Fl_Tpl_Interface {
 		"=" 
 	); //"-" 
 
-	
 	/**
 	 * 
 	 * xss temp
@@ -110,7 +109,10 @@ class Fl_Tpl_Smarty implements Fl_Tpl_Interface {
 			);
 			$value = $token ['value'];
 			$tplPattern = "/(" . preg_quote ( $instance->ld, "/" ) . "(.*?)" . preg_quote ( $instance->rd, "/" ) . ")/e";
-			$value = preg_replace ( $tplPattern, "self::xss(true, '\\1', '\\2')", $value );
+			$value = preg_replace_callback ( $tplPattern, array (
+				$this, 
+				'xssCallback' 
+			), $value );
 			$log = $this->xssTmp ['log'];
 			$this->xssTmp = array ();
 			return array (
@@ -118,6 +120,10 @@ class Fl_Tpl_Smarty implements Fl_Tpl_Interface {
 				"log" => $log 
 			);
 		}
+	}
+
+	public function xssCallback($params) {
+		return $this->xss ( true, $params [1], $params [2] );
 	}
 
 	/**

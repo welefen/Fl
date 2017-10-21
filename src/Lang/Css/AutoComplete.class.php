@@ -13,14 +13,14 @@ class Fl_Css_AutoComplete extends Fl_Base {
 	 * css里的配置背景图片的正则
 	 * @var RegExp
 	 */
-	protected $backgroundImgPattern = '/url\s*\(\s*([\'\"]?)([\w\-\/\.]+\.(?:png|jpg|gif|jpeg|ico|cur))(?:\?[^\?\'\"\)\s]*)?\\1\s*\)/ies';
+	protected $backgroundImgPattern = '/url\s*\(\s*([\'\"]?)([\w\-\/\.]+\.(?:png|jpg|gif|jpeg|ico|cur))(?:\?[^\?\'\"\)\s]*)?\\1\s*\)/i';
 
 	/**
 	 * 
 	 * 匹配keyframes的正则
 	 * @var RegExp
 	 */
-	protected $keyFramesPattern = '/@(?:\-(webkit|moz|ms|o)\-)?keyframes\s+([\w\-]+)/ies';
+	protected $keyFramesPattern = '/@(?:\-(webkit|moz|ms|o)\-)?keyframes\s+([\w\-]+)/i';
 
 	/**
 	 * 
@@ -277,9 +277,9 @@ class Fl_Css_AutoComplete extends Fl_Base {
 				continue;
 			}
 			if ($item == 'w3c') {
-				$pattern = '/@keyframes\s+' . $name . '/ies';
+				$pattern = '/@keyframes\s+' . $name . '/i';
 			} else {
-				$pattern = '/@\-' . $item . '\-keyframes\s+' . $name . '/ies';
+				$pattern = '/@\-' . $item . '\-keyframes\s+' . $name . '/i';
 			}
 			//这里为了方便直接通过正则向后匹配
 			if (preg_match ( $pattern, $searchText )) {

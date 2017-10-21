@@ -132,7 +132,7 @@ class Fl_Css_Filter extends Fl_Base {
 	 * 背景图正则
 	 * @var RegExp
 	 */
-	private $backgroundImagePattern = '/url\s*\(\s*([\'\"]?)(.+)\\1\s*\)/ies';
+	private $backgroundImagePattern = '/url\s*\(\s*([\'\"]?)(.+)\\1\s*\)/i';
 
 	/**
 	 * run
@@ -196,7 +196,7 @@ class Fl_Css_Filter extends Fl_Base {
 			return '';
 		}
 		//@import url的正则
-		$pattern = "/^\@import\s*url\s*\(\s*([\'\"])(.*?)\\1\s*\)\s*\;$/ies";
+		$pattern = "/^\@import\s*url\s*\(\s*([\'\"])(.*?)\\1\s*\)\s*\;$/i";
 		preg_match ( $pattern, $token ['value'], $matches );
 		if (empty ( $matches ) || empty ( $matches [2] )) {
 			return '';
@@ -233,7 +233,10 @@ class Fl_Css_Filter extends Fl_Base {
 			}
 		}
 		if (preg_match ( $this->backgroundImagePattern, $value )) {
-			$value = preg_replace ( $this->backgroundImagePattern, "self::replaceImg('\\2', '\\1')", $value );
+			$value = preg_replace_callback ( $this->backgroundImagePattern, array (
+				$this, 
+				'backgroundImageCallback' 
+			), $value );
 			return $value;
 		} else {
 			if ($this->options ['css_value_max_length']) {
@@ -241,6 +244,10 @@ class Fl_Css_Filter extends Fl_Base {
 			}
 		}
 		return $value;
+	}
+
+	public function backgroundImageCallback($params) {
+		return $this->replaceImg ( $params [2], $params [1] );
 	}
 
 	/**

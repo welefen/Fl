@@ -65,7 +65,7 @@ class Fl_Tpl_XTemplate implements Fl_Tpl_Interface {
 			return true;
 		}
 		return false;
-	//		$reg = "/^[A-Za-z\.]+/";
+			//		$reg = "/^[A-Za-z\.]+/";
 	//		if (! preg_match ( $reg, $tplText )) {
 	//			return false;
 	//		}
@@ -121,8 +121,11 @@ class Fl_Tpl_XTemplate implements Fl_Tpl_Interface {
 				'log' => array () 
 			);
 			$value = $token ['value'];
-			$tplPattern = "/(" . preg_quote ( $instance->ld, "/" ) . "(.*?)" . preg_quote ( $instance->rd, "/" ) . ")/e";
-			$value = preg_replace ( $tplPattern, "self::xss(true, '\\1', '\\2')", $value );
+			$tplPattern = "/(" . preg_quote ( $instance->ld, "/" ) . "(.*?)" . preg_quote ( $instance->rd, "/" ) . ")/i";
+			$value = preg_replace_callback ( $tplPattern, array (
+				$this, 
+				'xssCallback' 
+			), $value );
 			$log = $this->xssTmp ['log'];
 			$this->xssTmp = array ();
 			return array (
@@ -130,6 +133,10 @@ class Fl_Tpl_XTemplate implements Fl_Tpl_Interface {
 				"log" => $log 
 			);
 		}
+	}
+
+	public function xssCallback($params) {
+		return $this->xss ( true, $params [1], $params [2] );
 	}
 
 	/**

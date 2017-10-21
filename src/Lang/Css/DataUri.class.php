@@ -90,7 +90,7 @@ class Fl_Css_DataUri extends Fl_Base {
 	 * css里的图片正则
 	 * @var RegExp
 	 */
-	private $backgroundImgPattern = '/url\s*\(\s*([\'\"]?)([\w\-\/\.]+\.(?:png|jpg|gif|jpeg|ico|cur))(?:\?[^\?\'\"\)\s]*)?\\1\s*\)/ies';
+	private $backgroundImgPattern = '/url\s*\(\s*([\'\"]?)([\w\-\/\.]+\.(?:png|jpg|gif|jpeg|ico|cur))(?:\?[^\?\'\"\)\s]*)?\\1\s*\)/i';
 
 	/**
 	 * (non-PHPdoc)
@@ -120,11 +120,18 @@ class Fl_Css_DataUri extends Fl_Base {
 					$this->addOutput ( $token ['value'] );
 			}
 		}
-		$this->css3_output = preg_replace ( $this->backgroundImgPattern, "self::replaceImgToDataUri('\\2')", $this->css3_output );
+		$this->css3_output = preg_replace_callback ( $this->backgroundImgPattern, array (
+			$this, 
+			'backgroundImgCallback' 
+		), $this->css3_output );
 		return array (
 			'ie6' => $this->ie6_output, 
 			'css3' => $this->css3_output 
 		);
+	}
+
+	public function backgroundImgCallback($params) {
+		return $this->replaceImgToDataUri ( $params [2] );
 	}
 
 	/**
@@ -208,8 +215,10 @@ class Fl_Css_DataUri extends Fl_Base {
 				$ie6Attrs [] = $this->attrItemToText ( $ie6Item );
 			}
 			if (! $this->isCss3IgnoreProperty ( $item )) {
-				//$item ['value'] = preg_replace ( $this->backgroundImgPattern, "self::replaceImgToDataUri('\\2')", $item ['value'] );
-				preg_replace ( $this->backgroundImgPattern, "self::genereateImgTimes('\\2')", $item ['value'] );
+				preg_replace_callback ( $this->backgroundImgPattern, array (
+					$this, 
+					'backgroundImgCallback2' 
+				), $item ['value'] );
 				$css3Attrs [] = $this->attrItemToText ( $item );
 			}
 		}
@@ -217,6 +226,10 @@ class Fl_Css_DataUri extends Fl_Base {
 			'ie6' => $token ['value'] . '{' . join ( ";", $ie6Attrs ) . "}", 
 			'css3' => $token ['value'] . "{" . join ( ";", $css3Attrs ) . "}" 
 		);
+	}
+
+	public function backgroundImgCallback2($params) {
+		return $this->genereateImgTimes ( $params [2] );
 	}
 
 	/**
@@ -381,5 +394,4 @@ class Fl_Css_DataUri extends Fl_Base {
 		}
 		return $attrs;
 	}
-
 }

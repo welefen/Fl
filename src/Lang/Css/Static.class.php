@@ -126,9 +126,9 @@ class Fl_Css_Static {
 	 * @var array
 	 */
 	public static $selectorTokenPattern = array (
-		FL_TOKEN_CSS_SELECTOR_ID => "/^\#[\w\-]+$/ies", 
-		FL_TOKEN_CSS_SELECTOR_CLASS => "/^\.[\w\-]+$/ies", 
-		FL_TOKEN_CSS_SELECTOR_TYPE => "/^(?:[\-a-z][\w]*)|(?:[\d\.]+\%)$/ies" 
+		FL_TOKEN_CSS_SELECTOR_ID => "/^\#[\w\-]+$/i", 
+		FL_TOKEN_CSS_SELECTOR_CLASS => "/^\.[\w\-]+$/i", 
+		FL_TOKEN_CSS_SELECTOR_TYPE => "/^(?:[\-a-z][\w]*)|(?:[\d\.]+\%)$/i" 
 	);
 
 	/**
