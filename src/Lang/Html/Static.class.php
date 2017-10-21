@@ -593,7 +593,7 @@ class Fl_Html_Static {
 	 * @return 返回不符合规范的部分
 	 */
 	public static function checkRelValue($value) {
-		$values = split ( FL_SPACE_PATTERN, $value );
+		$values = preg_split ( FL_SPACE_PATTERN, $value );
 		$return = array ();
 		foreach ( $values as $item ) {
 			if (! isset ( self::$relValues [$item] )) {
