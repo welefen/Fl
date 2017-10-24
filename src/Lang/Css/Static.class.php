@@ -440,7 +440,7 @@ class Fl_Css_Static {
 	 * rgb pattern
 	 * @var RegexIterator
 	 */
-	public static $rgbPattern = "/rgb\s*\(\s*(\d+)\s*\,\s*(\d+)\s*\,\s*(\d+)\s*\)/e";
+	public static $rgbPattern = "/rgb\s*\(\s*(\d+)\s*\,\s*(\d+)\s*\,\s*(\d+)\s*\)/i";
 
 	/**
 	 * 
@@ -1373,9 +1373,12 @@ http://www.w3.org/TR/selectors/#specificity
 		if (strpos ( $value, "rgb" ) === false) {
 			return $value;
 		}
-		$replace = "self::rgb2hex(true, '\\1', '\\2', '\\3')";
-		$value = preg_replace ( self::$rgbPattern, $replace, $value );
+		$value = preg_replace_callback ( self::$rgbPattern, 'Fl_Css_Static::rgbCallback', $value );
 		return $value;
+	}
+
+	public static function rgbCallback($params) {
+		return self::rgb2Hex ( true, $params [1], $params [2], $params [3] );
 	}
 
 	/**
