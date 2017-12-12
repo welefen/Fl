@@ -108,7 +108,7 @@ class Fl_Tpl_Smarty implements Fl_Tpl_Interface {
 				'log' => array () 
 			);
 			$value = $token ['value'];
-			$tplPattern = "/(" . preg_quote ( $instance->ld, "/" ) . "(.*?)" . preg_quote ( $instance->rd, "/" ) . ")/e";
+			$tplPattern = "/(" . preg_quote ( $instance->ld, "/" ) . "(.*?)" . preg_quote ( $instance->rd, "/" ) . ")/";
 			$value = preg_replace_callback ( $tplPattern, array (
 				$this, 
 				'xssCallback' 
